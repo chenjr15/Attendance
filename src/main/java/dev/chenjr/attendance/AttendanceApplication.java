@@ -1,22 +1,38 @@
 package dev.chenjr.attendance;
 
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.sql.DataSource;
 
 @SpringBootApplication
-@RestController
-public class DemoApplication {
+@MapperScan("dev.chenjr.attendance.dao")
+public class AttendanceApplication {
 
-public static void main(String[] args) {
-	SpringApplication.run(DemoApplication.class, args);
-}
+    public static void main(String[] args) {
+        SpringApplication.run(AttendanceApplication.class, args);
+    }
 
-@GetMapping("/")
-	public String index(@RequestParam(value = "name", defaultValue = "World") String name) {
-		return String.format("Hello %s!", name);
-	}
+
+    @Bean
+    SqlSessionFactoryBean createSqlSessionFactoryBean(@Autowired DataSource dataSource) {
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        sqlSessionFactoryBean.setDataSource(dataSource);
+        return sqlSessionFactoryBean;
+    }
+
+    @Bean
+    PlatformTransactionManager createTxManager(@Autowired DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
 }

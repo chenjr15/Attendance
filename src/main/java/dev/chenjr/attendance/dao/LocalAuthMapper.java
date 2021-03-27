@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.*;
 
 
 import java.util.List;
-
+//@Mapper
 public interface LocalAuthMapper {
     @Select("SELECT * FROM LocalAuth WHERE id = #{id}")
     LocalAuth getById(@Param("id") long id);

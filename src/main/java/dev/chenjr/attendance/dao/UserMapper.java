@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 //@Component
+// 在Application那里开启包扫描就不用再单个扫描了
+//@Mapper
 public interface UserMapper {
 
     @Select("SELECT * FROM User WHERE id = #{id}")

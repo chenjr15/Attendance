@@ -20,9 +20,6 @@ public class UserService extends BaseService {
         }
         return user;
     }
-//    public User fetchUserByEmail(String email) {
-//        return userMapper.getByEmail(email);
-//    }
 
     public User getUserByEmail(String email) {
         User user = userMapper.getByEmail(email);

@@ -19,8 +19,8 @@ public class AuthService extends BaseService {
     /**
      * 检验账号和密码是否匹配
      *
-     * @param account 邮箱或者手机号
-     * @param password     密码
+     * @param account  邮箱或者手机号
+     * @param password 密码
      * @return 是否匹配
      */
     public Boolean checkPasswordAndAccount(String account, String password) {
@@ -30,8 +30,8 @@ public class AuthService extends BaseService {
         }
         LocalAuth localAuth;
         localAuth = localAuthMapper.getByUid(user.getId());
-        if(localAuth==null){
-            return  false;
+        if (localAuth == null) {
+            return false;
         }
         String correctHash = localAuth.getPassword();
         String encodeHash = this.encodeHash(password, localAuth.getSalt());
@@ -45,27 +45,32 @@ public class AuthService extends BaseService {
         return password + salt;
     }
 
-    public void  changePassword(){
-
+    public void changePassword(long uid, String password) {
+        this.setAuth(uid,password);
     }
-    public LocalAuth getAuth(long uid){
+
+    public LocalAuth getAuth(long uid) {
         return this.localAuthMapper.getByUid(uid);
     }
 
 
-    public void setAuth(long uid, String password) {
+    public boolean setAuth(long uid, String password) {
+        boolean exists = userService.userExists(uid);
+        if (!exists) {
+            return false;
+        }
         String salt = RandomUtil.randomString(12);
         String passwordHash = encodeHash(password, salt);
         LocalAuth localAuth = this.getAuth(uid);
-        if (localAuth == null){
-            // 新建密码登陆
-            localAuth = new LocalAuth(uid, passwordHash,salt);
+        if (localAuth == null) {
+            // 新建密码登陆信息
+            localAuth = new LocalAuth(uid, passwordHash, salt);
             localAuthMapper.insert(localAuth);
-        }else {
+        } else {
             localAuth.setPassword(passwordHash);
             localAuth.setSalt(salt);
             localAuthMapper.update(localAuth);
         }
-
+        return true;
     }
 }

@@ -30,4 +30,15 @@ public interface UserMapper {
 
     @Delete("DELETE FROM User WHERE id = #{id}")
     void deleteById(@Param("id") long id);
+
+    // 判断是否存在，注意这里不能用boolean, 必须要用包装类, 找不到的时候会返回null, 因此需要判断是否为空
+    // 优化：select 1 意味着存在就会返回1, limit 1 表示只要查一行即可(虽然也最多只有一行)
+    @Select("SELECT 1 FROM User WHERE id = #{id} limit 1 ")
+    Boolean idExists(@Param("id") long id);
+
+    @Select("SELECT 1 FROM User WHERE phone = #{phone} limit 1 ")
+    Boolean phoneExists(@Param("phone") String phone);
+
+    @Select("SELECT 1 FROM User WHERE email = #{email} limit 1 ")
+    Boolean emailExists(@Param("email") String email);
 }

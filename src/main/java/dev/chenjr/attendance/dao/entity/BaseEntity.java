@@ -1,12 +1,13 @@
 package dev.chenjr.attendance.dao.entity;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable {
     private Long id;
     private Timestamp createdAt;
     private Timestamp updatedAt;

@@ -21,7 +21,7 @@ public interface LocalAuthMapper {
     void insert(@Param("auth") LocalAuth auth);
 
     /**
-     *  只更新账号密码盐以及更新时间, 根据uid更改
+     *  只更新密码盐以及更新时间, 根据uid更改
      * @param auth 账号密码盐
      */
     @Update("UPDATE LocalAuth SET password=#{auth.password},salt=#{auth.salt} WHERE uid = #{auth.uid}")

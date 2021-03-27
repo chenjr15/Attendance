@@ -24,7 +24,7 @@ public class UserService extends BaseService {
 //        return userMapper.getByEmail(email);
 //    }
 
-    public User getUserByEmail(String email)  {
+    public User getUserByEmail(String email) {
         User user = userMapper.getByEmail(email);
         if (user == null) {
             this.getLogger().debug("User not found by email.");
@@ -32,15 +32,15 @@ public class UserService extends BaseService {
         return user;
     }
 
-    public User getUserByPhone(String phone)  {
+    public User getUserByPhone(String phone) {
         User user = userMapper.getByPhone(phone);
         if (user == null) {
-            this.getLogger().debug("User not found by phone.");
+            this.getLogger().info("User not found by phone.");
         }
         return user;
     }
 
-    public User getUserByAccount(String account)  {
+    public User getUserByAccount(String account) {
         User user = getUserByPhone(account);
         if (user == null) {
             user = getUserByEmail(account);
@@ -49,14 +49,13 @@ public class UserService extends BaseService {
     }
 
 
-
     public List<User> getUsers(int pageIndex) {
         int pageSize = 100;
         return userMapper.getAll((pageIndex - 1) * pageSize, pageSize);
     }
 
     @Transactional
-    public User register( String name,String email,String phone) {
+    public User register(String name, String email, String phone) {
         User user = new User();
         user.setEmail(email);
         user.setName(name);
@@ -64,14 +63,28 @@ public class UserService extends BaseService {
         userMapper.insert(user);
         return user;
     }
-    public User register( User user) {
+
+    public User register(User user) {
         userMapper.insert(user);
         return user;
     }
+
     @Transactional
-    public void updateUser(User user ) {
+    public void updateUser(User user) {
         userMapper.update(user);
     }
 
 
+    public boolean userExists(long uid) {
+        return userMapper.idExists(uid) != null;
+    }
+
+    public boolean userExists(String account) {
+        Boolean exists;
+        exists = userMapper.phoneExists(account);
+        if (exists == null) {
+            exists = userMapper.emailExists(account);
+        }
+        return exists != null;
+    }
 }

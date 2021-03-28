@@ -1,5 +1,10 @@
 package dev.chenjr.attendance.dao.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class LocalAuth extends BaseEntity {
     private long uid;
 
@@ -18,33 +23,5 @@ public class LocalAuth extends BaseEntity {
 
     public LocalAuth() {
 
-    }
-
-
-    public long getUid() {
-        return uid;
-    }
-
-    public void setUid(long uid) {
-        this.uid = uid;
-    }
-
-
-
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
     }
 }

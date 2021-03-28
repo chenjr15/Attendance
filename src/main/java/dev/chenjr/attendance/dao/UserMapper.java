@@ -2,8 +2,6 @@ package dev.chenjr.attendance.dao;
 
 import dev.chenjr.attendance.dao.entity.User;
 import org.apache.ibatis.annotations.*;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 //@Component
@@ -24,10 +22,15 @@ public interface UserMapper {
     List<User> getAll(@Param("offset") int offset, @Param("maxResults") int maxResults);
 
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-    @Insert("INSERT INTO User (name, phone,gender,createdAt) VALUES (#{user.name}, #{user.phone}, #{user.gender})")
+    @Insert("INSERT INTO User (name, phone,gender,roles,locked,enabled,expired) " +
+            "VALUES (#{user.name}, #{user.phone}, #{user.gender}," +
+            "#{user.roles},#{user.locked} ,#{user.enabled},#{user.expired} )")
     void insert(@Param("user") User user);
 
-    @Update("UPDATE User SET name = #{user.name},phone=#{user.phone},gender=#{user.gender} WHERE id = #{user.id}")
+    @Update("UPDATE User SET " +
+            "name = #{user.name},phone=#{user.phone},gender=#{user.gender} ,roles=#{user.roles} " +
+            "locked=#{user.locked} ,enabled=#{user.enabled},expired=#{user.expired} " +
+            "WHERE id = #{user.id}")
     void update(@Param("user") User user);
 
     @Delete("DELETE FROM User WHERE id = #{id}")

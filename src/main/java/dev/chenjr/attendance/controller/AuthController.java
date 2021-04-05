@@ -1,33 +1,37 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.service.AuthService;
+import dev.chenjr.attendance.service.AuthenticationService;
+import dev.chenjr.attendance.service.dto.LoginRequest;
+import dev.chenjr.attendance.service.dto.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import static dev.chenjr.attendance.controller.RestResponse.CODE_WRONG_ARGUMENT;
-
 @RestController
-@RequestMapping("/auth/")
+@RequestMapping("/auth")
 public class AuthController {
     @Autowired
-    AuthService authService;
+    AuthenticationService authenticationService;
 
-    @GetMapping("/login")
-    public RestResponse<?> login(@RequestParam(value = "account") String account, @RequestParam(value = "password") String password) {
-        if (authService.checkPasswordAndAccount(account, password)){
-           return RestResponse.okWithMsg("Login success");
-        }
-        return new RestResponse<>(CODE_WRONG_ARGUMENT,"Incorrect account or password");
+
+    // 这个方法用于在登录后登录验证后返回token
+    @PostMapping("/login")
+    @ResponseBody
+    public RestResponse<String> login(@RequestBody LoginRequest request) {
+        // 尝试登录
+        String token = authenticationService.createLoginToken(request);
+        return RestResponse.okWithData(token);
     }
 
-    @GetMapping("/setPassword")
+
+    @PutMapping("/password/{uid}")
     @ResponseBody
-    public RestResponse<?> setPassword(@RequestParam(value = "uid") Integer uid, @RequestParam(value = "password") String password) {
-        boolean ok = authService.setAuth(uid, password);
-        if (ok){
-            return  RestResponse.ok();
-        }else {
-            return new RestResponse<>(CODE_WRONG_ARGUMENT,"User may not exists.");
+    public RestResponse<?> setPassword(@PathVariable Integer uid, @RequestBody String password) {
+        boolean ok = authenticationService.setAuth(uid, password);
+        if (ok) {
+            return RestResponse.ok();
+        } else {
+            return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), "User may not exists.");
         }
     }
 }

@@ -18,17 +18,20 @@ public interface UserMapper {
     @Select("SELECT * FROM User WHERE phone = #{phone}")
     User getByPhone(@Param("phone") String phone);
 
+    @Select("SELECT * FROM User WHERE loginName = #{loginName}")
+    User getByLoginName(@Param("loginName") String loginName);
+
     @Select("SELECT * FROM User LIMIT #{offset}, #{maxResults}")
     List<User> getAll(@Param("offset") int offset, @Param("maxResults") int maxResults);
 
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-    @Insert("INSERT INTO User (name, phone,gender,roles,locked,enabled,expired) " +
-            "VALUES (#{user.name}, #{user.phone}, #{user.gender}," +
+    @Insert("INSERT INTO User (realName,loginName, phone,gender,roles,locked,enabled,expired) " +
+            "VALUES (#{user.realName},#{user.loginName}, #{user.phone}, #{user.gender}," +
             "#{user.roles},#{user.locked} ,#{user.enabled},#{user.expired} )")
     void insert(@Param("user") User user);
 
     @Update("UPDATE User SET " +
-            "name = #{user.name},phone=#{user.phone},gender=#{user.gender} ,roles=#{user.roles} " +
+            "name = #{user.name},loginName = #{user.loginName},phone=#{user.phone},gender=#{user.gender} ,roles=#{user.roles} " +
             "locked=#{user.locked} ,enabled=#{user.enabled},expired=#{user.expired} " +
             "WHERE id = #{user.id}")
     void update(@Param("user") User user);
@@ -46,4 +49,7 @@ public interface UserMapper {
 
     @Select("SELECT 1 FROM User WHERE email = #{email} limit 1 ")
     Boolean emailExists(@Param("email") String email);
+
+    @Select("SELECT 1 FROM User WHERE loginName = #{loginName} limit 1 ")
+    Boolean loginNameExists(@Param("loginName") String loginName);
 }

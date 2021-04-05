@@ -16,8 +16,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Data
+
 @Component
+@Data
 public class JwtTokenUtil {
 
     private static Key KEY = null;
@@ -25,6 +26,7 @@ public class JwtTokenUtil {
     private String secret;
     @Value("${token.expireTime}")
     private Long expiration;
+
     @Value("${token.header}")
     private String header;
 

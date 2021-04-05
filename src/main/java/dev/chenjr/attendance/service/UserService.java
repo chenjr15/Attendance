@@ -3,15 +3,20 @@ package dev.chenjr.attendance.service;
 import dev.chenjr.attendance.dao.UserMapper;
 import dev.chenjr.attendance.dao.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static dev.chenjr.attendance.service.AuthenticationService.Roles.isValidRoles;
+
 @Service
 public class UserService extends BaseService {
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     public User getUserById(long id) {
         User user = userMapper.getById(id);
@@ -37,12 +42,27 @@ public class UserService extends BaseService {
         return user;
     }
 
+    public User getUserByLoginName(String loginName) {
+        User user = userMapper.getByLoginName(loginName);
+        if (user == null) {
+            this.getLogger().info("User not found by loginName.");
+        }
+        return user;
+    }
+
     public User getUserByAccount(String account) {
         User user = getUserByPhone(account);
         if (user == null) {
             user = getUserByEmail(account);
         }
+
         return user;
+    }
+
+    public boolean checkPasswordHash(String encodedPassword, String rawPassword) {
+
+        this.getLogger().info("encoded: " + encodedPassword + " raw: " + rawPassword);
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
 
@@ -52,11 +72,14 @@ public class UserService extends BaseService {
     }
 
     @Transactional
-    public User register(String name, String email, String phone) {
+    public User register(String name, String email, String phone, String roles) {
         User user = new User();
         user.setEmail(email);
-        user.setName(name);
+        user.setRealName(name);
         user.setPhone(phone);
+        if (isValidRoles(roles)) {
+            user.setRoles(roles);
+        }
         userMapper.insert(user);
         return user;
     }

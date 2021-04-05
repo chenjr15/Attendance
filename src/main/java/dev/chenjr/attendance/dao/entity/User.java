@@ -10,12 +10,11 @@ public class User extends BaseEntity {
     public final static int MALE = 1;
     public final static int FEMALE = 2;
 
-    private String name;
+    private String realName;
+    private String loginName;
     private String email;
     private String phone;
     private int gender;
     private String roles;
-    private boolean locked;
-    private boolean enabled;
-    private boolean expired;
+
 }

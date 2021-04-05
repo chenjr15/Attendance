@@ -1,8 +1,8 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.utils.RandomUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -14,7 +14,6 @@ public class IndexController {
 
     @GetMapping("/")
     @Operation(description = "Hello world！")
-
     @ResponseBody
     public RestResponse<String> index(@RequestParam(value = "name", defaultValue = "World") String name) {
         return RestResponse.okWithData(String.format("Hello %s!", name));

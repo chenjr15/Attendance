@@ -14,6 +14,12 @@ public interface IUserService extends IService {
 
     User getUserByLoginName(String loginName);
 
+    /**
+     * Email/Phone/LoginName
+     *
+     * @param account Email/Phone/LoginName
+     * @return User entity
+     */
     User getUserByAccount(String account);
 
     boolean checkPasswordHash(String encodedPassword, String rawPassword);

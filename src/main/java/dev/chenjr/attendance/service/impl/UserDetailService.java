@@ -3,6 +3,7 @@ package dev.chenjr.attendance.service.impl;
 import dev.chenjr.attendance.entity.AccountInfo;
 import dev.chenjr.attendance.entity.User;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
  * 为了满足同时包含两个服务弄的类
  */
 @Service
+@Slf4j
 public class UserDetailService implements UserDetailsService {
     @Autowired
     UserService userService;

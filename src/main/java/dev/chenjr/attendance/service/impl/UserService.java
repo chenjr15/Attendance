@@ -3,6 +3,7 @@ package dev.chenjr.attendance.service.impl;
 import dev.chenjr.attendance.dao.UserMapper;
 import dev.chenjr.attendance.entity.User;
 import dev.chenjr.attendance.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.util.List;
 import static dev.chenjr.attendance.service.impl.AuthenticationService.Roles.isValidRoles;
 
 @Service
+@Slf4j
 public class UserService extends BaseService implements IUserService {
     @Autowired
     private UserMapper userMapper;
@@ -32,7 +34,7 @@ public class UserService extends BaseService implements IUserService {
     public User getUserByEmail(String email) {
         User user = userMapper.getByEmail(email);
         if (user == null) {
-            this.getLogger().debug("User not found by email.");
+            log.debug("User not found by email.");
         }
         return user;
     }
@@ -41,7 +43,7 @@ public class UserService extends BaseService implements IUserService {
     public User getUserByPhone(String phone) {
         User user = userMapper.getByPhone(phone);
         if (user == null) {
-            this.getLogger().info("User not found by phone.");
+            log.info("User not found by phone.");
         }
         return user;
     }
@@ -50,7 +52,7 @@ public class UserService extends BaseService implements IUserService {
     public User getUserByLoginName(String loginName) {
         User user = userMapper.getByLoginName(loginName);
         if (user == null) {
-            this.getLogger().info("User not found by loginName.");
+            log.info("User not found by loginName.");
         }
         return user;
     }
@@ -61,6 +63,9 @@ public class UserService extends BaseService implements IUserService {
         if (user == null) {
             user = getUserByEmail(account);
         }
+        if (user == null) {
+            user = getUserByLoginName(account);
+        }
 
         return user;
     }
@@ -68,7 +73,7 @@ public class UserService extends BaseService implements IUserService {
     @Override
     public boolean checkPasswordHash(String encodedPassword, String rawPassword) {
 
-        this.getLogger().info("encoded: " + encodedPassword + " raw: " + rawPassword);
+        log.info("encoded: " + encodedPassword + " raw: " + rawPassword);
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 

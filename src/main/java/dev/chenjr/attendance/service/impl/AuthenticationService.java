@@ -7,6 +7,7 @@ import dev.chenjr.attendance.service.IAuthenticationService;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,7 @@ import java.util.Set;
  * Authentication Service 认证服务，处理身份认证(登入登出，用户密码校验，Token校验，权限分配等)
  */
 @Service
+@Slf4j
 public class AuthenticationService extends BaseService implements IAuthenticationService {
 
 
@@ -43,16 +45,16 @@ public class AuthenticationService extends BaseService implements IAuthenticatio
      */
     @Override
     public boolean checkPasswordAndAccount(String account, String rawPassword) {
-        this.getLogger().info("Checking: " + account + " with " + rawPassword);
+        log.info("Checking: " + account + " with " + rawPassword);
         User user = userService.getUserByAccount(account);
         if (user == null) {
-            this.getLogger().info("User not found!");
+            log.info("User not found!");
             return false;
         }
         AccountInfo accountInfo;
         accountInfo = accountInfoMapper.getByUid(user.getId());
         if (accountInfo == null) {
-            this.getLogger().info("localAuth not found!");
+            log.info("localAuth not found!");
 
             return false;
         }
@@ -67,7 +69,7 @@ public class AuthenticationService extends BaseService implements IAuthenticatio
             roles.add(role);
             user.setRoles(StringUtils.collectionToCommaDelimitedString(roles));
         }
-        this.getLogger().error("Not a valid role: " + role);
+        log.error("Not a valid role: " + role);
     }
 
     @Override
@@ -77,7 +79,7 @@ public class AuthenticationService extends BaseService implements IAuthenticatio
             roles.remove(role);
             user.setRoles(StringUtils.collectionToCommaDelimitedString(roles));
         }
-        this.getLogger().error("Not a valid role: " + role);
+        log.error("Not a valid role: " + role);
     }
 
     private String encodeHash(String password) {
@@ -106,7 +108,7 @@ public class AuthenticationService extends BaseService implements IAuthenticatio
 
         String passwordHash = encodeHash(password);
         boolean matches = passwordEncoder.matches(password, passwordHash);
-        this.getLogger().info(String.format("setting password for %d to %s, matched:%b", uid, password, matches));
+        log.info(String.format("setting password for %d to %s, matched:%b", uid, password, matches));
         AccountInfo accountInfo = this.getAuth(uid);
         if (accountInfo == null) {
             // 新建密码登陆信息
@@ -133,7 +135,7 @@ public class AuthenticationService extends BaseService implements IAuthenticatio
         if (!this.checkPasswordAndAccount(loginRequest.getAccount(), loginRequest.getPassword())) {
             throw new BadCredentialsException("The user name or password is not correct.");
         }
-        AccountInfo accountInfo = getAuth(user.getId());
+        AccountInfo accountInfo = this.getAuth(user.getId());
         if (accountInfo.isLocked()) {
             throw new BadCredentialsException("User is forbidden to login");
         }

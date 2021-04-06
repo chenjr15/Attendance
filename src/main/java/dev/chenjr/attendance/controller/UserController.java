@@ -20,8 +20,7 @@ public class UserController {
     UserService userService;
 
 
-    // TODO 移到Account 下
-    @PostMapping("/")
+    @PostMapping("/signup")
     @Operation(description = "注册")
     @ResponseBody
     public RestResponse<String> register(@RequestBody LoginRequest request) {

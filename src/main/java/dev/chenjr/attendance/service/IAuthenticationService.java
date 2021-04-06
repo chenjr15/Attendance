@@ -4,7 +4,8 @@ import dev.chenjr.attendance.entity.AccountInfo;
 import dev.chenjr.attendance.entity.User;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 
-public interface IAuthenticationService {
+
+public interface IAuthenticationService extends IService {
     boolean checkPasswordAndAccount(String account, String rawPassword);
 
     void setUserRole(User user, String role);

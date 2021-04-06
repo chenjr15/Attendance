@@ -61,6 +61,9 @@ public class UserService extends BaseService implements IUserService {
         if (user == null) {
             user = getUserByEmail(account);
         }
+        if (user == null) {
+            user = getUserByLoginName(account);
+        }
 
         return user;
     }

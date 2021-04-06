@@ -145,7 +145,6 @@ public class JwtTokenUtil {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            // claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         } catch (Exception ignored) {
         }
         return claims;

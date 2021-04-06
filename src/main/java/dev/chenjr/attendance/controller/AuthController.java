@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.service.AuthenticationService;
+import dev.chenjr.attendance.service.IAuthenticationService;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     @Autowired
-    AuthenticationService authenticationService;
+    IAuthenticationService authenticationService;
 
 
     // 这个方法用于在登录后登录验证后返回token

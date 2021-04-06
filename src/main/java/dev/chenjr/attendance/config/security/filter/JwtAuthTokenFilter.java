@@ -1,4 +1,4 @@
-package dev.chenjr.attendance.service;
+package dev.chenjr.attendance.config.security.filter;
 
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;

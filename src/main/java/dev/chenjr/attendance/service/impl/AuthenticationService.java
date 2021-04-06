@@ -1,9 +1,11 @@
-package dev.chenjr.attendance.service;
+package dev.chenjr.attendance.service.impl;
 
 import dev.chenjr.attendance.dao.AccountInfoMapper;
-import dev.chenjr.attendance.dao.entity.AccountInfo;
-import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.entity.AccountInfo;
+import dev.chenjr.attendance.entity.User;
+import dev.chenjr.attendance.service.IAuthenticationService;
 import dev.chenjr.attendance.service.dto.LoginRequest;
+import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +22,7 @@ import java.util.Set;
  * Authentication Service 认证服务，处理身份认证(登入登出，用户密码校验，Token校验，权限分配等)
  */
 @Service
-public class AuthenticationService extends BaseService {
+public class AuthenticationService extends BaseService implements IAuthenticationService {
 
 
     @Autowired
@@ -39,6 +41,7 @@ public class AuthenticationService extends BaseService {
      * @param rawPassword 未加密的密码
      * @return 是否匹配
      */
+    @Override
     public boolean checkPasswordAndAccount(String account, String rawPassword) {
         this.getLogger().info("Checking: " + account + " with " + rawPassword);
         User user = userService.getUserByAccount(account);
@@ -57,6 +60,7 @@ public class AuthenticationService extends BaseService {
         return userService.checkPasswordHash(encoded, rawPassword);
     }
 
+    @Override
     public void setUserRole(User user, String role) {
         if (Roles.isValidRole(role)) {
             Set<String> roles = StringUtils.commaDelimitedListToSet(user.getRoles());
@@ -66,6 +70,7 @@ public class AuthenticationService extends BaseService {
         this.getLogger().error("Not a valid role: " + role);
     }
 
+    @Override
     public void unsetUserRole(User user, String role) {
         if (Roles.isValidRole(role)) {
             Set<String> roles = StringUtils.commaDelimitedListToSet(user.getRoles());
@@ -80,15 +85,18 @@ public class AuthenticationService extends BaseService {
         return passwordEncoder.encode(password);
     }
 
+    @Override
     public void changePassword(long uid, String password) {
         this.setAuth(uid, password);
     }
 
+    @Override
     public AccountInfo getAuth(long uid) {
         return this.accountInfoMapper.getByUid(uid);
     }
 
 
+    @Override
     public boolean setAuth(long uid, String password) {
 
         boolean exists = userService.userExists(uid);
@@ -118,6 +126,7 @@ public class AuthenticationService extends BaseService {
      * @param loginRequest 登录请求
      * @return Token
      */
+    @Override
     public String createLoginToken(LoginRequest loginRequest) {
         User user = userService.getUserByAccount(loginRequest.getAccount());
         // TODO 减少数据库查询 只用一次AccountInfo和User

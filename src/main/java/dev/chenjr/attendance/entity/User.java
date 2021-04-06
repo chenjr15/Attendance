@@ -1,4 +1,4 @@
-package dev.chenjr.attendance.dao.entity;
+package dev.chenjr.attendance.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

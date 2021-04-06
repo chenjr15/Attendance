@@ -1,11 +1,11 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.AuthenticationService;
-import dev.chenjr.attendance.service.UserService;
+import dev.chenjr.attendance.entity.User;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.ModifyUserRequest;
 import dev.chenjr.attendance.service.dto.RestResponse;
+import dev.chenjr.attendance.service.impl.AuthenticationService;
+import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

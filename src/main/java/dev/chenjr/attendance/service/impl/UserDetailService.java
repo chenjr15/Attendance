@@ -1,7 +1,8 @@
-package dev.chenjr.attendance.service;
+package dev.chenjr.attendance.service.impl;
 
-import dev.chenjr.attendance.dao.entity.AccountInfo;
-import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.entity.AccountInfo;
+import dev.chenjr.attendance.entity.User;
+import dev.chenjr.attendance.service.dto.MyUserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

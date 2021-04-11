@@ -1,6 +1,5 @@
 package dev.chenjr.attendance.dao.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import dev.chenjr.attendance.dao.entity.Account;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
@@ -14,12 +13,16 @@ import org.apache.ibatis.annotations.Select;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface AccountMapper extends BaseMapper<Account> {
+public interface AccountMapper extends MyBaseMapper<Account> {
     @Select("SELECT * FROM Account WHERE user_id = #{uid}")
     Account getByUid(@Param("uid") long uid);
 
     @Delete("DELETE FROM Account WHERE user_id = #{uid}")
     void deleteByUid(@Param("uid") long uid);
-    @Delete("DELETE FROM Account WHERE account = #{account}")
-    Account getByAccount(@Param("account")String account);
+
+    @Delete("SELECT * FROM Account WHERE account = #{account}")
+    Account getByAccount(@Param("account") String account);
+
+    @Select("SELECT 1 FROM user account=#{account} limit 1 ")
+    Boolean existsByAccount(@Param("account") String account);
 }

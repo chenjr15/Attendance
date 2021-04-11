@@ -1,7 +1,6 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.RolePermission;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
@@ -11,6 +10,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface RolePermissionMapper extends BaseMapper<RolePermission> {
+public interface RolePermissionMapper extends MyBaseMapper<RolePermission> {
 
 }

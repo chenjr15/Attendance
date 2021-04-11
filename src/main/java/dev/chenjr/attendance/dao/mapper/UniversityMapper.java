@@ -1,7 +1,6 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.University;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
@@ -11,6 +10,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface UniversityMapper extends BaseMapper<University> {
+public interface UniversityMapper extends MyBaseMapper<University> {
 
 }

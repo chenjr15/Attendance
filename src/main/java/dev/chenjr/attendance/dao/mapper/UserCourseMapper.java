@@ -1,7 +1,8 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.UserCourse;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
@@ -11,6 +12,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface UserCourseMapper extends BaseMapper<UserCourse> {
+public interface UserCourseMapper extends MyBaseMapper<UserCourse> {
+    @Select("SELECT 1 FROM user WHERE user_id = #{uid},course_id=#{courseId} limit 1 ")
+    Boolean elected(@Param("uid") long uid, @Param("courseId") long courseId);
+
 
 }

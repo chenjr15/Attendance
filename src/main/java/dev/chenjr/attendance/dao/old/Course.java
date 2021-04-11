@@ -1,5 +1,6 @@
-package dev.chenjr.attendance.entity;
+package dev.chenjr.attendance.dao.old;
 
+import dev.chenjr.attendance.dao.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,7 +25,7 @@ public class Course extends BaseEntity {
     @Schema(description = "课程的开课学期", example = "2021-spring")
     private String semester;
     @Schema(description = "创建者的uid", example = "100324")
-    private int creator;
+    private Long creator;
     @Schema(description = "课程状态：未开课，开课中，已结课", example = "1")
     private int state;
     @Schema(description = "开课日期")

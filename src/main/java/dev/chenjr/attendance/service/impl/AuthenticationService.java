@@ -1,8 +1,8 @@
 package dev.chenjr.attendance.service.impl;
 
-import dev.chenjr.attendance.dao.AccountInfoMapper;
-import dev.chenjr.attendance.entity.AccountInfo;
-import dev.chenjr.attendance.entity.User;
+import dev.chenjr.attendance.dao.old.AccountInfo;
+import dev.chenjr.attendance.dao.old.AccountInfoMapper;
+import dev.chenjr.attendance.dao.old.User;
 import dev.chenjr.attendance.service.IAuthenticationService;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.MyUserDetail;

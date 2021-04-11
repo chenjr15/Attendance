@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.entity.User;
+import dev.chenjr.attendance.dao.old.User;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.ModifyUserRequest;
 import dev.chenjr.attendance.service.dto.RestResponse;

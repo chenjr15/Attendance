@@ -1,7 +1,7 @@
 package dev.chenjr.attendance.service.impl;
 
-import dev.chenjr.attendance.dao.UserMapper;
-import dev.chenjr.attendance.entity.User;
+import dev.chenjr.attendance.dao.old.User;
+import dev.chenjr.attendance.dao.old.UserMapper;
 import dev.chenjr.attendance.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

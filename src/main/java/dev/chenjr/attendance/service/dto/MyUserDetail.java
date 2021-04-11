@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.service.dto;
 
-import dev.chenjr.attendance.entity.User;
+import dev.chenjr.attendance.dao.old.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 

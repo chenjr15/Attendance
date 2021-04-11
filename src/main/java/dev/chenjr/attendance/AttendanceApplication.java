@@ -32,4 +32,5 @@ public class AttendanceApplication {
     PlatformTransactionManager createTxManager(@Autowired DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
+    
 }

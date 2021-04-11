@@ -1,6 +1,5 @@
-package dev.chenjr.attendance.dao;
+package dev.chenjr.attendance.dao.old;
 
-import dev.chenjr.attendance.entity.AccountInfo;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

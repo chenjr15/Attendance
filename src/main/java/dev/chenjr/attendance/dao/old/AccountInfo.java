@@ -1,5 +1,6 @@
-package dev.chenjr.attendance.entity;
+package dev.chenjr.attendance.dao.old;
 
+import dev.chenjr.attendance.dao.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

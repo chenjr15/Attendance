@@ -1,8 +1,10 @@
 package dev.chenjr.attendance.dao.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +18,9 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description="Course对象")
+@AllArgsConstructor
+@NoArgsConstructor
+@Schema(description = "Course对象")
 public class Course extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

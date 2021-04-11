@@ -1,10 +1,10 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.dao.old.User;
-import dev.chenjr.attendance.service.dto.LoginRequest;
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.ModifyUserRequest;
+import dev.chenjr.attendance.service.dto.RegisterRequest;
 import dev.chenjr.attendance.service.dto.RestResponse;
-import dev.chenjr.attendance.service.impl.AuthenticationService;
+import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    AuthenticationService authenticationService;
+    AccountService authenticationService;
     @Autowired
     UserService userService;
 
@@ -23,9 +23,9 @@ public class UserController {
     @PostMapping("/signup")
     @Operation(description = "注册")
     @ResponseBody
-    public RestResponse<String> register(@RequestBody LoginRequest request) {
+    public RestResponse<String> register(@RequestBody RegisterRequest request) {
         // 尝试创建Token，失败会报错
-        String token = authenticationService.createLoginToken(request);
+        String token = "";
         return RestResponse.okWithData(token);
     }
 

@@ -1,6 +1,9 @@
 package dev.chenjr.attendance.service;
 
-public interface IShortMessageService extends IService {
+/**
+ * 短信服务接口
+ */
+public interface ISmsService extends IService {
 
     /**
      * 发送验证码 指定手机号和类型

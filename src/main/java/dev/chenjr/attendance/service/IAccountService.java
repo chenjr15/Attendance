@@ -1,0 +1,95 @@
+package dev.chenjr.attendance.service;
+
+
+import dev.chenjr.attendance.dao.entity.Account;
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.service.dto.LoginRequest;
+
+import java.util.List;
+
+
+/**
+ * 认证(Authentication)服务，处理账号相关的东西，账号密码校验、登录方式封禁、密码修改、Token等
+ */
+public interface IAccountService extends IService {
+    boolean checkPasswordAndAccount(String account, String rawPassword);
+
+    /**
+     * 为注册的用户设置用户密码
+     *
+     * @param user        用户实例
+     * @param rawPassword 未加密的原始密码
+     * @return 是否成功
+     */
+    boolean registerAccount(User user, String rawPassword);
+
+    /**
+     * 校验密码是否匹配
+     *
+     * @param encodedPassword 加密后的hash
+     * @param rawPassword     明文密码
+     * @return 是否匹配
+     */
+    boolean checkPasswordHash(String encodedPassword, String rawPassword);
+
+    /**
+     * 获取用户的账号信息
+     *
+     * @param uid  user id
+     * @param type 账号类型
+     * @return 指定的账号信息
+     */
+    Account getAccountInfo(long uid, String type);
+
+    /**
+     * 获取用户的手机账号信息
+     *
+     * @param uid user id
+     * @return 指定的手机账号信息
+     */
+    Account getPhoneAccountInfo(long uid);
+
+    /**
+     * 获取用户所有的Account
+     *
+     * @param uid user id
+     * @return Account 列表
+     */
+    List<Account> getAllAccountInfo(long uid);
+
+    /**
+     * 设置(修改)用户密码
+     * 注册的时候用这个方法会新建所有的Account
+     *
+     * @param uid      user id
+     * @param password 明文密码
+     * @return 成功与否
+     */
+    boolean setUserPassword(long uid, String password);
+
+    /**
+     * 创建用户Token
+     *
+     * @param loginRequest 登陆请求
+     * @return token
+     */
+    String createUserToken(LoginRequest loginRequest);
+
+    /**
+     * 判断账号是否存在，通过id判断
+     *
+     * @param accountId 账号id
+     * @return 是否存在
+     */
+    boolean accountExists(long accountId);
+
+    /**
+     * 判断账号是否存在，通过账号判断
+     *
+     * @param account 账号
+     * @return 是否存在
+     */
+    boolean accountExists(String account);
+
+    User currentUser();
+}

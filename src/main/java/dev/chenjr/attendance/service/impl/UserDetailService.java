@@ -1,10 +1,12 @@
 package dev.chenjr.attendance.service.impl;
 
-import dev.chenjr.attendance.dao.old.AccountInfo;
-import dev.chenjr.attendance.dao.old.User;
+
+import dev.chenjr.attendance.dao.entity.Account;
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,7 +21,7 @@ public class UserDetailService implements UserDetailsService {
     @Autowired
     UserService userService;
     @Autowired
-    AuthenticationService authenticationService;
+    AccountService authenticationService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -28,14 +30,12 @@ public class UserDetailService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Can not find the given username.");
         }
-        AccountInfo auth = authenticationService.getAuth(user.getId());
+        Account auth = authenticationService.getPhoneAccountInfo(user.getId());
         if (auth == null) {
             throw new UsernameNotFoundException("Password may be unset.");
         }
 
-
-        MyUserDetail userDetail = new MyUserDetail(user);
-        userDetail.setPassword(auth.getPassword());
-        return userDetail;
+        //        userDetail.setPassword(auth.getToken());
+        return new MyUserDetail(user, auth.getToken(), AuthorityUtils.NO_AUTHORITIES);
     }
 }

@@ -1,7 +1,9 @@
 package dev.chenjr.attendance.service.impl;
 
-import dev.chenjr.attendance.dao.old.User;
-import dev.chenjr.attendance.dao.old.UserMapper;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static dev.chenjr.attendance.service.impl.AuthenticationService.Roles.isValidRoles;
 
 @Service
 @Slf4j
@@ -23,7 +23,8 @@ public class UserService extends BaseService implements IUserService {
 
     @Override
     public User getUserById(long id) {
-        User user = userMapper.getById(id);
+
+        User user = userMapper.selectById(id);
         if (user == null) {
             throw new RuntimeException("User not found by id.");
         }
@@ -70,18 +71,12 @@ public class UserService extends BaseService implements IUserService {
         return user;
     }
 
-    @Override
-    public boolean checkPasswordHash(String encodedPassword, String rawPassword) {
-
-        log.info("encoded: " + encodedPassword + " raw: " + rawPassword);
-        return passwordEncoder.matches(rawPassword, encodedPassword);
-    }
-
 
     @Override
     public List<User> getUsers(int pageIndex) {
         int pageSize = 100;
-        return userMapper.getAll((pageIndex - 1) * pageSize, pageSize);
+        Page<User> userPage = new Page<>(pageIndex, 10);
+        return userMapper.selectPage(userPage, null).getRecords();
     }
 
     @Override
@@ -91,9 +86,7 @@ public class UserService extends BaseService implements IUserService {
         user.setEmail(email);
         user.setRealName(name);
         user.setPhone(phone);
-        if (isValidRoles(roles)) {
-            user.setRoles(roles);
-        }
+        // TODO 设置role
         userMapper.insert(user);
         return user;
     }
@@ -107,13 +100,13 @@ public class UserService extends BaseService implements IUserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        userMapper.update(user);
+        userMapper.update(user, null);
     }
 
 
     @Override
     public boolean userExists(long uid) {
-        return userMapper.idExists(uid) != null;
+        return userMapper.exists(uid) != null;
     }
 
     @Override

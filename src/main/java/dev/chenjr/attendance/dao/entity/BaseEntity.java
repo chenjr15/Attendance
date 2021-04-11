@@ -17,4 +17,9 @@ public abstract class BaseEntity implements Serializable {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
+    public BaseEntity() {
+        this.createTime = LocalDateTime.now();
+        this.updateTime = this.createTime;
+    }
+
 }

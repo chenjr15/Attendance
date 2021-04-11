@@ -13,7 +13,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @SpringBootApplication
-@MapperScan("dev.chenjr.attendance.dao")
+@MapperScan("dev.chenjr.attendance.dao.mapper")
 public class AttendanceApplication {
 
     public static void main(String[] args) {

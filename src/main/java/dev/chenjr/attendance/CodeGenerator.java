@@ -31,6 +31,7 @@ public class CodeGenerator {
         gc.setOpen(false);
         // 覆盖写
         gc.setFileOverride(false);
+        gc.setSwagger2(true);
         mpg.setGlobalConfig(gc);
 
         // 数据源配置

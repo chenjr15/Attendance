@@ -3,7 +3,9 @@ package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.dto.LoginRequest;
+import dev.chenjr.attendance.service.dto.InputLoginDTO;
+import dev.chenjr.attendance.service.dto.MyUserDetail;
+import dev.chenjr.attendance.service.dto.TokenUidDTO;
 
 import java.util.List;
 
@@ -47,7 +49,7 @@ public interface IAccountService extends IService {
      * @param uid user id
      * @return 指定的手机账号信息
      */
-    Account getPhoneAccountInfo(long uid);
+    Account getOneAccountInfo(long uid);
 
     /**
      * 获取用户所有的Account
@@ -68,12 +70,22 @@ public interface IAccountService extends IService {
     boolean setUserPassword(long uid, String password);
 
     /**
-     * 创建用户Token
+     * 设置(修改)用户密码
+     * 注册的时候用这个方法会新建所有的Account
+     *
+     * @param user     user 实体
+     * @param password 明文密码
+     * @return 成功与否
+     */
+    boolean setUserPassword(User user, String password);
+
+    /**
+     * 登陆并创建用户Token
      *
      * @param loginRequest 登陆请求
      * @return token
      */
-    TokenUidDTO loginAndCreateToken(LoginRequest loginRequest);
+    TokenUidDTO loginAndCreateToken(InputLoginDTO loginRequest);
 
     /**
      * 创建Token
@@ -99,5 +111,5 @@ public interface IAccountService extends IService {
      */
     boolean accountExists(String account);
 
-    User currentUser();
+    MyUserDetail currentUserDetail();
 }

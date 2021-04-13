@@ -1,7 +1,7 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.service.IAccountService;
-import dev.chenjr.attendance.service.dto.LoginRequest;
+import dev.chenjr.attendance.service.dto.InputLoginDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,11 +18,11 @@ public class AuthenticationController {
     @Autowired
     IAccountService accountService;
 
-    
+
     @PostMapping("/login")
     @Operation(description = "这个方法用于在登录后登录验证后返回token和uid")
     @ResponseBody
-    public RestResponse<TokenUidDTO> login(@RequestBody LoginRequest request) {
+    public RestResponse<TokenUidDTO> login(@RequestBody InputLoginDTO request) {
         // 尝试登录
         TokenUidDTO tokenUidDTO = authenticationService.loginAndCreateToken(request);
         return RestResponse.okWithData(tokenUidDTO);
@@ -32,7 +32,7 @@ public class AuthenticationController {
     // 暂时不需要logout, 客户端直接将token销毁即可
     @PostMapping("/logout")
     @ResponseBody
-    public RestResponse<?> logout(@RequestBody LoginRequest request) {
+    public RestResponse<?> logout(@RequestBody InputLoginDTO request) {
         return RestResponse.notImplemented();
     }
 

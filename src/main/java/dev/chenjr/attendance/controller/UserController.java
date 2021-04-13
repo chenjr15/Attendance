@@ -63,7 +63,7 @@ public class UserController {
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")
     @ResponseBody
-    public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody ModifyUserRequest modifyUserRequest) {
+    public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
         return RestResponse.notImplemented();
     }
 }

@@ -12,11 +12,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseDTO {
-
+    @Schema(required = true)
     private String name;
 
     private String description;
 
+    @Schema(defaultValue = "0")
     private Integer state;
 
     private String schedule;
@@ -32,6 +33,13 @@ public class CourseDTO {
 
     private String location;
 
+    private Long checkCount;
+
+    @Schema(description = "学校院系专业ID", example = "102210")
+    private Long schoolMajorID;
+    @Schema(description = "学校院系专业名", example = "xx大学-计算机学院-软件工程专业-软工1班")
+    private String schoolMajorName;
+
     public Course toCourse() {
         return dtoToCourse(this);
     }
@@ -39,6 +47,6 @@ public class CourseDTO {
     public static Course dtoToCourse(CourseDTO dto) {
         return new Course("",
                 dto.name, dto.description, dto.state, dto.schedule, dto.semester,
-                dto.startTime, dto.endTime, dto.teachers, dto.location, 0L);
+                dto.startTime, dto.endTime, dto.teachers, dto.location, 0L, 0L);
     }
 }

@@ -1,8 +1,8 @@
 package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.Course;
-import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.CourseDTO;
+import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.RestResponse;
 
 import java.util.List;
@@ -14,7 +14,9 @@ public interface ICourseService extends IService {
 
     List<Course> getStudentElectedCourse(long uid, long curPage, long pageSize);
 
-    RestResponse<?> electCourse(long uid, long courseId);
+    RestResponse<?> joinCourse(long uid, long courseId);
 
-    RestResponse<?> createCourse(User creator, CourseDTO courseDTO);
+    RestResponse<?> createCourse(MyUserDetail creator, CourseDTO courseDTO);
+
+    boolean deleteCourse(long courseID, MyUserDetail actor);
 }

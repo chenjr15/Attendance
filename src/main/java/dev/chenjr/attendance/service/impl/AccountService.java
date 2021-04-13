@@ -4,7 +4,7 @@ import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.service.IAccountService;
-import dev.chenjr.attendance.service.dto.LoginRequest;
+import dev.chenjr.attendance.service.dto.InputLoginDTO;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
@@ -12,8 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,13 +95,13 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public Account getPhoneAccountInfo(long uid) {
+    public Account getOneAccountInfo(long uid) {
         return this.accountMapper.getByUid(uid);
     }
 
     @Override
     public List<Account> getAllAccountInfo(long uid) {
-        return null;
+        return accountMapper.getAllByUid(uid);
     }
 
 
@@ -116,6 +115,16 @@ public class AccountService extends BaseService implements IAccountService {
         }
 
         User user = userService.getUserById(uid);
+        return this.setUserPassword(user, password);
+    }
+
+    @Override
+    public boolean setUserPassword(User user, String password) {
+        if (user == null) {
+            log.error("got empty user!");
+            return false;
+        }
+        long uid = user.getId();
         String passwordHash = encodeHash(password);
         // 先尝试查询已有的账号
         List<Account> accounts = this.getAllAccountInfo(uid);
@@ -126,7 +135,7 @@ public class AccountService extends BaseService implements IAccountService {
                     Account.fromPhone(uid, user.getPhone(), passwordHash),
                     Account.fromEmail(uid, user.getEmail(), passwordHash)
             );
-            accounts.forEach(accountMapper::insert);
+            accounts.stream().filter(account -> account.getAccount() != null && !"".equals(account.getAccount())).forEach(accountMapper::insert);
         } else {
             // 修改已有账号信息
             accounts.forEach(account -> {
@@ -140,13 +149,13 @@ public class AccountService extends BaseService implements IAccountService {
 
 
     /**
-     * 登录并创建Token 注册后也会调用这个过程
+     * 登录并创建Token
      *
      * @param loginRequest 登录请求
      * @return Token
      */
     @Override
-    public TokenUidDTO loginAndCreateToken(LoginRequest loginRequest) {
+    public TokenUidDTO loginAndCreateToken(InputLoginDTO loginRequest) {
         Account accountInfo = accountMapper.getOneByAccount(loginRequest.getAccount());
         if (accountInfo == null) {
             throw new UsernameNotFoundException("can not found account");
@@ -215,8 +224,12 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public User currentUser() {
-
+    public MyUserDetail currentUserDetail() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info(principal.toString());
+        if (principal instanceof MyUserDetail) {
+            return (MyUserDetail) principal;
+        }
         throw new AuthenticationCredentialsNotFoundException("Cannot found current user!");
 
     }

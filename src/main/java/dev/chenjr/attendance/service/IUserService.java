@@ -29,7 +29,7 @@ public interface IUserService extends IService {
     User getUserByAccount(String account);
 
 
-    List<User> getUsers(int pageIndex);
+    List<UserInfoResponse> getUsers(long pageIndex, long pageSize);
 
     @Transactional
     User register(RegisterRequest request);

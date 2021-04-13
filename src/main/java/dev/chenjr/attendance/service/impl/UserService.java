@@ -13,13 +13,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
 public class UserService extends BaseService implements IUserService {
     @Autowired
     private UserMapper userMapper;
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -58,7 +62,7 @@ public class UserService extends BaseService implements IUserService {
     public User getUserByLoginName(String loginName) {
         User user = userMapper.getByLoginName(loginName);
         if (user == null) {
-            log.info("User not found by loginName.");
+            log.error("User not found by loginName.");
         }
         return user;
     }
@@ -78,10 +82,29 @@ public class UserService extends BaseService implements IUserService {
 
 
     @Override
-    public List<User> getUsers(int pageIndex) {
-        int pageSize = 100;
-        Page<User> userPage = new Page<>(pageIndex, 10);
-        return userMapper.selectPage(userPage, null).getRecords();
+    public List<UserInfoResponse> getUsers(long pageIndex, long pageSize) {
+        Page<User> userPage = new Page<>(pageIndex, pageSize);
+        List<User> records = userMapper.selectPage(userPage, null).getRecords();
+        Stream<UserInfoResponse> infoResponseStream = records.stream().map(this::userToUserInfo);
+        return infoResponseStream.collect(Collectors.toList());
+    }
+
+    private UserInfoResponse userToUserInfo(User user) {
+        UserInfoResponse userInfo = new UserInfoResponse(
+                user.getLoginName(),
+                user.getRealName(),
+                "UNKNOWN",
+                user.getEmail(),
+                user.getPhone(),
+                user.getAcademicId(),
+                0L, "UNKNOWN");
+        // TODO 改到字典类中查询
+        HashMap<Integer, String> genderMap = new HashMap<>();
+        genderMap.put(0, "未知");
+        genderMap.put(1, "男");
+        genderMap.put(2, "女");
+        userInfo.setGender(genderMap.getOrDefault(user.getGender(), "NOT_FOUND"));
+        return userInfo;
     }
 
     @Override

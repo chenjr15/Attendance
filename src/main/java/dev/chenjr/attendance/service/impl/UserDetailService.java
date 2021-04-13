@@ -30,7 +30,7 @@ public class UserDetailService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Can not find the given username.");
         }
-        Account auth = authenticationService.getPhoneAccountInfo(user.getId());
+        Account auth = authenticationService.getOneAccountInfo(user.getId());
         if (auth == null) {
             throw new UsernameNotFoundException("Password may be unset.");
         }

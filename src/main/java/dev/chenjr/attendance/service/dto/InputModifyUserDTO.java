@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
-
-    @Schema(required = true)
-    private String loginName;
+public class InputModifyUserDTO {
     @Schema(description = "真实姓名")
     private String realName;
     @Schema(description = "用户邮箱，可以不填")

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.service.IUserService;
+import dev.chenjr.attendance.service.dto.RegisterRequest;
+import dev.chenjr.attendance.service.dto.UserInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +22,9 @@ public class UserService extends BaseService implements IUserService {
     private UserMapper userMapper;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    AccountService accountService;
 
     @Override
     public User getUserById(long id) {
@@ -81,13 +86,25 @@ public class UserService extends BaseService implements IUserService {
 
     @Override
     @Transactional
-    public User register(String name, String email, String phone, String roles) {
+    public User register(RegisterRequest request) {
+
         User user = new User();
-        user.setEmail(email);
-        user.setRealName(name);
-        user.setPhone(phone);
+        user.setEmail(request.getEmail());
+        user.setRealName(request.getRealName());
+        user.setLoginName(request.getLoginName());
+        user.setPhone(request.getPhone());
+        user.setGender(0);
+        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
+            return null;
+        }
         // TODO 设置role
-        userMapper.insert(user);
+        int inserted = userMapper.insert(user);
+        if (inserted != 1) {
+            // TODO 抛出异常
+            log.error("Fail to insert user!");
+            return null;
+        }
+        accountService.setUserPassword(user, request.getPassword());
         return user;
     }
 

@@ -6,6 +6,7 @@ import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
+import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,8 +146,8 @@ public class AccountService extends BaseService implements IAccountService {
      * @return Token
      */
     @Override
-    public String createUserToken(LoginRequest loginRequest) {
-        Account accountInfo = accountMapper.getByAccount(loginRequest.getAccount());
+    public TokenUidDTO loginAndCreateToken(LoginRequest loginRequest) {
+        Account accountInfo = accountMapper.getOneByAccount(loginRequest.getAccount());
         if (accountInfo == null) {
             throw new UsernameNotFoundException("can not found account");
         }
@@ -154,13 +155,18 @@ public class AccountService extends BaseService implements IAccountService {
         if (accountInfo.getLocked()) {
             throw new BadCredentialsException("User is forbidden to login");
         }
-        if (!this.checkPasswordHash(loginRequest.getPassword(), accountInfo.getToken())) {
+        if (!this.checkPasswordHash(accountInfo.getToken(), loginRequest.getPassword())) {
             throw new BadCredentialsException("The user name or password is not correct.");
         }
+        String token = createToken(user);
+        return new TokenUidDTO(token, user.getId());
 
+    }
+
+    @Override
+    public String createToken(User user) {
         // TODO 获取用户角色信息
-        UserDetails details = new MyUserDetail(user, accountInfo.getToken(), AuthorityUtils.NO_AUTHORITIES);
-        return jwtTokenUtil.generateToken(details);
+        return jwtTokenUtil.generateToken(user);
     }
 
     @Override

@@ -73,7 +73,15 @@ public interface IAccountService extends IService {
      * @param loginRequest 登陆请求
      * @return token
      */
-    String createUserToken(LoginRequest loginRequest);
+    TokenUidDTO loginAndCreateToken(LoginRequest loginRequest);
+
+    /**
+     * 创建Token
+     *
+     * @param user 用户实体
+     * @return 成功返回token，失败返回null
+     */
+    String createToken(User user);
 
     /**
      * 判断账号是否存在，通过id判断

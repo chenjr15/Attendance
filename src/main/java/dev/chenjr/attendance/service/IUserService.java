@@ -2,6 +2,8 @@ package dev.chenjr.attendance.service;
 
 
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.service.dto.RegisterRequest;
+import dev.chenjr.attendance.service.dto.UserInfoResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -30,7 +32,7 @@ public interface IUserService extends IService {
     List<User> getUsers(int pageIndex);
 
     @Transactional
-    User register(String name, String email, String phone, String roles);
+    User register(RegisterRequest request);
 
     User register(User user);
 

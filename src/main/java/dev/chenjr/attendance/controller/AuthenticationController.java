@@ -3,6 +3,8 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.dto.LoginRequest;
 import dev.chenjr.attendance.service.dto.RestResponse;
+import dev.chenjr.attendance.service.dto.TokenUidDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +15,17 @@ public class AuthenticationController {
     @Autowired
     IAccountService authenticationService;
 
+    @Autowired
+    IAccountService accountService;
 
-    // 这个方法用于在登录后登录验证后返回token
+    
     @PostMapping("/login")
+    @Operation(description = "这个方法用于在登录后登录验证后返回token和uid")
     @ResponseBody
-    public RestResponse<String> login(@RequestBody LoginRequest request) {
+    public RestResponse<TokenUidDTO> login(@RequestBody LoginRequest request) {
         // 尝试登录
-        String token = authenticationService.createUserToken(request);
-        return RestResponse.okWithData(token);
+        TokenUidDTO tokenUidDTO = authenticationService.loginAndCreateToken(request);
+        return RestResponse.okWithData(tokenUidDTO);
     }
 
 

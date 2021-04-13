@@ -1,8 +1,10 @@
 package dev.chenjr.attendance.dao.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>
@@ -13,6 +15,8 @@ import lombok.EqualsAndHashCode;
  * @since 2021-04-11
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "用户表，所有系统内的用户都在这个表里")
 public class User extends BaseEntity {
@@ -29,14 +33,11 @@ public class User extends BaseEntity {
 
     private String phone;
 
-    @Schema(name = "学工号，搞得不好会有字母")
+    @Schema(description = "学工号，可能会有字母")
     private String academicId;
-
-    private Long school;
-
-    private Long faculty;
-
-    private Long major;
+    
+    @Schema(description = "学校院系专业的ID")
+    private Long schoolMajor;
 
 
 }

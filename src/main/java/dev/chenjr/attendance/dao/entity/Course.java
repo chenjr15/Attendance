@@ -47,6 +47,7 @@ public class Course extends BaseEntity {
     private String location;
 
     private Long checkCount;
-
+    @Schema(description = "学校院系专业的ID")
+    private Long schoolMajor;
 
 }

@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,6 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "签到记录，记录用户在每门课的签到时间签到地点，对应的签到任务id")
+@TableName("SignupLog")
 public class SignupLog extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

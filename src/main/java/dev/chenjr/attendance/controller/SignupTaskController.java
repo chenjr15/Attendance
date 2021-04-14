@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequestMapping("/signup_tasks")
+@RequestMapping("/signup-tasks")
 @RestController
 public class SignupTaskController {
 

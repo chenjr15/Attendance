@@ -1,6 +1,5 @@
 package dev.chenjr.attendance.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Course对象")
-@TableName("Course")
 public class Course extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

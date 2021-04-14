@@ -1,6 +1,5 @@
 package dev.chenjr.attendance.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(name = "Account对象", description = "Account 表 指定登陆方式，如用户名，邮箱，手机号，其他第三方登陆方式等")
-@TableName("Account")
 public class Account extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

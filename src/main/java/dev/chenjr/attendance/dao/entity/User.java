@@ -1,6 +1,5 @@
 package dev.chenjr.attendance.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +19,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "用户表，所有系统内的用户都在这个表里")
-@TableName("User")
 public class User extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

@@ -16,19 +16,19 @@ import java.util.List;
  * @since 2021-04-11
  */
 public interface AccountMapper extends MyBaseMapper<Account> {
-    @Select("SELECT * FROM Account WHERE user_id = #{uid} LIMIT 1")
+    @Select("SELECT * FROM account WHERE user_id = #{uid} LIMIT 1")
     Account getByUid(@Param("uid") long uid);
 
-    @Select("SELECT * FROM Account WHERE user_id = #{uid} ")
+    @Select("SELECT * FROM account WHERE user_id = #{uid} ")
     List<Account> getAllByUid(@Param("uid") long uid);
 
-    @Delete("DELETE FROM Account WHERE user_id = #{uid}")
+    @Delete("DELETE FROM account WHERE user_id = #{uid}")
     void deleteByUid(@Param("uid") long uid);
 
-    @Select("SELECT * FROM Account WHERE account = #{account}")
+    @Select("SELECT * FROM account WHERE account = #{account}")
     List<Account> getAllByAccount(@Param("account") String account);
 
-    @Select("SELECT * FROM Account WHERE account = #{account} LIMIT 1")
+    @Select("SELECT * FROM account WHERE account = #{account} LIMIT 1")
     Account getOneByAccount(@Param("account") String account);
 
     @Select("SELECT 1 FROM user account=#{account} limit 1 ")

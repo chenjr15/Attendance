@@ -2,6 +2,10 @@ package dev.chenjr.attendance;
 
 
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import dev.chenjr.attendance.config.security.DocInfo;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -33,5 +37,17 @@ public class AttendanceApplication {
     PlatformTransactionManager createTxManager(@Autowired DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
-    
+
+    @Bean
+    public OpenAPI customOpenAPI(@Autowired DocInfo docInfo) {
+        Info info = new Info().
+                title(docInfo.getTitle())
+                .version(docInfo.getVersion())
+                .description(docInfo.getRepo().toString())
+                .contact(docInfo.getContact());
+
+        return new OpenAPI()
+                .components(new Components())
+                .info(info);
+    }
 }

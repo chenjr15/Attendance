@@ -4,6 +4,7 @@ import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
 import dev.chenjr.attendance.service.dto.InputDictionaryDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class DictionaryController {
     @PostMapping("")
     @Operation(description = "添加字典类型")
     @ResponseBody
-    public RestResponse<?> addDictionary(@RequestBody InputDictionaryDTO dictionaryDTO) {
+    public RestResponse<?> addDictionary(@RequestBody @Validated InputDictionaryDTO dictionaryDTO) {
         return RestResponse.notImplemented();
     }
 
@@ -36,7 +37,7 @@ public class DictionaryController {
     @PutMapping("/{dictId}")
     @Operation(description = "修改字典类型")
     @ResponseBody
-    public RestResponse<?> modifyDictionary(@RequestBody InputDictionaryDTO dictionaryDTO, @PathVariable Long dictId) {
+    public RestResponse<?> modifyDictionary(@RequestBody @Validated InputDictionaryDTO dictionaryDTO, @PathVariable Long dictId) {
         return RestResponse.notImplemented();
     }
 

@@ -1,8 +1,8 @@
 package dev.chenjr.attendance.config.security;
 
 import dev.chenjr.attendance.config.security.filter.JwtAuthTokenFilter;
-import dev.chenjr.attendance.config.security.handler.MyAuthencationFailureHandler;
-import dev.chenjr.attendance.config.security.handler.MyAuthenticationSuccessHandler;
+import dev.chenjr.attendance.handler.MyAuthencationFailureHandler;
+import dev.chenjr.attendance.handler.MyAuthenticationSuccessHandler;
 import dev.chenjr.attendance.service.impl.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

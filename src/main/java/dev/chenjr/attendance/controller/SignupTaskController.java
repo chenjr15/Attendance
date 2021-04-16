@@ -1,9 +1,10 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.service.dto.InputSignupTaskDTO;
+import dev.chenjr.attendance.service.dto.InputSignupTaskLogDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.SignupTaskDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class SignupTaskController {
     @PostMapping("")
     @Operation(description = "创建签到任务")
     @ResponseBody
-    public RestResponse<?> addSignupTask(@RequestBody SignupTaskDTO parameterDTO) {
+    public RestResponse<?> addSignupTask(@RequestBody @Validated SignupTaskDTO parameterDTO) {
         return RestResponse.notImplemented();
     }
 
@@ -46,7 +47,7 @@ public class SignupTaskController {
     @PutMapping("/{taskId}")
     @Operation(description = "修改签到任务")
     @ResponseBody
-    public RestResponse<?> modifySignupTask(@RequestBody SignupTaskDTO parameterDTO, @PathVariable Long taskId) {
+    public RestResponse<?> modifySignupTask(@RequestBody @Validated SignupTaskDTO parameterDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
 
@@ -60,16 +61,16 @@ public class SignupTaskController {
 
 
     @PutMapping("/{taskId}/log")
-    @Operation(description = "修改签到记录")
+    @Operation(description = "修改签到任务")
     @ResponseBody
-    public RestResponse<?> modifySignupTaskLog(@RequestBody SignupTaskDTO parameterDTO, @PathVariable Long taskId) {
+    public RestResponse<?> modifySignupTaskLog(@RequestBody @Validated SignupTaskDTO parameterDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
 
     @PostMapping("/{taskId}/log/")
     @Operation(description = "签到")
     @ResponseBody
-    public RestResponse<?> signup(@RequestBody InputSignupTaskDTO signupTaskDTO, @PathVariable Long taskId) {
+    public RestResponse<?> signup(@RequestBody @Validated InputSignupTaskLogDTO signupTaskDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
 }

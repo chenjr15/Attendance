@@ -7,6 +7,7 @@ import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,7 +23,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     @Operation(description = "这个方法用于在登录后登录验证后返回token和uid")
     @ResponseBody
-    public RestResponse<TokenUidDTO> login(@RequestBody InputLoginDTO request) {
+    public RestResponse<TokenUidDTO> login(@RequestBody @Validated InputLoginDTO request) {
         // 尝试登录
         TokenUidDTO tokenUidDTO = authenticationService.loginAndCreateToken(request);
         return RestResponse.okWithData(tokenUidDTO);
@@ -32,7 +33,7 @@ public class AuthenticationController {
     // 暂时不需要logout, 客户端直接将token销毁即可
     @PostMapping("/logout")
     @ResponseBody
-    public RestResponse<?> logout(@RequestBody InputLoginDTO request) {
+    public RestResponse<?> logout(@RequestBody @Validated InputLoginDTO request) {
         return RestResponse.notImplemented();
     }
 

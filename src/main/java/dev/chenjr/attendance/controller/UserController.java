@@ -7,6 +7,7 @@ import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class UserController {
     @PostMapping("")
     @Operation(description = "注册")
     @ResponseBody
-    public RestResponse<TokenUidDTO> register(@RequestBody RegisterRequest request) {
+    public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
         // 尝试创建Token，失败会报错
         String token;
         User user = userService.register(request);

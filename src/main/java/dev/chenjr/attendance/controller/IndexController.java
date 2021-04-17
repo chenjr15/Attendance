@@ -32,4 +32,10 @@ public class IndexController {
         return RestResponse.okWithData(RandomUtil.randomString(length));
     }
 
+    @GetMapping("/randomNumberString")
+    @ResponseBody
+    public RestResponse<String> randomNumberString(@RequestParam(value = "length", defaultValue = "12") Integer length) {
+        return RestResponse.okWithData(RandomUtil.randomNumberString(length));
+    }
+
 }

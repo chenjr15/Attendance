@@ -12,7 +12,7 @@ public interface ISmsService extends IService {
      * @param type  类型
      * @return 发送结果
      */
-    boolean sendCode(String phone, String type);
+    boolean sendCode(String phone, String type) throws Exception;
 
     /**
      * 判断验证码是否有效，匹配、过期

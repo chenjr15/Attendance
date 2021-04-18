@@ -1,5 +1,7 @@
 package dev.chenjr.attendance.service;
 
+import dev.chenjr.attendance.exception.SmsException;
+
 /**
  * 短信服务接口
  */
@@ -12,7 +14,7 @@ public interface ISmsService extends IService {
      * @param type  类型
      * @return 发送结果
      */
-    boolean sendCode(String phone, String type) throws Exception;
+    boolean sendCode(String phone, String type) throws SmsException;
 
     /**
      * 判断验证码是否有效，匹配、过期

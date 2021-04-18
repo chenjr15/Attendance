@@ -4,15 +4,16 @@ import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
+import dev.chenjr.attendance.exception.SmsException;
+import dev.chenjr.attendance.service.ICacheService;
 import dev.chenjr.attendance.service.ISmsService;
+import dev.chenjr.attendance.utils.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -20,12 +21,15 @@ import java.util.Objects;
 public class SmsService implements ISmsService {
     @Autowired
     private Client smsClient;
-    @Value("aliyun.sms.templateCode")
+    @Value("${aliyun.sms.templateCode}")
     private String templateCode;
-    @Value("aliyun.sms.signName")
+    @Value("${aliyun.sms.signName}")
     private String signName;
+    @Autowired
+    private ICacheService cacheService;
 
-    private Map<String, Map<String, String>> codeTypeMap = new HashMap<>();
+    long EXPIRE_TIME = 120;
+
 
     /**
      * 发送验证码 指定手机号和类型
@@ -35,35 +39,42 @@ public class SmsService implements ISmsService {
      * @return 发送结果
      */
     @Override
-    public boolean sendCode(String phone, String type) throws Exception {
+    public boolean sendCode(String phone, String type) throws SmsException {
+        // 生成随机验证代码
+        String smsCode = RandomUtil.randomNumberString(4);
+        // 构造短信发送请求
         SendSmsRequest sendSmsRequest = new SendSmsRequest()
                 .setTemplateCode(templateCode)
                 .setSignName(signName)
+                .setTemplateParam(String.format("{\"code\":\"%s\"}", smsCode))
                 .setPhoneNumbers(phone);
-        SendSmsResponse sendSmsResponse = smsClient.sendSms(sendSmsRequest);
-        String msg = sendSmsResponse.getBody().getMessage();
-        log.info("SMS message" + msg);
-
-        return "OK".equals(sendSmsResponse.getBody().getCode());
+        SendSmsResponse sendSmsResponse;
+        String retCode;
+        // 尝试发送请求
+        try {
+            sendSmsResponse = smsClient.sendSms(sendSmsRequest);
+            log.info(sendSmsResponse.toString());
+            String msg = sendSmsResponse.getBody().getMessage();
+            log.info("SMS message" + msg);
+            retCode = sendSmsResponse.getBody().getCode();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SmsException(e.getMessage());
+        }
+        // 存储随机验证码
+        storeCode(phone, type, smsCode);
+        return "OK".equals(retCode);
     }
 
     private String getCode(String phone, String type) {
-        if (!codeTypeMap.containsKey(type)) {
-            codeTypeMap.put(type, new HashMap<>());
-        }
-        Map<String, String> codeMap = codeTypeMap.get(type);
-        if (!codeMap.containsKey(phone)) {
-            return null;
-        }
-        return codeMap.get(phone);
+
+        String typeHashName = getKeyNameOfTypePhone(type, phone);
+        return cacheService.getValue(typeHashName);
     }
 
     private String storeCode(String phone, String type, String code) {
-        if (!codeTypeMap.containsKey(type)) {
-            codeTypeMap.put(type, new HashMap<>());
-        }
-        Map<String, String> codeMap = codeTypeMap.get(type);
-        codeMap.put(phone, code);
+        String typeHashName = getKeyNameOfTypePhone(type, phone);
+        cacheService.setValue(typeHashName, code, EXPIRE_TIME);
         return code;
     }
 
@@ -94,4 +105,13 @@ public class SmsService implements ISmsService {
         config.endpoint = "dysmsapi.aliyuncs.com";
         return new com.aliyun.dysmsapi20170525.Client(config);
     }
+
+    public String getKeyNameOfTypePhone(String type, String phone) {
+        phone = phone.replaceAll("[+-]", "_");
+        return String.format("SMS_CODE_%s_%s", type, phone);
+    }
+
+//    public String getTypeHashName(String type) {
+//        return String.format("SMS_CODE_%s", type);
+//    }
 }

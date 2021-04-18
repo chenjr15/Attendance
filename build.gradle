@@ -24,7 +24,6 @@ dependencies {
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
 
     //    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
     // 使用mybatis-plus
@@ -34,7 +33,6 @@ dependencies {
 
     //swagger-ui
     implementation 'org.springdoc:springdoc-openapi-ui:1.5.6'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.16'
@@ -52,6 +50,10 @@ dependencies {
     // 阿里云短信依赖
     implementation 'com.aliyun:tea-openapi:0.0.13'
     implementation 'com.aliyun:dysmsapi20170525:2.0.1'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    implementation 'org.apache.commons:commons-pool2'
 
 }
 

@@ -1,29 +1,39 @@
 package dev.chenjr.attendance.service.impl;
 
-import dev.chenjr.attendance.dao.UserMapper;
-import dev.chenjr.attendance.entity.User;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.service.IUserService;
+import dev.chenjr.attendance.service.dto.RegisterRequest;
+import dev.chenjr.attendance.service.dto.UserInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
-
-import static dev.chenjr.attendance.service.impl.AuthenticationService.Roles.isValidRoles;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
 public class UserService extends BaseService implements IUserService {
     @Autowired
     private UserMapper userMapper;
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    AccountService accountService;
+
     @Override
     public User getUserById(long id) {
-        User user = userMapper.getById(id);
+
+        User user = userMapper.selectById(id);
         if (user == null) {
             throw new RuntimeException("User not found by id.");
         }
@@ -52,7 +62,7 @@ public class UserService extends BaseService implements IUserService {
     public User getUserByLoginName(String loginName) {
         User user = userMapper.getByLoginName(loginName);
         if (user == null) {
-            log.info("User not found by loginName.");
+            log.error("User not found by loginName.");
         }
         return user;
     }
@@ -70,31 +80,54 @@ public class UserService extends BaseService implements IUserService {
         return user;
     }
 
-    @Override
-    public boolean checkPasswordHash(String encodedPassword, String rawPassword) {
 
-        log.info("encoded: " + encodedPassword + " raw: " + rawPassword);
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+    @Override
+    public List<UserInfoResponse> getUsers(long pageIndex, long pageSize) {
+        Page<User> userPage = new Page<>(pageIndex, pageSize);
+        List<User> records = userMapper.selectPage(userPage, null).getRecords();
+        Stream<UserInfoResponse> infoResponseStream = records.stream().map(this::userToUserInfo);
+        return infoResponseStream.collect(Collectors.toList());
     }
 
-
-    @Override
-    public List<User> getUsers(int pageIndex) {
-        int pageSize = 100;
-        return userMapper.getAll((pageIndex - 1) * pageSize, pageSize);
+    private UserInfoResponse userToUserInfo(User user) {
+        UserInfoResponse userInfo = new UserInfoResponse(
+                user.getLoginName(),
+                user.getRealName(),
+                "UNKNOWN",
+                user.getEmail(),
+                user.getPhone(),
+                user.getAcademicId(),
+                0L, "UNKNOWN");
+        // TODO 改到字典类中查询
+        HashMap<Integer, String> genderMap = new HashMap<>();
+        genderMap.put(0, "未知");
+        genderMap.put(1, "男");
+        genderMap.put(2, "女");
+        userInfo.setGender(genderMap.getOrDefault(user.getGender(), "NOT_FOUND"));
+        return userInfo;
     }
 
     @Override
     @Transactional
-    public User register(String name, String email, String phone, String roles) {
+    public User register(RegisterRequest request) {
+
         User user = new User();
-        user.setEmail(email);
-        user.setRealName(name);
-        user.setPhone(phone);
-        if (isValidRoles(roles)) {
-            user.setRoles(roles);
+        user.setEmail(request.getEmail());
+        user.setRealName(request.getRealName());
+        user.setLoginName(request.getLoginName());
+        user.setPhone(request.getPhone());
+        user.setGender(0);
+        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
+            return null;
         }
-        userMapper.insert(user);
+        // TODO 设置role
+        int inserted = userMapper.insert(user);
+        if (inserted != 1) {
+            // TODO 抛出异常
+            log.error("Fail to insert user!");
+            return null;
+        }
+        accountService.setUserPassword(user, request.getPassword());
         return user;
     }
 
@@ -107,13 +140,13 @@ public class UserService extends BaseService implements IUserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        userMapper.update(user);
+        userMapper.update(user, null);
     }
 
 
     @Override
     public boolean userExists(long uid) {
-        return userMapper.idExists(uid) != null;
+        return userMapper.exists(uid) != null;
     }
 
     @Override

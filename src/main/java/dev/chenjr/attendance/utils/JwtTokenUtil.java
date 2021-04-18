@@ -1,10 +1,12 @@
 package dev.chenjr.attendance.utils;
 
 
+import dev.chenjr.attendance.dao.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import java.util.Map;
 
 @Component
 @Data
+@Slf4j
 public class JwtTokenUtil {
 
     private static Key KEY = null;
@@ -33,13 +36,14 @@ public class JwtTokenUtil {
     /**
      * 生成token令牌
      *
-     * @param userDetails 用户
+     * @param user 用户实体
      * @return 令token牌
      */
-    public String generateToken(UserDetails userDetails) {
-        System.out.println("[JwtTokenUtils] generateToken " + userDetails.toString());
+    public String generateToken(User user) {
+        log.info("[JwtTokenUtils] generateToken " + user.toString());
         Map<String, Object> claims = new HashMap<>(2);
-        claims.put("sub", userDetails.getUsername());
+        claims.put("sub", user.getLoginName());
+        claims.put("uid", user.getId());
         claims.put("created", new Date());
 
         return generateToken(claims);
@@ -62,6 +66,24 @@ public class JwtTokenUtil {
             username = null;
         }
         return username;
+    }
+
+    /**
+     * 从令牌中获取UID
+     *
+     * @param token 令牌
+     * @return 用户id
+     */
+    public Long getUidFromToken(String token) {
+        Long uid;
+        try {
+            Claims claims = getClaimsFromToken(token);
+            uid = claims.get("uid", Long.class);
+            System.out.println("从令牌中获取UID:" + uid);
+        } catch (Exception e) {
+            uid = null;
+        }
+        return uid;
     }
 
     /**

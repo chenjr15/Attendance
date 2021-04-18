@@ -1,10 +1,16 @@
 package dev.chenjr.attendance.service;
 
-import dev.chenjr.attendance.entity.User;
+
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.service.dto.RegisterRequest;
+import dev.chenjr.attendance.service.dto.UserInfoResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 用户相关业务支持服务
+ */
 public interface IUserService extends IService {
     User getUserById(long id);
 
@@ -22,12 +28,11 @@ public interface IUserService extends IService {
      */
     User getUserByAccount(String account);
 
-    boolean checkPasswordHash(String encodedPassword, String rawPassword);
 
-    List<User> getUsers(int pageIndex);
+    List<UserInfoResponse> getUsers(long pageIndex, long pageSize);
 
     @Transactional
-    User register(String name, String email, String phone, String roles);
+    User register(RegisterRequest request);
 
     User register(User user);
 

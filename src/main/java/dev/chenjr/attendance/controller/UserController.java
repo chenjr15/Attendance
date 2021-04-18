@@ -1,54 +1,70 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.entity.User;
-import dev.chenjr.attendance.service.dto.LoginRequest;
-import dev.chenjr.attendance.service.dto.ModifyUserRequest;
-import dev.chenjr.attendance.service.dto.RestResponse;
-import dev.chenjr.attendance.service.impl.AuthenticationService;
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.service.dto.*;
+import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     @Autowired
-    AuthenticationService authenticationService;
+    AccountService accountService;
     @Autowired
     UserService userService;
 
+    @GetMapping("")
+    @Operation(description = "获取用户列表")
+    @ResponseBody
+    public RestResponse<List<UserInfoResponse>> listUsers(
+            @RequestParam(defaultValue = "1") long curPage,
+            @RequestParam(defaultValue = "10") long pageSize) {
+        List<UserInfoResponse> users = this.userService.getUsers(curPage, pageSize);
+        return RestResponse.okWithData(users);
+    }
 
-    @PostMapping("/signup")
+    @PostMapping("")
     @Operation(description = "注册")
     @ResponseBody
-    public RestResponse<String> register(@RequestBody LoginRequest request) {
+    public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
         // 尝试创建Token，失败会报错
-        String token = authenticationService.createLoginToken(request);
-        return RestResponse.okWithData(token);
+        String token;
+        User user = userService.register(request);
+        if (user == null) {
+            return new RestResponse<>(400, "注册失败！");
+        }
+        token = accountService.createToken(user);
+        return new RestResponse<>(HttpStatus.OK.value(), "注册成功！", new TokenUidDTO(token, user.getId()));
     }
 
     @GetMapping("/{uid}")
     @Operation(description = "获取指定用户的信息")
     @ResponseBody
-    public RestResponse<?> getUser(@PathVariable Integer uid) {
+    public RestResponse<?> getUser(@PathVariable Long uid) {
         User user = userService.getUserById(uid);
         return RestResponse.okWithData(user);
     }
 
     @DeleteMapping("/{uid}")
-    @Operation(description = "删除指定用户")
+    @Operation(description = "注销帐户")
     @ResponseBody
     public RestResponse<?> deleteUser(@PathVariable Integer uid) {
         return RestResponse.notImplemented();
     }
 
 
-    @PutMapping("/{uid}")
+    @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")
     @ResponseBody
-    public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody ModifyUserRequest modifyUserRequest) {
+    public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
         return RestResponse.notImplemented();
     }
 }

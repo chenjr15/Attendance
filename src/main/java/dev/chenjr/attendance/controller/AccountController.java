@@ -1,11 +1,11 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.service.dto.RestResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+/**
+ * 处理单个Account的逻辑
+ */
 @RestController
 @RequestMapping("/account")
 public class AccountController {
@@ -13,6 +13,12 @@ public class AccountController {
     @GetMapping("/{account}")
     @ResponseBody
     public RestResponse<?> getAccountInfo() {
+        return RestResponse.notImplemented();
+    }
+
+    @DeleteMapping("/{account}")
+    @ResponseBody
+    public RestResponse<?> lockAccountInfo() {
         return RestResponse.notImplemented();
     }
 }

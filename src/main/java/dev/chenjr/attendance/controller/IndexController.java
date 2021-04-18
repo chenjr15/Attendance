@@ -19,10 +19,23 @@ public class IndexController {
         return RestResponse.okWithData(String.format("Hello %s!", name));
     }
 
+    @GetMapping("/version")
+    @Operation(description = "Api Version")
+    @ResponseBody
+    public RestResponse<String> version() {
+        return RestResponse.okWithData("alpha.0.1");
+    }
+
     @GetMapping("/randomString")
     @ResponseBody
     public RestResponse<String> randomString(@RequestParam(value = "length", defaultValue = "12") Integer length) {
         return RestResponse.okWithData(RandomUtil.randomString(length));
+    }
+
+    @GetMapping("/randomNumberString")
+    @ResponseBody
+    public RestResponse<String> randomNumberString(@RequestParam(value = "length", defaultValue = "12") Integer length) {
+        return RestResponse.okWithData(RandomUtil.randomNumberString(length));
     }
 
 }

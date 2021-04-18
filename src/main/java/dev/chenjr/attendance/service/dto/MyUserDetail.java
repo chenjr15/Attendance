@@ -1,8 +1,8 @@
 package dev.chenjr.attendance.service.dto;
 
-import dev.chenjr.attendance.entity.User;
+
+import dev.chenjr.attendance.dao.entity.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.Collection;
 
@@ -14,15 +14,17 @@ public class MyUserDetail extends org.springframework.security.core.userdetails.
 
 
     private String password;
+    private Long uid;
 
-    public MyUserDetail(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, authorities);
+    public MyUserDetail(String account, String password, long uid, Collection<? extends GrantedAuthority> authorities) {
+        super(account, password, authorities);
+        this.uid = uid;
 
     }
 
 
-    public MyUserDetail(User user) {
-        this(user.getLoginName(), "", AuthorityUtils.commaSeparatedStringToAuthorityList(user.getRoles()));
+    public MyUserDetail(User user, String password, Collection<? extends GrantedAuthority> authorities) {
+        this(user.getLoginName(), password, user.getId(), authorities);
     }
 
     @Override
@@ -35,5 +37,9 @@ public class MyUserDetail extends org.springframework.security.core.userdetails.
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Long getUid() {
+        return uid;
     }
 }

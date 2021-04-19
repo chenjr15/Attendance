@@ -25,10 +25,10 @@ public class SmsService implements ISmsService {
     private String templateCode;
     @Value("${aliyun.sms.signName}")
     private String signName;
+    @Value("${aliyun.sms.expireTime}")
+    long expireTime = 120;
     @Autowired
     private ICacheService cacheService;
-
-    long EXPIRE_TIME = 120;
 
 
     /**
@@ -40,6 +40,10 @@ public class SmsService implements ISmsService {
      */
     @Override
     public boolean sendCode(String phone, String type) throws SmsException {
+        String oldCode = getCode(phone, type);
+        if (!"".equals(oldCode)) {
+            return true;
+        }
         // 生成随机验证代码
         String smsCode = RandomUtil.randomNumberString(4);
         // 构造短信发送请求
@@ -74,7 +78,7 @@ public class SmsService implements ISmsService {
 
     private String storeCode(String phone, String type, String code) {
         String typeHashName = getKeyNameOfTypePhone(type, phone);
-        cacheService.setValue(typeHashName, code, EXPIRE_TIME);
+        cacheService.setValue(typeHashName, code, expireTime);
         return code;
     }
 

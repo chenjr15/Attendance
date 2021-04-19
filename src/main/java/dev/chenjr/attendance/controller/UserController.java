@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.SmsService;
@@ -42,13 +43,13 @@ public class UserController {
     @ResponseBody
     public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
         if (!smsService.codeValid(request.getPhone(), "register", request.getSmsCode())) {
-            return new RestResponse<>(400, "sms code mismatch", null);
+            throw new RegisterException("sms code mismatch");
         }
         // 尝试创建Token，失败会报错
         String token;
         User user = userService.register(request);
         if (user == null) {
-            return new RestResponse<>(400, "注册失败！");
+            throw new RegisterException("注册失败！");
         }
         token = accountService.createToken(user);
         return new RestResponse<>(HttpStatus.OK.value(), "注册成功！", new TokenUidDTO(token, user.getId()));

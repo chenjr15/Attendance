@@ -41,7 +41,7 @@ public class SmsService implements ISmsService {
     @Override
     public boolean sendCode(String phone, String type) throws SmsException {
         String oldCode = getCode(phone, type);
-        if (!"".equals(oldCode)) {
+        if (oldCode != null && !"".equals(oldCode)) {
             return true;
         }
         // 生成随机验证代码

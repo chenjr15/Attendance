@@ -4,14 +4,16 @@ import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
 import dev.chenjr.attendance.service.dto.InputDictionaryDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequestMapping("/dictionaries")
 @RestController
+@RequestMapping("/dictionaries")
+@Tag(name = "字典项", description = "男女未知")
 public class DictionaryController {
     @PostMapping("")
     @Operation(description = "添加字典类型")

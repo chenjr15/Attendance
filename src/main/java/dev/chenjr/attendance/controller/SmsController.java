@@ -28,7 +28,7 @@ public class SmsController {
         return RestResponse.okWithMsg("Matched");
     }
 
-    @GetMapping("/{type}/{phone}")
+    @PostMapping("/{type}/{phone}")
     @Operation(description = "发送短信验证码")
     @ResponseBody
     public RestResponse<?> sendSmsCode(@PathVariable String type, @PathVariable String phone) {

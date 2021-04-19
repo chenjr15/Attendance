@@ -5,6 +5,7 @@ import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "用户", description = "用户CRUD")
 public class UserController {
 
     @Autowired

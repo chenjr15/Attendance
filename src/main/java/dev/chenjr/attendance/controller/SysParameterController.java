@@ -3,13 +3,15 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.service.dto.InputSysParameterDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequestMapping("/sys-parameters")
 @RestController
+@RequestMapping("/sys-parameters")
+@Tag(name = "系统参数", description = "系统参数CRUD")
 public class SysParameterController {
     @GetMapping("")
     @Operation(description = "列出所有参数")

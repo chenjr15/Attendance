@@ -4,11 +4,13 @@ import dev.chenjr.attendance.exception.CodeMismatch;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/sms")
+@Tag(name = "短信验证码", description = "发送验证码、校验验证码")
 public class SmsController {
     @Autowired
     private ISmsService smsService;
@@ -33,6 +35,6 @@ public class SmsController {
         smsService.sendCode(phone, type);
         return RestResponse.ok();
     }
-    
+
 
 }

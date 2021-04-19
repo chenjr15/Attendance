@@ -8,6 +8,7 @@ import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,15 +16,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/courses")
+@Tag(name = "课程", description = "选课、退课、已选课程、课程编辑")
 public class CourseController {
     @Autowired
     private CourseService courseService;
     @Autowired
     private AccountService accountService;
 
-    @GetMapping("/")
+    @GetMapping(value = "/")
     @Operation(description = "获取所有的班课")
-    @ResponseBody
+    @ResponseBody()
     public RestResponse<List<Course>> getAllCourse(@RequestParam(defaultValue = "0") long curPage, @RequestParam(defaultValue = "10") long pageSize) {
         Page<Course> page = courseService.page(new Page<>(curPage, pageSize));
         List<Course> records = page.getRecords();

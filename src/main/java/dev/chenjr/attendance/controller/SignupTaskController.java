@@ -4,14 +4,16 @@ import dev.chenjr.attendance.service.dto.InputSignupTaskLogDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.SignupTaskDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequestMapping("/signup-tasks")
 @RestController
+@RequestMapping("/signup-tasks")
+@Tag(name = "签到", description = "发起签到和签到")
 public class SignupTaskController {
 
     @GetMapping("")

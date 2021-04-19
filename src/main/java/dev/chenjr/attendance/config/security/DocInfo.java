@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @ConfigurationProperties(prefix = "doc")
 @Data
@@ -15,7 +17,7 @@ public class DocInfo {
     String title;
     String version;
     Contact contact;
-
+    List<String> servers;
     @Component
     @ConfigurationProperties(prefix = "doc.repo")
     @Data

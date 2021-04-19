@@ -97,6 +97,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/password/*",
             "/randomString",
             "/randomNumberString",
+            "/",
+            "/version",
+
     };
 
 

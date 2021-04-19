@@ -3,6 +3,8 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.utils.RandomUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@SecurityRequirements
+@Tag(name = "首页", description = "just for fun")
 public class IndexController {
 
     @GetMapping("/")

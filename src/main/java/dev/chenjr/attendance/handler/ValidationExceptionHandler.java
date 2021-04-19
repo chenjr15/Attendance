@@ -17,7 +17,7 @@ import java.util.TreeMap;
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ValidationExceptionHandler {
-    private static final String BAD_REQUEST_MSG = "BAD_REQUEST:";
+    private static final String BAD_REQUEST_MSG = "BAD_REQUEST";
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)

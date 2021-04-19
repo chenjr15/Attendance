@@ -119,9 +119,9 @@ public class UserService extends BaseService implements IUserService {
         user.setLoginName(request.getLoginName());
         user.setPhone(request.getPhone());
         user.setGender(0);
-        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
-            return null;
-        }
+//        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
+//            return null;
+//        }
         // TODO 设置role
         int inserted = userMapper.insert(user);
         if (inserted != 1) {

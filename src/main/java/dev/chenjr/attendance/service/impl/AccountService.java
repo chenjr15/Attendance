@@ -4,6 +4,8 @@ import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.service.IAccountService;
+import dev.chenjr.attendance.service.ISmsService;
+import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
@@ -30,7 +32,10 @@ public class AccountService extends BaseService implements IAccountService {
 
 
     @Autowired
-    UserService userService;
+    IUserService userService;
+
+    @Autowired
+    ISmsService smsService;
     @Autowired
     AccountMapper accountMapper;
     @Autowired
@@ -163,6 +168,11 @@ public class AccountService extends BaseService implements IAccountService {
         User user = userService.getUserByAccount(loginRequest.getAccount());
         if (accountInfo.getLocked()) {
             throw new BadCredentialsException("User is forbidden to login");
+        }
+        String smsCode = loginRequest.getSmsCode();
+        if (smsCode != null && !smsService.codeValid(loginRequest.getAccount(), "login", smsCode)) {
+
+            throw new BadCredentialsException("sms code mismatch!");
         }
         if (!this.checkPasswordHash(accountInfo.getToken(), loginRequest.getPassword())) {
             throw new BadCredentialsException("The user name or password is not correct.");

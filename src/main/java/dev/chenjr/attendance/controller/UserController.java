@@ -3,6 +3,7 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.service.impl.AccountService;
+import dev.chenjr.attendance.service.impl.SmsService;
 import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,9 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    SmsService smsService;
+
     @GetMapping("")
     @Operation(description = "获取用户列表")
     @ResponseBody
@@ -37,6 +41,9 @@ public class UserController {
     @Operation(description = "注册")
     @ResponseBody
     public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
+        if (!smsService.codeValid(request.getPhone(), "register", request.getSmsCode())) {
+            return new RestResponse<>(400, "sms code mismatch", null);
+        }
         // 尝试创建Token，失败会报错
         String token;
         User user = userService.register(request);

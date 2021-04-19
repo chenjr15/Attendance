@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Size;
+
 @Data
 public class InputLoginDTO {
     @Length(min = 6, max = 20)
@@ -12,4 +14,7 @@ public class InputLoginDTO {
     @Length(min = 5, max = 20)
     @Schema(required = true, description = "密码", example = "my_password")
     private String password;
+    @Size(min = 4, max = 6)
+    @Schema(required = true, description = "短信验证码")
+    private String smsCode;
 }

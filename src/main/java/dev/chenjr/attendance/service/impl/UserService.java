@@ -4,6 +4,7 @@ package dev.chenjr.attendance.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.RegisterRequest;
 import dev.chenjr.attendance.service.dto.UserInfoResponse;
@@ -35,7 +36,7 @@ public class UserService extends BaseService implements IUserService {
 
         User user = userMapper.selectById(id);
         if (user == null) {
-            throw new RuntimeException("User not found by id.");
+            throw new UserNotFoundException("User not found by id.");
         }
         return user;
     }

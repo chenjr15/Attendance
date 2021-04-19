@@ -48,6 +48,10 @@ public class RestResponse<T> implements Serializable {
         return new RestResponse<>(CODE_OK, "OK");
     }
 
+    public static RestResponse<?> badRequest(String msg, Object data) {
+        return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), msg, data);
+    }
+
     public static RestResponse<?> notImplemented() {
         return new RestResponse<>(HttpStatus.NOT_IMPLEMENTED.value(), "还没有实现！");
     }

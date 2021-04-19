@@ -29,12 +29,11 @@ public class DocInfo {
         @Override
         public String toString() {
 
-            String format = "项目仓库<ul>" +
-                    "<li><a href=\"%s\">文档</a></li>" +
-                    "<li><a href=\"%s\">移动端</a></li>" +
-                    "<li><a href=\"%s\">前端</a></li>" +
-                    "<li><a href=\"%s\">后端</a></li>" +
-                    "<ul>";
+            String format = "## 项目仓库:\n" +
+                    "1. [文档](%s)\n" +
+                    "2. [移动端](%s)\n" +
+                    "3. [前端](%s)\n" +
+                    "4. [后端](%s)\n";
             return String.format(format, docs, mobile, frontend, backend);
 
         }

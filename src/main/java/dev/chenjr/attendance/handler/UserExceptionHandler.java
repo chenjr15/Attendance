@@ -5,7 +5,7 @@ import dev.chenjr.attendance.service.dto.RestResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,8 +22,8 @@ public class UserExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public RestResponse<String> handleUsernameNotFoundExceptions(UsernameNotFoundException ex) {
+    @ExceptionHandler(AuthenticationException.class)
+    public RestResponse<String> handleAuthenticationExceptions(AuthenticationException ex) {
         return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
     }
 

@@ -22,7 +22,6 @@ public class SmsController {
 
     @PostMapping("/{type}/{phone}/{code}")
     @Operation(description = "校验短信验证码是否匹配")
-    @ResponseBody
     public RestResponse<Boolean> checkSmsCode(@PathVariable String type, @PathVariable String phone, @PathVariable String code) {
         boolean ok = smsService.codeValid(phone, type, code);
         if (!ok) {
@@ -33,15 +32,20 @@ public class SmsController {
 
     @PostMapping("/{type}/{phone}")
     @Operation(description = "发送短信验证码")
-    @ResponseBody
     public RestResponse<?> sendSmsCode(@PathVariable String type, @PathVariable String phone) {
         smsService.sendCode(phone, type);
         return RestResponse.ok();
     }
 
+    @GetMapping("/{type}/{phone}")
+    @Operation(description = "测试！ 获取短信验证码")
+    public RestResponse<?> getSmsCode(@PathVariable String type, @PathVariable String phone) {
+        String smsCodeTes = smsService.getSmsCodeTes(phone, type);
+        return RestResponse.okWithData(smsCodeTes);
+    }
+
     @PostMapping("")
     @Operation(description = "发送短信验证码")
-    @ResponseBody
     public RestResponse<?> sendSmsCode(@Validated @RequestBody SmsCodeDTO smsCodeDTO) {
         smsService.sendCode(smsCodeDTO.phone, smsCodeDTO.type);
         return RestResponse.ok();

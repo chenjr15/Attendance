@@ -32,7 +32,6 @@ public class UserController {
 
     @GetMapping("")
     @Operation(description = "获取用户列表")
-    @ResponseBody
     public RestResponse<List<UserInfoDTO>> listUsers(
             @RequestParam(defaultValue = "1") long curPage,
             @RequestParam(defaultValue = "10") long pageSize) {
@@ -42,7 +41,6 @@ public class UserController {
 
     @PostMapping("")
     @Operation(description = "注册")
-    @ResponseBody
     public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
         if (!smsService.codeValid(request.getPhone(), "register", request.getSmsCode())) {
             throw new RegisterException("sms code mismatch");
@@ -59,7 +57,6 @@ public class UserController {
 
     @GetMapping("/{uid}")
     @Operation(description = "获取指定用户的信息")
-    @ResponseBody
     public RestResponse<UserInfoDTO> getUser(@PathVariable Long uid) {
         log.info("Getting user:" + uid.toString());
         User user = userService.getUserById(uid);
@@ -68,7 +65,6 @@ public class UserController {
 
     @DeleteMapping("/{uid}")
     @Operation(description = "注销帐户")
-    @ResponseBody
     public RestResponse<?> deleteUser(@PathVariable Integer uid) {
         return RestResponse.notImplemented();
     }
@@ -76,7 +72,6 @@ public class UserController {
 
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")
-    @ResponseBody
     public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
         return RestResponse.notImplemented();
     }

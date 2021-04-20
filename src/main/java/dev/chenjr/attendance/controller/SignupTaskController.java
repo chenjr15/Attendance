@@ -18,7 +18,6 @@ public class SignupTaskController {
 
     @GetMapping("")
     @Operation(description = "列出所有签到任务")
-    @ResponseBody
     public List<SignupTaskDTO> listSignupTasks(
             @RequestParam long curPage, @RequestParam(defaultValue = "10") long pageSize) {
         return new ArrayList<>();
@@ -26,14 +25,12 @@ public class SignupTaskController {
 
     @PostMapping("")
     @Operation(description = "创建签到任务")
-    @ResponseBody
     public RestResponse<?> addSignupTask(@RequestBody @Validated SignupTaskDTO parameterDTO) {
         return RestResponse.notImplemented();
     }
 
     @GetMapping("/{courseId}")
     @Operation(description = "显示某个课程的签到任务信息")
-    @ResponseBody
     public RestResponse<?> getSignupTask(@PathVariable Long courseId, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
@@ -41,14 +38,12 @@ public class SignupTaskController {
 
     @GetMapping("/{taskId}")
     @Operation(description = "列出班课信息")
-    @ResponseBody
     public RestResponse<?> getSignupTask(@PathVariable Long courseId) {
         return RestResponse.notImplemented();
     }
 
     @PutMapping("/{taskId}")
     @Operation(description = "修改签到任务")
-    @ResponseBody
     public RestResponse<?> modifySignupTask(@RequestBody @Validated SignupTaskDTO parameterDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
@@ -56,7 +51,6 @@ public class SignupTaskController {
 
     @DeleteMapping("/{taskId}")
     @Operation(description = "删除签到任务")
-    @ResponseBody
     public RestResponse<?> delSignupTask(@PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
@@ -64,14 +58,12 @@ public class SignupTaskController {
 
     @PutMapping("/{taskId}/log")
     @Operation(description = "修改签到任务")
-    @ResponseBody
     public RestResponse<?> modifySignupTaskLog(@RequestBody @Validated SignupTaskDTO parameterDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
 
     @PostMapping("/{taskId}/log/")
     @Operation(description = "签到")
-    @ResponseBody
     public RestResponse<?> signup(@RequestBody @Validated InputSignupTaskLogDTO signupTaskDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }

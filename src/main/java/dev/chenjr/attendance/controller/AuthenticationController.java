@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "认证", description = "身份认证相关接口,Authentication(who you are), Token 刷新")
 public class AuthenticationController {
     @Autowired

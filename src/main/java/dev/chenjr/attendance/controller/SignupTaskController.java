@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/signup-tasks")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "签到", description = "发起签到和签到")
 public class SignupTaskController {
 

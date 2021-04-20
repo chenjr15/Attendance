@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/dictionaries")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "字典项", description = "男女未知")
 public class DictionaryController {
     @PostMapping("")

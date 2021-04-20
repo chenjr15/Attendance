@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/courses")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "课程", description = "选课、退课、已选课程、课程编辑")
 public class CourseController {
     @Autowired

@@ -12,13 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-
-import static org.springdoc.core.Constants.ALL_PATTERN;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -106,5 +99,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     };
 
-
+//    以下跨域无效，请使用注解@CrossOrigin
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//
+//        CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
+//        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE", "HEAD"));
+//        configuration.setAllowedHeaders(Collections.singletonList(HeaderString));
+//        configuration.setAllowCredentials(true);
+//
+//
+//        configuration.addExposedHeader(HeaderString);
+//        source.registerCorsConfiguration(ALL_PATTERN, configuration);
+//
+//        return source;
+//    }
 }

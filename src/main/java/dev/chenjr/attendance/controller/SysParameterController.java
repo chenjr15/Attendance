@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sys-parameters")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "系统参数", description = "系统参数CRUD")
 public class SysParameterController {
     @GetMapping("")

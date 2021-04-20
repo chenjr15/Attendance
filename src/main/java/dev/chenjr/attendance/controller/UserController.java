@@ -19,6 +19,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "用户", description = "用户CRUD")
 public class UserController {
 

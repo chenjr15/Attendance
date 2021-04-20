@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/sms")
+@CrossOrigin(originPatterns = "*")
 @Tag(name = "短信验证码", description = "发送验证码、校验验证码")
 public class SmsController {
     @Autowired

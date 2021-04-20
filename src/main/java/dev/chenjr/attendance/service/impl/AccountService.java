@@ -170,11 +170,14 @@ public class AccountService extends BaseService implements IAccountService {
             throw new BadCredentialsException("User is forbidden to login");
         }
         String smsCode = loginRequest.getSmsCode();
+        if (smsCode == null && loginRequest.getPassword() == null) {
+            throw new BadCredentialsException("must provide password or sms code");
+        }
         if (smsCode != null && !smsService.codeValid(loginRequest.getAccount(), "login", smsCode)) {
 
             throw new BadCredentialsException("sms code mismatch!");
         }
-        if (!this.checkPasswordHash(accountInfo.getToken(), loginRequest.getPassword())) {
+        if (loginRequest.getPassword() != null && !this.checkPasswordHash(accountInfo.getToken(), loginRequest.getPassword())) {
             throw new BadCredentialsException("The user name or password is not correct.");
         }
         String token = createToken(user);

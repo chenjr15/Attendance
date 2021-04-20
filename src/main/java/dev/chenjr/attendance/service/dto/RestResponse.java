@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
@@ -19,7 +20,11 @@ public class RestResponse<T> implements Serializable {
     public T data;
     @Schema(description = "附加信息")
     public String message;
-
+    // JsonInclude.Include.NON_NULL : 仅在非空的时候才输出这个字段
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String path;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String error;
 
     public RestResponse() {
         this.timestamp = LocalDateTime.now();
@@ -30,6 +35,14 @@ public class RestResponse<T> implements Serializable {
         this();
         this.status = status;
         this.data = data;
+        this.message = message;
+    }
+
+    public RestResponse(Integer status, String message, String path, String error) {
+        this();
+        this.status = status;
+        this.path = path;
+        this.error = error;
         this.message = message;
     }
 
@@ -63,4 +76,18 @@ public class RestResponse<T> implements Serializable {
     public static <X> RestResponse<X> okWithMsg(String msg) {
         return new RestResponse<>(CODE_OK, msg);
     }
+
+    // 错误返回
+    public static RestResponse<?> error(HttpStatus status, String msg, String path) {
+        return new RestResponse<>(status.value(), msg, path, status.name());
+    }
+
+    public static RestResponse<?> error(Integer status, String msg, String path, String error) {
+        return new RestResponse<>(status, msg, path, error);
+    }
+
+    public static RestResponse<?> badRequest(String msg, String path, String error) {
+        return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), msg, path, error);
+    }
+
 }

@@ -12,7 +12,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,19 +25,25 @@ import java.util.TreeMap;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestHandler {
     private static final String BAD_ARGUMENT_MESSAGE = "BAD_ARGUMENT_MESSAGE";
-    
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public RestResponse<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public RestResponse<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<FieldError> fieldErrors = ex.getFieldErrors();
         TreeMap<String, String> errorMap = new TreeMap<>();
         fieldErrors.forEach(fieldError -> errorMap.put(fieldError.getField(), fieldError.getDefaultMessage()));
-        return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), BAD_ARGUMENT_MESSAGE, errorMap);
+        RestResponse<Map<String, String>> response =
+                new RestResponse<>(HttpStatus.BAD_REQUEST.value(), BAD_ARGUMENT_MESSAGE, errorMap);
+        response.path = request.getRequestURI();
+        response.error = HttpStatus.BAD_REQUEST.name();
+        return response;
     }
 
-    @ExceptionHandler({JsonParseException.class, SuperException.class})
-    public RestResponse<?> handleJsonParseException(JsonParseException ex) {
-        log.error(ex.getMessage());
-        return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    @ExceptionHandler({JsonParseException.class, SuperException.class, MethodArgumentTypeMismatchException.class})
+    public RestResponse<?> handleJsonParseException(Exception ex, HttpServletRequest request) {
+
+        log.error(request.toString(), ex.getMessage());
+        return RestResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
+
 
 }

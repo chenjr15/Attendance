@@ -3,10 +3,12 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.exception.CodeMismatch;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.dto.RestResponse;
+import dev.chenjr.attendance.service.dto.SmsCodeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -34,6 +36,14 @@ public class SmsController {
     @ResponseBody
     public RestResponse<?> sendSmsCode(@PathVariable String type, @PathVariable String phone) {
         smsService.sendCode(phone, type);
+        return RestResponse.ok();
+    }
+
+    @PostMapping("")
+    @Operation(description = "发送短信验证码")
+    @ResponseBody
+    public RestResponse<?> sendSmsCode(@Validated @RequestBody SmsCodeDTO smsCodeDTO) {
+        smsService.sendCode(smsCodeDTO.phone, smsCodeDTO.type);
         return RestResponse.ok();
     }
 

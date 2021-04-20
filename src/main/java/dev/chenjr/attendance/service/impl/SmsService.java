@@ -70,6 +70,18 @@ public class SmsService implements ISmsService {
         return "OK".equals(retCode);
     }
 
+    /**
+     * 获取验证码 指定手机号和类型
+     *
+     * @param phone 手机号
+     * @param type  类型
+     * @return 发送结果
+     */
+    @Override
+    public String getSmsCodeTes(String phone, String type) {
+        return this.getCode(phone, type);
+    }
+
     private String getCode(String phone, String type) {
 
         String typeHashName = getKeyNameOfTypePhone(type, phone);

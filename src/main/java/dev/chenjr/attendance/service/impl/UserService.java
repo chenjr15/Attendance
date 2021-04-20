@@ -8,7 +8,7 @@ import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserInfoResponse;
+import dev.chenjr.attendance.service.dto.UserInfoDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -84,15 +84,17 @@ public class UserService extends BaseService implements IUserService {
 
 
     @Override
-    public List<UserInfoResponse> getUsers(long pageIndex, long pageSize) {
+    public List<UserInfoDTO> getUsers(long pageIndex, long pageSize) {
         Page<User> userPage = new Page<>(pageIndex, pageSize);
         List<User> records = userMapper.selectPage(userPage, null).getRecords();
-        Stream<UserInfoResponse> infoResponseStream = records.stream().map(this::userToUserInfo);
+        Stream<UserInfoDTO> infoResponseStream = records.stream().map(this::userToUserInfo);
         return infoResponseStream.collect(Collectors.toList());
     }
 
-    private UserInfoResponse userToUserInfo(User user) {
-        UserInfoResponse userInfo = new UserInfoResponse(
+    @Override
+    public UserInfoDTO userToUserInfo(User user) {
+        UserInfoDTO userInfo = new UserInfoDTO(
+                user.getId(),
                 user.getLoginName(),
                 user.getRealName(),
                 "UNKNOWN",

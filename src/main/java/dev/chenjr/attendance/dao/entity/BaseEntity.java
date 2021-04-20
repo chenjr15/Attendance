@@ -1,5 +1,7 @@
 package dev.chenjr.attendance.dao.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Data
 public abstract class BaseEntity implements Serializable {
     private static final long serialVersionUID = 2522651338542656734L;
+    // JSON 格式不支持太大的数字，需要用字符串处理
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     private Long creator;
     private Long updater;

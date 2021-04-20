@@ -40,10 +40,10 @@ public class JwtTokenUtil {
      * @return 令token牌
      */
     public String generateToken(User user) {
-        log.info("[JwtTokenUtils] generateToken " + user.toString());
+        log.info("[JwtTokenUtils] generateToken " + user.getId().toString());
         Map<String, Object> claims = new HashMap<>(2);
         claims.put("sub", user.getLoginName());
-        claims.put("uid", user.getId());
+        claims.put("uid", user.getId().toString());
         claims.put("created", new Date());
 
         return generateToken(claims);

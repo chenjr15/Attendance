@@ -8,6 +8,7 @@ import dev.chenjr.attendance.service.impl.SmsService;
 import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @Tag(name = "用户", description = "用户CRUD")
@@ -31,10 +33,10 @@ public class UserController {
     @GetMapping("")
     @Operation(description = "获取用户列表")
     @ResponseBody
-    public RestResponse<List<UserInfoResponse>> listUsers(
+    public RestResponse<List<UserInfoDTO>> listUsers(
             @RequestParam(defaultValue = "1") long curPage,
             @RequestParam(defaultValue = "10") long pageSize) {
-        List<UserInfoResponse> users = this.userService.getUsers(curPage, pageSize);
+        List<UserInfoDTO> users = this.userService.getUsers(curPage, pageSize);
         return RestResponse.okWithData(users);
     }
 
@@ -58,9 +60,10 @@ public class UserController {
     @GetMapping("/{uid}")
     @Operation(description = "获取指定用户的信息")
     @ResponseBody
-    public RestResponse<?> getUser(@PathVariable Long uid) {
+    public RestResponse<UserInfoDTO> getUser(@PathVariable Long uid) {
+        log.info("Getting user:" + uid.toString());
         User user = userService.getUserById(uid);
-        return RestResponse.okWithData(user);
+        return RestResponse.okWithData(userService.userToUserInfo(user));
     }
 
     @DeleteMapping("/{uid}")

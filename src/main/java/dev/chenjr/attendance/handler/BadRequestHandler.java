@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,7 +39,7 @@ public class BadRequestHandler {
         return response;
     }
 
-    @ExceptionHandler({JsonParseException.class, SuperException.class, MethodArgumentTypeMismatchException.class})
+    @ExceptionHandler({JsonParseException.class, SuperException.class, MethodArgumentTypeMismatchException.class, AuthenticationException.class})
     public RestResponse<?> handleJsonParseException(Exception ex, HttpServletRequest request) {
 
         log.error(request.toString(), ex.getMessage());

@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.config.security.filter;
 
 import dev.chenjr.attendance.utils.JwtTokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-
+@Slf4j
 @Component
 public class JwtAuthTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -33,7 +34,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
         if (token != null && token.length() > 7) {
             token = token.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            System.out.println(username);
+            log.info("JwtAuthTokenFilter get username :+" + username);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 try {
 

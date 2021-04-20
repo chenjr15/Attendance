@@ -61,7 +61,7 @@ public class JwtTokenUtil {
         try {
             Claims claims = getClaimsFromToken(token);
             username = claims.get("sub", String.class);
-            System.out.println("从令牌中获取用户名:" + username);
+            log.info("get username from token:" + username);
         } catch (Exception e) {
             username = null;
         }
@@ -78,8 +78,9 @@ public class JwtTokenUtil {
         Long uid;
         try {
             Claims claims = getClaimsFromToken(token);
-            uid = claims.get("uid", Long.class);
-            System.out.println("从令牌中获取UID:" + uid);
+            String uidString = claims.get("uid", String.class);
+            uid = Long.valueOf(uidString);
+            log.info("get uid from:" + uid);
         } catch (Exception e) {
             uid = null;
         }
@@ -113,8 +114,6 @@ public class JwtTokenUtil {
         try {
             Claims claims = getClaimsFromToken(token);
             claims.put("created", new Date());
-
-
             refreshedToken = generateToken(claims);
         } catch (Exception e) {
             refreshedToken = null;

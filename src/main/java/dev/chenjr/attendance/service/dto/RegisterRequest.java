@@ -9,7 +9,7 @@ import javax.validation.constraints.*;
 @Data
 public class RegisterRequest {
 
-    @Schema(name = "登录名")
+    @Schema(description = "登录名")
     @Pattern(regexp = "[a-zA-Z][a-zA-Z0-9_-]{3,15}", message = "大小字母小写字母开头后面可以包含下划线")
     private String loginName;
 

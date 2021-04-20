@@ -12,10 +12,7 @@ import java.util.List;
  * 用户相关业务支持服务
  */
 public interface IUserService extends IService {
-
-    String TYPE_LOGIN = "login";
-    String TYPE_REGISTER = "register";
-    String TYPE_RESET_PASSWORD = "reset_password";
+    
 
     User getUserById(long id);
 

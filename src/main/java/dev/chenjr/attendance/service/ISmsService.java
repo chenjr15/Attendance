@@ -6,6 +6,11 @@ import dev.chenjr.attendance.exception.SmsException;
  * 短信服务接口
  */
 public interface ISmsService extends IService {
+    String TYPE_LOGIN = "login";
+    String TYPE_REGISTER = "register";
+    String TYPE_RESET_PASSWORD = "reset_password";
+
+    String[] ALL_TYPES = {TYPE_LOGIN, TYPE_REGISTER, TYPE_RESET_PASSWORD};
 
     /**
      * 发送验证码 指定手机号和类型

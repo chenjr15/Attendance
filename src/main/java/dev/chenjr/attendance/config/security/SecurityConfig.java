@@ -12,13 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-
-import static org.springdoc.core.Constants.ALL_PATTERN;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -35,6 +28,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                // 处理预检(preflight)方法, 不加会导致预检方法403
+                .cors().and()
                 // 认证失败处理类
                 //.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 // 基于token，所以不需要session,这里设置STATELESS(无状态)是在请求是不生成session
@@ -42,8 +37,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().and()
                 //配置权限
                 .authorizeRequests()
-                //对于登录login  验证码captchaImage  允许匿名访问
-//                .antMatchers("/auth/*").anonymous()
                 // swagger
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers(SYSTEM_WHITELIST).permitAll()

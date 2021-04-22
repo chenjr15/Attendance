@@ -3,10 +3,14 @@ package dev.chenjr.attendance.service.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import dev.chenjr.attendance.service.dto.validation.LoginName;
+import dev.chenjr.attendance.service.dto.validation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.Email;
 
 @Data
 @AllArgsConstructor
@@ -16,14 +20,17 @@ public class UserInfoDTO {
     @Schema(type = "string", description = "userid会返回字符串格式的uid以防止json数字精度丢失问题")
     private Long id;
 
+    @LoginName
     private String loginName;
 
     private String realName;
 
     private String gender;
 
+    @Email
     private String email;
-
+    
+    @PhoneNumber
     private String phone;
 
     @Schema(description = "学工号")

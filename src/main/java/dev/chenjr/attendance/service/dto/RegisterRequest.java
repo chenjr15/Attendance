@@ -1,16 +1,22 @@
 package dev.chenjr.attendance.service.dto;
 
+import dev.chenjr.attendance.service.dto.validation.LoginName;
+import dev.chenjr.attendance.service.dto.validation.Password;
+import dev.chenjr.attendance.service.dto.validation.PhoneNumber;
+import dev.chenjr.attendance.service.dto.validation.SmsCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 public class RegisterRequest {
 
     @Schema(description = "登录名")
-    @Pattern(regexp = "[a-zA-Z][a-zA-Z0-9_-]{3,15}", message = "大小字母小写字母开头后面可以包含下划线")
+    @LoginName
     private String loginName;
 
     @Schema(description = "真实姓名")
@@ -21,7 +27,7 @@ public class RegisterRequest {
     @Schema(description = "用户邮箱，可以不填")
     private String email;
     @NotBlank
-    @Size(min = 4, max = 20)
+    @PhoneNumber
     @Schema(required = true)
     private String phone;
     @Schema(description = "性别", example = "0")
@@ -29,9 +35,11 @@ public class RegisterRequest {
     @Schema(description = "用户角色", example = "ROLE_STUDENT")
     private String roles;
 
+    @Password
+    @Schema(description = "用户密码")
     private String password;
-    @NotNull
-    @Pattern(regexp = "\\d{4,6}", message = "only 4-6 digits allowed")
+    
+    @SmsCode
     @Schema(required = true, description = "短信验证码")
     private String smsCode;
 }

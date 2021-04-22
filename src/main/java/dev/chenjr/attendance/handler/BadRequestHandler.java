@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,6 +28,9 @@ import java.util.TreeMap;
 public class BadRequestHandler {
     private static final String BAD_ARGUMENT_MESSAGE = "BAD_ARGUMENT_MESSAGE";
 
+    /**
+     * TODO extends ResponseEntityExceptionHandler
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public RestResponse<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<FieldError> fieldErrors = ex.getFieldErrors();
@@ -36,11 +40,19 @@ public class BadRequestHandler {
                 new RestResponse<>(HttpStatus.BAD_REQUEST.value(), BAD_ARGUMENT_MESSAGE, errorMap);
         response.path = request.getRequestURI();
         response.error = HttpStatus.BAD_REQUEST.name();
+//        ResponseEntityExceptionHandler
         return response;
     }
 
-    @ExceptionHandler({JsonParseException.class, SuperException.class, MethodArgumentTypeMismatchException.class, AuthenticationException.class})
-    public RestResponse<?> handleJsonParseException(Exception ex, HttpServletRequest request) {
+
+    @ExceptionHandler({
+            JsonParseException.class,
+            SuperException.class,
+            MethodArgumentTypeMismatchException.class,
+            HttpRequestMethodNotSupportedException.class,
+            AuthenticationException.class
+    })
+    public RestResponse<?> handleManyException(Exception ex, HttpServletRequest request) {
 
         log.error(request.toString(), ex.getMessage());
         return RestResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());

@@ -1,11 +1,9 @@
 package dev.chenjr.attendance.config.security;
 
 import dev.chenjr.attendance.config.security.filter.JwtAuthTokenFilter;
-import dev.chenjr.attendance.service.impl.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,8 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
-    @Autowired
-    private UserDetailService myUserDetailsService;
+//    @Autowired
+//    private UserDetailService myUserDetailsService;
 
     @Autowired
     private JwtAuthTokenFilter jwtAuthTokenFilter;
@@ -56,11 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //调用DetailsService完成用户身份验证              设置密码加密方式
-        auth.userDetailsService(myUserDetailsService).passwordEncoder(getBCryptPasswordEncoder());
-    }
+//    @Override
+//    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        //调用DetailsService完成用户身份验证              设置密码加密方式
+//        auth.userDetailsService(myUserDetailsService).passwordEncoder(getBCryptPasswordEncoder());
+//    }
 
 
     // 在通过数据库验证登录的方式中不需要配置此种密码加密方式, 因为已经在JWT配置中指定

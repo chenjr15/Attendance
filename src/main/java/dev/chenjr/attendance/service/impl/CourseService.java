@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.chenjr.attendance.dao.entity.Course;
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.entity.UserCourse;
 import dev.chenjr.attendance.dao.mapper.CourseMapper;
 import dev.chenjr.attendance.dao.mapper.UserCourseMapper;
 import dev.chenjr.attendance.service.ICourseService;
 import dev.chenjr.attendance.service.dto.CourseDTO;
-import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,16 +75,15 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     }
 
     @Override
-    public RestResponse<?> createCourse(MyUserDetail creator, CourseDTO courseDTO) {
+    public RestResponse<?> createCourse(User creator, CourseDTO courseDTO) {
         Course course = courseDTO.toCourse();
-        course.setCreator(creator.getUid());
-        course.setUpdater(creator.getUid());
+        course.createBy(creator.getId());
         courseMapper.insert(course);
         return null;
     }
 
     @Override
-    public boolean deleteCourse(long courseID, MyUserDetail actor) {
+    public boolean deleteCourse(long courseID, User actor) {
         return false;
     }
 }

@@ -63,7 +63,7 @@ public class UserController {
 
     @DeleteMapping("/{uid}")
     @Operation(description = "注销帐户")
-    public RestResponse<?> deleteUser(@PathVariable Integer uid) {
+    public RestResponse<?> deleteUser(@PathVariable Long uid) {
         userService.deleteByUid(uid);
         return RestResponse.okWithMsg("删除成功");
     }
@@ -71,7 +71,7 @@ public class UserController {
 
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")
-    public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
+    public RestResponse<?> modifyUser(@PathVariable Long uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
 //        BeanUtils.copyProperties();
         return RestResponse.notImplemented();
     }

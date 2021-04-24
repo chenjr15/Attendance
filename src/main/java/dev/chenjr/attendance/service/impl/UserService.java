@@ -165,7 +165,7 @@ public class UserService extends BaseService implements IUserService {
     }
 
     @Override
-    public void deleteByUid(Integer uid) {
+    public void deleteByUid(long uid) {
         accountMapper.deleteByUid(uid);
         userMapper.deleteById(uid);
     }

@@ -33,6 +33,8 @@ public class JwtTokenUtil {
     @Value("${token.header}")
     private String header;
 
+    public String headerPrefix = "Bearer ";
+
     /**
      * 生成token令牌
      *

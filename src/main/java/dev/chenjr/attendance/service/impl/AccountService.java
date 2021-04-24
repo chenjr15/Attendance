@@ -9,7 +9,6 @@ import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
-import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +55,7 @@ public class AccountService extends BaseService implements IAccountService {
     @Override
     public boolean checkPasswordAndAccount(String account, String rawPassword) {
         log.info("Checking: " + account + " with " + rawPassword);
-        User user = userService.getUserByAccount(account);
+        dev.chenjr.attendance.dao.entity.User user = userService.getUserByAccount(account);
         if (user == null) {
             log.info("User not found!");
             return false;
@@ -73,7 +72,7 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public boolean registerAccount(User user, String rawPassword) {
+    public boolean registerAccount(dev.chenjr.attendance.dao.entity.User user, String rawPassword) {
         return false;
     }
 
@@ -121,12 +120,12 @@ public class AccountService extends BaseService implements IAccountService {
             throw new UserNotFoundException();
         }
 
-        User user = userService.getUserById(uid);
+        dev.chenjr.attendance.dao.entity.User user = userService.getUserById(uid);
         return this.setUserPassword(user, password);
     }
 
     @Override
-    public void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) {
+    public void setUserPasswordWithSmsCode(@NotNull dev.chenjr.attendance.dao.entity.User user, String password, String code) {
         if (user == null) {
             throw new UserNotFoundException("got empty user!");
         }
@@ -138,7 +137,7 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public boolean setUserPassword(User user, String password) {
+    public boolean setUserPassword(dev.chenjr.attendance.dao.entity.User user, String password) {
         if (user == null) {
             throw new UserNotFoundException("got empty user!");
         }
@@ -193,7 +192,7 @@ public class AccountService extends BaseService implements IAccountService {
         if (accountInfo == null) {
             throw new UsernameNotFoundException("can not found account");
         }
-        User user = userService.getUserByAccount(loginRequest.getAccount());
+        dev.chenjr.attendance.dao.entity.User user = userService.getUserByAccount(loginRequest.getAccount());
         if (accountInfo.getLocked()) {
             throw new BadCredentialsException("User is forbidden to login");
         }
@@ -214,7 +213,7 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public String createToken(User user) {
+    public String createToken(dev.chenjr.attendance.dao.entity.User user) {
         // TODO 获取用户角色信息
         return jwtTokenUtil.generateToken(user);
     }
@@ -265,11 +264,11 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public MyUserDetail currentUserDetail() {
+    public User currentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(principal.toString());
-        if (principal instanceof MyUserDetail) {
-            return (MyUserDetail) principal;
+        if (principal instanceof dev.chenjr.attendance.dao.entity.User) {
+            return (User) principal;
         }
         throw new AuthenticationCredentialsNotFoundException("Cannot found current user!");
 

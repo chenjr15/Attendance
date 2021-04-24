@@ -5,7 +5,6 @@ import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.SetPasswordFailException;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
-import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 
 import javax.validation.constraints.NotNull;
@@ -25,7 +24,7 @@ public interface IAccountService extends IService {
      * @param rawPassword 未加密的原始密码
      * @return 是否成功
      */
-    boolean registerAccount(User user, String rawPassword);
+    boolean registerAccount(dev.chenjr.attendance.dao.entity.User user, String rawPassword);
 
     /**
      * 校验密码是否匹配
@@ -80,9 +79,9 @@ public interface IAccountService extends IService {
      * @param password 明文密码
      * @return 成功与否
      */
-    boolean setUserPassword(User user, String password);
+    boolean setUserPassword(dev.chenjr.attendance.dao.entity.User user, String password);
 
-    void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) throws SetPasswordFailException;
+    void setUserPasswordWithSmsCode(@NotNull dev.chenjr.attendance.dao.entity.User user, String password, String code) throws SetPasswordFailException;
 
     /**
      * 登陆并创建用户Token
@@ -98,7 +97,7 @@ public interface IAccountService extends IService {
      * @param user 用户实体
      * @return 成功返回token，失败返回null
      */
-    String createToken(User user);
+    String createToken(dev.chenjr.attendance.dao.entity.User user);
 
     /**
      * 判断账号是否存在，通过id判断
@@ -116,5 +115,5 @@ public interface IAccountService extends IService {
      */
     boolean accountExists(String account);
 
-    MyUserDetail currentUserDetail();
+    User currentUser();
 }

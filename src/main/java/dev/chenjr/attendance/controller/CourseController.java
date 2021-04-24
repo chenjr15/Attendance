@@ -2,8 +2,8 @@ package dev.chenjr.attendance.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.Course;
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.CourseDTO;
-import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.CourseService;
@@ -53,7 +53,7 @@ public class CourseController {
     @Operation(description = "创建课程")
     public RestResponse<?> createCourse(@RequestBody CourseDTO courseDTO) {
 
-        MyUserDetail user = accountService.currentUserDetail();
+        dev.chenjr.attendance.dao.entity.User user = accountService.currentUser();
         // TODO 权限校验
         return courseService.createCourse(user, courseDTO);
     }
@@ -62,7 +62,7 @@ public class CourseController {
     @Operation(description = "删除课程")
     public RestResponse<?> deleteCourse(@PathVariable Long courseID) {
 
-        MyUserDetail user = accountService.currentUserDetail();
+        User user = accountService.currentUser();
         courseService.deleteCourse(courseID, user);
         // TODO 权限校验
         return RestResponse.ok();

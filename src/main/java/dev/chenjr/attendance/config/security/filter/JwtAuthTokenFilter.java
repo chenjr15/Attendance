@@ -1,13 +1,14 @@
 package dev.chenjr.attendance.config.security.filter;
 
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.exception.SuperException;
+import dev.chenjr.attendance.service.impl.UserService;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,33 +25,27 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private UserDetailsService userDetailServiceImpl;
+    private UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //http  请求头中的token
         String token = request.getHeader(jwtTokenUtil.getHeader());
 
-        if (token != null && token.length() > 7) {
-            token = token.substring(7);
-            String username = jwtTokenUtil.getUsernameFromToken(token);
-            log.info("JwtAuthTokenFilter get username :+" + username);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                try {
+        if (token != null && token.length() > jwtTokenUtil.headerPrefix.length()) {
 
-                    UserDetails userDetails = userDetailServiceImpl.loadUserByUsername(username);
-                    if (jwtTokenUtil.validateToken(token, userDetails)) {
-                        //给使用该JWT令牌的用户进行授权
-                        UsernamePasswordAuthenticationToken authenticationToken =
-                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        //设置用户身份授权
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    }
-                } catch (UsernameNotFoundException ignored) {
-
-                }
-
+            token = token.substring(jwtTokenUtil.headerPrefix.length());
+            if (jwtTokenUtil.isTokenExpired(token)) {
+                throw new SuperException("token已过期");
             }
+            Long uid = jwtTokenUtil.getUidFromToken(token);
+            if (uid == null) {
+                throw new SuperException("无效的token");
+            }
+            User user = userService.getUserById(uid);
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         filterChain.doFilter(request, response);
     }

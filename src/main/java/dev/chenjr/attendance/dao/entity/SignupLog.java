@@ -25,11 +25,12 @@ public class SignupLog extends BaseEntity {
 
     private Long courseId;
 
-    private String location;
+    private Double longitude;
+    private Double latitude;
 
     private Long type;
 
-    private String ext;
+    private String extend;
 
 
 }

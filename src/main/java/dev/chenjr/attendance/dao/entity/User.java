@@ -35,9 +35,11 @@ public class User extends BaseEntity {
 
     @Schema(description = "学工号，可能会有字母")
     private String academicId;
-    
+
     @Schema(description = "学校院系专业的ID")
     private Long schoolMajor;
+
+    private String avatar;
 
 
 }

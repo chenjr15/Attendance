@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  *
@@ -21,7 +23,11 @@ public class SignupTask extends BaseEntity {
 
     private Long courseId;
 
-    private String location;
+    private Double longitude;
+    private Double latitude;
+
+    private LocalDateTime deadline;
+    private Boolean finished;
 
     private Long type;
 

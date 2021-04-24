@@ -162,8 +162,9 @@ public class AccountService extends BaseService implements IAccountService {
             accounts.stream()
                     .filter(account -> account.getAccount() != null && !"".equals(account.getAccount()))
                     .forEach(account -> {
+                        log.info("changing: {}", account);
                         account.createBy(uid);
-                        accountMapper.updateToken(account);
+                        accountMapper.insert(account);
                     });
         } else {
             // 修改已有账号信息

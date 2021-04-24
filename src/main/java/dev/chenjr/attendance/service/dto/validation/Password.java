@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, FIELD})
 @Retention(RUNTIME)
 public @interface Password {
-    String message() default "密码需要在6-20位，字母下划线和~!@#$%^&*()+{}|:\"<>?,./;";
+    String message() default "密码需要在6-20位，字母下划线和~!@#$%^&*()+{}|:\"\\<>\\?,\\./;";
 
     Class<?>[] groups() default {};
 

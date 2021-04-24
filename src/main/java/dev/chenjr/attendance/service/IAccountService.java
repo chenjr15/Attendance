@@ -3,10 +3,12 @@ package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.exception.SetPasswordFailException;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
 import dev.chenjr.attendance.service.dto.MyUserDetail;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -69,6 +71,7 @@ public interface IAccountService extends IService {
      */
     boolean setUserPassword(long uid, String password);
 
+
     /**
      * 设置(修改)用户密码
      * 注册的时候用这个方法会新建所有的Account
@@ -78,6 +81,8 @@ public interface IAccountService extends IService {
      * @return 成功与否
      */
     boolean setUserPassword(User user, String password);
+
+    void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) throws SetPasswordFailException;
 
     /**
      * 登陆并创建用户Token

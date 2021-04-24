@@ -40,5 +40,6 @@ public interface ISmsService extends IService {
      */
     boolean codeValid(String phone, String type, String code);
 
+    void codeValidAndThrow(String phone, String type, String code);
 
 }

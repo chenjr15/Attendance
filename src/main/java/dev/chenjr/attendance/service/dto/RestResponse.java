@@ -3,7 +3,6 @@ package dev.chenjr.attendance.service.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
-import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,7 +15,6 @@ public class RestResponse<T> implements Serializable {
     @Schema(description = "状态码", example = "200")
     public Integer status;
     @Schema(description = "请求的数据，依请求而定")
-    @Nullable
     public T data;
     @Schema(description = "附加信息")
     public String message;

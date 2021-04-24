@@ -3,6 +3,7 @@ package dev.chenjr.attendance.service.impl;
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
+import dev.chenjr.attendance.exception.SetPasswordFailException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -121,6 +123,18 @@ public class AccountService extends BaseService implements IAccountService {
 
         User user = userService.getUserById(uid);
         return this.setUserPassword(user, password);
+    }
+
+    @Override
+    public void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) {
+        if (user == null) {
+            throw new UserNotFoundException("got empty user!");
+        }
+        smsService.codeValidAndThrow(user.getPhone(), smsService.TYPE_RESET_PASSWORD, code);
+        if (!setUserPassword(user, password)) {
+            throw new SetPasswordFailException();
+        }
+
     }
 
     @Override

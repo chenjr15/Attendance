@@ -35,6 +35,7 @@ public class RegisterRequest {
     private String password;
 
     @SmsCode
+    @NotBlank
     @Schema(required = true, description = "短信验证码")
     private String smsCode;
 }

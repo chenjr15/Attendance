@@ -1,20 +1,19 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.exception.CodeMismatch;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.InputLoginDTO;
-import dev.chenjr.attendance.service.dto.ResetPasswordDTO;
-import dev.chenjr.attendance.service.dto.RestResponse;
-import dev.chenjr.attendance.service.dto.TokenUidDTO;
+import dev.chenjr.attendance.service.dto.*;
+import dev.chenjr.attendance.service.dto.group.ForgetPasswordGroup;
+import dev.chenjr.attendance.service.dto.group.ResetPasswordGroup;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,25 +55,30 @@ public class AuthenticationController {
     /**
      * 修改密码，放到这里，因为这个是对用户的层面的，要对多个account进行修改
      *
-     * @param uid              user id
+     * @param userDetail       当前登陆的用户
      * @param resetPasswordDTO 重设密码dto
      * @return 设置结果
      */
-    @PutMapping("/password/{uid}")
-    @Operation(description = "修改用户密码，要求先获取短信验证码，type:reset_password")
-    public RestResponse<?> setPassword(@PathVariable Long uid, @RequestBody @Validated ResetPasswordDTO resetPasswordDTO) {
+    @PutMapping("/password")
+    @Operation(description = "修改当前用户密码，_要求先获取短信验证码_，type:`reset_password`, *这里的手机号可以不填*")
+    public RestResponse<?> setPassword(@AuthenticationPrincipal @Parameter(hidden = true) MyUserDetail userDetail,
+                                       @RequestBody @Validated(ResetPasswordGroup.class) ResetPasswordDTO resetPasswordDTO
+    ) {
+        Long uid = userDetail.getUid();
         User user = userService.getUserById(uid);
-        boolean matches = smsService
-                .codeValid(user.getPhone(), smsService.TYPE_RESET_PASSWORD, resetPasswordDTO.getSmsCode());
-        if (!matches) {
-            throw new CodeMismatch();
-        }
-        boolean ok = authenticationService.setUserPassword(user, resetPasswordDTO.getPassword());
-        if (ok) {
-            return RestResponse.ok();
-        } else {
-            return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), "set password fail");
-        }
+        accountService.setUserPasswordWithSmsCode(user, resetPasswordDTO.getPassword(), resetPasswordDTO.getSmsCode());
+        return RestResponse.ok();
+    }
+
+    @PostMapping("/password")
+    @Operation(description = "修改指定用户密码/忘记密码，_要求先获取短信验证码_，type:`reset_password`")
+    public RestResponse<?> setPassword(
+            @RequestBody @Validated(ForgetPasswordGroup.class) ResetPasswordDTO resetPasswordDTO) {
+        User user = userService.getUserByAccount(resetPasswordDTO.getPhone());
+
+        accountService.setUserPasswordWithSmsCode(user, resetPasswordDTO.getPassword(), resetPasswordDTO.getSmsCode());
+
+        return RestResponse.ok();
     }
 }
 

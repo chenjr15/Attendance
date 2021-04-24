@@ -14,14 +14,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PatternValidator<T extends Annotation> implements ConstraintValidator<T, String> {
 
-//    private static final String regexp = ;
-
 
     private final List<Pattern> patterns = new ArrayList<>();
-
-    //    public PatternValidator(String regexp) {
-    //        this.regexp = regexp;
-    //    }
     public void addPattern(Pattern... pattern) {
         this.patterns.addAll(Arrays.asList(pattern));
     }
@@ -49,11 +43,8 @@ public class PatternValidator<T extends Annotation> implements ConstraintValidat
     }
 
     /**
-     * Implements the validation logic.
-     * The state of {@code value} must not be altered.
-     * <p>
-     * This method can be accessed concurrently, thread-safety must be ensured
-     * by the implementation.
+     * 注意这个验证不管空指针(null)，
+     * 空指针需要单独用{@link javax.validation.constraints.NotNull}或{@link javax.validation.constraints.NotBlank}判断
      *
      * @param value   object to validate
      * @param context context in which the constraint is evaluated
@@ -64,10 +55,6 @@ public class PatternValidator<T extends Annotation> implements ConstraintValidat
         if (value == null) {
             return true;
         }
-        //        log.info("payload:{}", Arrays.toString(payload));
-//        context.unwrap(HibernateConstraintValidatorContext.class)
-//                .addMessageParameter("aaa", "ccc")
-//                .buildConstraintViolationWithTemplate("aaa:{aaa}, doldlor aaa:${aaa}");
         return patterns.stream().anyMatch(pattern -> pattern.matcher(value).matches());
     }
 }

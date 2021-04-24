@@ -4,6 +4,7 @@ import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
+import dev.chenjr.attendance.exception.CodeMismatch;
 import dev.chenjr.attendance.exception.SmsException;
 import dev.chenjr.attendance.service.ICacheService;
 import dev.chenjr.attendance.service.ISmsService;
@@ -106,6 +107,13 @@ public class SmsService implements ISmsService {
     @Override
     public boolean codeValid(String phone, String type, String code) {
         return Objects.equals(getCode(phone, type), code);
+    }
+
+    @Override
+    public void codeValidAndThrow(String phone, String type, String code) {
+        if (!Objects.equals(getCode(phone, type), code)) {
+            throw new CodeMismatch();
+        }
     }
 
     @Bean

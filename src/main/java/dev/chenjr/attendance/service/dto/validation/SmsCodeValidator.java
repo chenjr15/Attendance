@@ -2,7 +2,7 @@ package dev.chenjr.attendance.service.dto.validation;
 
 public class SmsCodeValidator extends PatternValidator<SmsCode> {
 
-    public static final String RE_SMS_CODE = "$\\d{4,6}^";
+    public static final String RE_SMS_CODE = "^\\d{4,6}$";
 
     @Override
     public void initialize(SmsCode constraintAnnotation) {

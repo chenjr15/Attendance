@@ -1,7 +1,12 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.exception.CodeMismatch;
 import dev.chenjr.attendance.service.IAccountService;
+import dev.chenjr.attendance.service.ISmsService;
+import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
+import dev.chenjr.attendance.service.dto.ResetPasswordDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +29,11 @@ public class AuthenticationController {
     @Autowired
     IAccountService accountService;
 
+    @Autowired
+    ISmsService smsService;
+
+    @Autowired
+    IUserService userService;
 
     // @SecurityRequirements() 传入空数组清空全局的认证设定
     @PostMapping("/login")
@@ -46,17 +56,24 @@ public class AuthenticationController {
     /**
      * 修改密码，放到这里，因为这个是对用户的层面的，要对多个account进行修改
      *
-     * @param uid      user id
-     * @param password 密码
+     * @param uid              user id
+     * @param resetPasswordDTO 重设密码dto
      * @return 设置结果
      */
-    @PatchMapping("/password/{uid}")
-    public RestResponse<?> setPassword(@PathVariable Integer uid, @RequestBody String password) {
-        boolean ok = authenticationService.setUserPassword(uid, password);
+    @PutMapping("/password/{uid}")
+    @Operation(description = "修改用户密码，要求先获取短信验证码，type:reset_password")
+    public RestResponse<?> setPassword(@PathVariable Long uid, @RequestBody @Validated ResetPasswordDTO resetPasswordDTO) {
+        User user = userService.getUserById(uid);
+        boolean matches = smsService
+                .codeValid(user.getPhone(), smsService.TYPE_RESET_PASSWORD, resetPasswordDTO.getSmsCode());
+        if (!matches) {
+            throw new CodeMismatch();
+        }
+        boolean ok = authenticationService.setUserPassword(user, resetPasswordDTO.getPassword());
         if (ok) {
             return RestResponse.ok();
         } else {
-            return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), "User may not exists.");
+            return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), "set password fail");
         }
     }
 }

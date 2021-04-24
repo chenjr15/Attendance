@@ -4,6 +4,7 @@ import dev.chenjr.attendance.dao.entity.Account;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -24,6 +25,9 @@ public interface AccountMapper extends MyBaseMapper<Account> {
 
     @Delete("DELETE FROM account WHERE user_id = #{uid}")
     void deleteByUid(@Param("uid") long uid);
+
+    @Update("UPDATE account SET token=#{token} WHERE account = #{account}")
+    Boolean updateToken(Account account);
 
 //    @Select("SELECT * FROM account WHERE account = #{account}")
 //    List<Account> getAllByAccount(@Param("account") String account);

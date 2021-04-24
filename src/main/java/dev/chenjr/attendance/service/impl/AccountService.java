@@ -3,6 +3,7 @@ package dev.chenjr.attendance.service.impl;
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
+import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
@@ -115,8 +116,7 @@ public class AccountService extends BaseService implements IAccountService {
 
         boolean exists = userService.userExists(uid);
         if (!exists) {
-            log.info(String.format("setting password for %d to %s, uid not exists", uid, password));
-            return false;
+            throw new UserNotFoundException();
         }
 
         User user = userService.getUserById(uid);
@@ -126,8 +126,7 @@ public class AccountService extends BaseService implements IAccountService {
     @Override
     public boolean setUserPassword(User user, String password) {
         if (user == null) {
-            log.error("got empty user!");
-            return false;
+            throw new UserNotFoundException("got empty user!");
         }
         long uid = user.getId();
         String passwordHash = encodeHash(password);
@@ -140,12 +139,20 @@ public class AccountService extends BaseService implements IAccountService {
                     Account.fromPhone(uid, user.getPhone(), passwordHash),
                     Account.fromEmail(uid, user.getEmail(), passwordHash)
             );
-            accounts.stream().filter(account -> account.getAccount() != null && !"".equals(account.getAccount())).forEach(accountMapper::insert);
+            accounts.stream()
+                    .filter(account -> account.getAccount() != null && !"".equals(account.getAccount()))
+                    .forEach(account -> {
+                        account.createBy(uid);
+                        accountMapper.updateToken(account);
+                    });
         } else {
             // 修改已有账号信息
             accounts.forEach(account -> {
+                log.info("changing: {}", account);
                 account.setToken(passwordHash);
-                accountMapper.update(account, null);
+                account.updateBy(uid);
+                accountMapper.updateToken(account);
+//                accountMapper.update(account, new QueryWrapper<Account>().eq("account", account.getAccount()));
             });
 
         }

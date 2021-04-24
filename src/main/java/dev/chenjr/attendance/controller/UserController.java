@@ -66,7 +66,8 @@ public class UserController {
     @DeleteMapping("/{uid}")
     @Operation(description = "注销帐户")
     public RestResponse<?> deleteUser(@PathVariable Integer uid) {
-        return RestResponse.notImplemented();
+        userService.deleteByUid(uid);
+        return RestResponse.okWithMsg("删除成功");
     }
 
 

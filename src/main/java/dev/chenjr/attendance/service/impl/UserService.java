@@ -3,6 +3,7 @@ package dev.chenjr.attendance.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
@@ -25,7 +26,8 @@ import java.util.stream.Stream;
 public class UserService extends BaseService implements IUserService {
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    private AccountMapper accountMapper;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -160,5 +162,11 @@ public class UserService extends BaseService implements IUserService {
             exists = userMapper.emailExists(account);
         }
         return exists != null;
+    }
+
+    @Override
+    public void deleteByUid(Integer uid) {
+        accountMapper.deleteByUid(uid);
+        userMapper.deleteById(uid);
     }
 }

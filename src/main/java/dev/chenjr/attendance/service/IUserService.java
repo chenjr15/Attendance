@@ -46,4 +46,6 @@ public interface IUserService extends IService {
     boolean userExists(long uid);
 
     boolean userExists(String account);
+
+    void deleteByUid(Integer uid);
 }

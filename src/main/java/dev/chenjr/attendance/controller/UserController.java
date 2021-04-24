@@ -42,9 +42,7 @@ public class UserController {
     @PostMapping("")
     @Operation(description = "注册")
     public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
-        if (!smsService.codeValid(request.getPhone(), "register", request.getSmsCode())) {
-            throw new RegisterException("sms code mismatch");
-        }
+        smsService.codeValidAndThrow(request.getPhone(), smsService.TYPE_REGISTER, request.getSmsCode());
         // 尝试创建Token，失败会报错
         String token;
         User user = userService.register(request);
@@ -74,6 +72,7 @@ public class UserController {
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")
     public RestResponse<?> modifyUser(@PathVariable Integer uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
+//        BeanUtils.copyProperties();
         return RestResponse.notImplemented();
     }
 }

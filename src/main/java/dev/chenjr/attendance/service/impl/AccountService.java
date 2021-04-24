@@ -143,7 +143,14 @@ public class AccountService extends BaseService implements IAccountService {
             throw new UserNotFoundException("got empty user!");
         }
         long uid = user.getId();
-        String passwordHash = encodeHash(password);
+
+        // 未设置密码的将其密码设置为空
+        String passwordHash;
+        if (password == null || "".equals(password)) {
+            passwordHash = null;
+        } else {
+            passwordHash = encodeHash(password);
+        }
         // 先尝试查询已有的账号
         List<Account> accounts = this.getAllAccountInfo(uid);
         if (accounts == null || accounts.size() == 0) {

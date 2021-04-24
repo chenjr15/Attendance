@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 @Slf4j
 @RestControllerAdvice
@@ -22,5 +23,12 @@ public class GlobalExceptionHandler {
         return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    public RestResponse<?> handleSQLException(SQLIntegrityConstraintViolationException ex, HttpServletRequest request) {
+        log.error(request.toString(), ex.getMessage());
+        ex.printStackTrace();
+        return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "SQL ERROR!", request.getRequestURI());
+    }
 
 }

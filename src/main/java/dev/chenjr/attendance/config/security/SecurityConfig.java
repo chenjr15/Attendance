@@ -96,6 +96,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/sms/**",
             "/",
             "/version",
+            "/account/unique/**"
 
     };
 

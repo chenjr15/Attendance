@@ -25,12 +25,12 @@ public interface AccountMapper extends MyBaseMapper<Account> {
     @Delete("DELETE FROM account WHERE user_id = #{uid}")
     void deleteByUid(@Param("uid") long uid);
 
-    @Select("SELECT * FROM account WHERE account = #{account}")
-    List<Account> getAllByAccount(@Param("account") String account);
+//    @Select("SELECT * FROM account WHERE account = #{account}")
+//    List<Account> getAllByAccount(@Param("account") String account);
 
     @Select("SELECT * FROM account WHERE account = #{account} LIMIT 1")
     Account getOneByAccount(@Param("account") String account);
 
-    @Select("SELECT 1 FROM user account=#{account} limit 1 ")
+    @Select("SELECT 1 FROM account WHERE account=#{account} LIMIT 1 ")
     Boolean existsByAccount(@Param("account") String account);
 }

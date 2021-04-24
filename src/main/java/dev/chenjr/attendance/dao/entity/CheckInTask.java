@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
- * 签到记录表，记录用户在每门课的签到时间签到地点，对应的签到任务id
+ *
  * </p>
  *
  * @author chenjr
@@ -14,23 +16,22 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "签到记录，记录用户在每门课的签到时间签到地点，对应的签到任务id")
-public class SignupLog extends BaseEntity {
+@Schema(description = "存储每次签到任务")
+public class CheckInTask extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    private Long taskId;
-
-    private Long userId;
 
     private Long courseId;
 
     private Double longitude;
     private Double latitude;
 
+    private LocalDateTime deadline;
+    private Boolean finished;
+
     private Long type;
 
-    private String extend;
+    private String description;
 
 
 }

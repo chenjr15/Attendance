@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.dao.mapper;
 
-import dev.chenjr.attendance.dao.entity.SignupLog;
+import dev.chenjr.attendance.dao.entity.CheckInLog;
 
 /**
  * <p>
@@ -10,6 +10,6 @@ import dev.chenjr.attendance.dao.entity.SignupLog;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface SignupLogMapper extends MyBaseMapper<SignupLog> {
+public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
 
 }

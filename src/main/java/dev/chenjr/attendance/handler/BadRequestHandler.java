@@ -9,7 +9,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -49,13 +48,18 @@ public class BadRequestHandler {
             JsonParseException.class,
             SuperException.class,
             MethodArgumentTypeMismatchException.class,
-            HttpRequestMethodNotSupportedException.class,
             AuthenticationException.class
     })
     public RestResponse<?> handleManyException(Exception ex, HttpServletRequest request) {
 
+
         log.error(request.toString(), ex.getMessage());
-        return RestResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+
+        RestResponse<?> error = RestResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+        if (ex instanceof JsonParseException) {
+            error.message = "Json 格式化错误";
+        }
+        return error;
     }
 
 

@@ -21,7 +21,8 @@ public class Dictionary extends BaseEntity {
 
     @Schema(description = "字典项名，如性别，具体的选项在detail表里")
     private String name;
-
+    
+    private String code;
     @Schema(description = "该项的描述")
     private String description;
 

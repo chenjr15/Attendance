@@ -32,7 +32,8 @@ public class DictionaryDetail extends BaseEntity {
     @Schema(description = "该项是否默认")
     private Boolean defaultItem;
 
-    private Integer display;
+    @Schema(description = "是否在前端显示")
+    private Boolean display;
 
     private String permission;
 

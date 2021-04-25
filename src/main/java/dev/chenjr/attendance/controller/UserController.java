@@ -2,6 +2,7 @@ package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.RegisterException;
+import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.SmsService;
@@ -68,6 +69,16 @@ public class UserController {
         return RestResponse.okWithMsg("删除成功");
     }
 
+    @DeleteMapping("/byPhone/{phone}")
+    @Operation(description = "删除帐户")
+    public RestResponse<?> deleteUser(@PathVariable String phone) {
+        User userByPhone = userService.getUserByPhone(phone);
+        if (userByPhone == null) {
+            throw new UserNotFoundException();
+        }
+        userService.deleteByUid(userByPhone.getId());
+        return RestResponse.okWithMsg("删除成功");
+    }
 
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")

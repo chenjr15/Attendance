@@ -44,6 +44,10 @@ public class UserController {
     @Operation(description = "注册")
     public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
         smsService.codeValidAndThrow(request.getPhone(), smsService.TYPE_REGISTER, request.getSmsCode());
+        if (request.getPassword() == null || request.getPassword().equals("")) {
+            // TODO REMOVE 123456
+            request.setPassword("123456");
+        }
         // 尝试创建Token，失败会报错
         String token;
         User user = userService.register(request);

@@ -80,6 +80,12 @@ public class RestResponse<T> implements Serializable {
         return new RestResponse<>(status.value(), msg, path, status.name());
     }
 
+    public static <X> RestResponse<X> error(HttpStatus status, String msg, String path, X data) {
+        RestResponse<X> response = new RestResponse<>(status.value(), msg, path, status.name());
+        response.data = data;
+        return response;
+    }
+
     public static RestResponse<?> error(Integer status, String msg, String path, String error) {
         return new RestResponse<>(status, msg, path, error);
     }

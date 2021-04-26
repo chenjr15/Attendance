@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public RestResponse<?> handleGlobalException(Exception ex, HttpServletRequest request) {
-        log.error(request.toString(), ex.getMessage());
+        log.error("Global Handler, {},{}", request.toString(), ex.getMessage());
         ex.printStackTrace();
         return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }

@@ -25,7 +25,7 @@ import java.util.TreeMap;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestHandler {
-    private static final String BAD_ARGUMENT_MESSAGE = "BAD_ARGUMENT_MESSAGE";
+    private static final String BAD_ARGUMENT_MESSAGE = "BAD_ARGUMENT";
 
     /**
      * TODO extends ResponseEntityExceptionHandler
@@ -35,12 +35,8 @@ public class BadRequestHandler {
         List<FieldError> fieldErrors = ex.getFieldErrors();
         TreeMap<String, String> errorMap = new TreeMap<>();
         fieldErrors.forEach(fieldError -> errorMap.put(fieldError.getField(), fieldError.getDefaultMessage()));
-        RestResponse<Map<String, String>> response =
-                new RestResponse<>(HttpStatus.BAD_REQUEST.value(), BAD_ARGUMENT_MESSAGE, errorMap);
-        response.path = request.getRequestURI();
-        response.error = HttpStatus.BAD_REQUEST.name();
-//        ResponseEntityExceptionHandler
-        return response;
+        
+        return RestResponse.error(HttpStatus.BAD_REQUEST, BAD_ARGUMENT_MESSAGE, request.getRequestURI(), errorMap);
     }
 
 

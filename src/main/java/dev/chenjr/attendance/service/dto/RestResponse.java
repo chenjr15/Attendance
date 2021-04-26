@@ -12,7 +12,7 @@ public class RestResponse<T> implements Serializable {
     public static final int CODE_WRONG_ARGUMENT = 400;
     @Schema(description = "时间戳", example = "2021-04-13T16:09:30.8111435")
     public LocalDateTime timestamp;
-    @Schema(description = "状态码", example = "200")
+    @Schema(description = "状态码")
     public Integer status;
     @Schema(description = "请求的数据，依请求而定")
     public T data;

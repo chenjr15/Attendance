@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +57,12 @@ public class UserController {
         }
         token = accountService.createToken(user);
         return new RestResponse<>(HttpStatus.OK.value(), "注册成功！", new TokenUidDTO(token, user.getId()));
+    }
+
+    @GetMapping("/me")
+    @Operation(description = "获取指定用户的信息")
+    public RestResponse<?> getCurrentUser(@AuthenticationPrincipal User user) {
+        return RestResponse.okWithData(userService.userToUserInfo(user));
     }
 
     @GetMapping("/{uid}")

@@ -28,14 +28,15 @@ public class BadRequestHandler {
     private static final String BAD_ARGUMENT_MESSAGE = "BAD_ARGUMENT";
 
     /**
-     * TODO extends ResponseEntityExceptionHandler
+     * TODO extends  ResponseEntityExceptionHandler
+     * see: org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public RestResponse<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<FieldError> fieldErrors = ex.getFieldErrors();
         TreeMap<String, String> errorMap = new TreeMap<>();
         fieldErrors.forEach(fieldError -> errorMap.put(fieldError.getField(), fieldError.getDefaultMessage()));
-        
+
         return RestResponse.error(HttpStatus.BAD_REQUEST, BAD_ARGUMENT_MESSAGE, request.getRequestURI(), errorMap);
     }
 
@@ -48,9 +49,7 @@ public class BadRequestHandler {
     })
     public RestResponse<?> handleManyException(Exception ex, HttpServletRequest request) {
 
-
-        log.error(request.toString(), ex.getMessage());
-
+        log.error("handleManyException:{},{}", request.toString(), ex.getMessage());
         RestResponse<?> error = RestResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
         if (ex instanceof JsonParseException) {
             error.message = "Json 格式化错误";

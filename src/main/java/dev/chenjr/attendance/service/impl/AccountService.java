@@ -4,10 +4,12 @@ import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.exception.SetPasswordFailException;
+import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
+import dev.chenjr.attendance.service.dto.InputBindThirdPartyDTO;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
@@ -55,7 +57,7 @@ public class AccountService extends BaseService implements IAccountService {
     @Override
     public boolean checkPasswordAndAccount(String account, String rawPassword) {
         log.info("Checking: " + account + " with " + rawPassword);
-        dev.chenjr.attendance.dao.entity.User user = userService.getUserByAccount(account);
+        User user = userService.getUserByAccount(account);
         if (user == null) {
             log.info("User not found!");
             return false;
@@ -76,25 +78,6 @@ public class AccountService extends BaseService implements IAccountService {
         return false;
     }
 
-//    @Override
-//    public void setUserRole(User user, String role) {
-//        if (Roles.isValidRole(role)) {
-//            Set<String> roles = StringUtils.commaDelimitedListToSet(user.getRoles());
-//            roles.add(role);
-//            user.setRoles(StringUtils.collectionToCommaDelimitedString(roles));
-//        }
-//        log.error("Not a valid role: " + role);
-//    }
-//
-//    @Override
-//    public void unsetUserRole(User user, String role) {
-//        if (Roles.isValidRole(role)) {
-//            Set<String> roles = StringUtils.commaDelimitedListToSet(user.getRoles());
-//            roles.remove(role);
-////            user.setRoles(StringUtils.collectionToCommaDelimitedString(roles));
-//        }
-//        log.error("Not a valid role: " + role);
-//    }
 
     private String encodeHash(String password) {
 
@@ -191,7 +174,7 @@ public class AccountService extends BaseService implements IAccountService {
     public TokenUidDTO loginAndCreateToken(InputLoginDTO loginRequest) {
         Account accountInfo = accountMapper.getOneByAccount(loginRequest.getAccount());
         if (accountInfo == null) {
-            throw new UsernameNotFoundException("can not found account");
+            throw new UsernameNotFoundException("用户不存在");
         }
         dev.chenjr.attendance.dao.entity.User user = userService.getUserByAccount(loginRequest.getAccount());
         if (accountInfo.getLocked()) {
@@ -201,12 +184,11 @@ public class AccountService extends BaseService implements IAccountService {
         if (smsCode == null && loginRequest.getPassword() == null) {
             throw new BadCredentialsException("must provide password or sms code");
         }
-        if (smsCode != null && !smsService.codeValid(loginRequest.getAccount(), "login", smsCode)) {
-
-            throw new BadCredentialsException("sms code mismatch!");
+        if (smsCode != null && !smsService.codeValid(loginRequest.getAccount(), ISmsService.TYPE_LOGIN, smsCode)) {
+            throw new BadCredentialsException("短信验证码不匹配!");
         }
         if (loginRequest.getPassword() != null && !this.checkPasswordHash(accountInfo.getToken(), loginRequest.getPassword())) {
-            throw new BadCredentialsException("The user name or password is not correct.");
+            throw new BadCredentialsException("用户名或密码不匹配.");
         }
         String token = createToken(user);
         return new TokenUidDTO(token, user.getId());
@@ -230,29 +212,6 @@ public class AccountService extends BaseService implements IAccountService {
     public Account getAccountInfo(long uid, String type) {
         return null;
     }
-//    /**
-//     * 登录认证换取JWT令牌
-//     *
-//     * @param account
-//     * @param password
-//     * @return
-//     */
-//    public String login(String account, String password) {
-//        //用户验证
-//        Authentication authentication = null;
-//        try {
-//            // 进行身份验证,
-//            authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(account, password));
-//        } catch (Exception e) {
-//            throw new RuntimeException("用户名密码错误");
-//        }
-//
-//        UserDetail loginUser = (UserDetail) authentication.getPrincipal();
-//        // 生成token
-//        return jwtTokenUtil.generateToken(loginUser);
-//
-//    }
 
     @Override
     public boolean accountExists(long accountId) {
@@ -272,6 +231,22 @@ public class AccountService extends BaseService implements IAccountService {
             return (User) principal;
         }
         throw new AuthenticationCredentialsNotFoundException("Cannot found current user!");
+
+    }
+
+    @Override
+    public void bindThirdParty(InputBindThirdPartyDTO thirdPartyDTO) {
+        log.info("{}", thirdPartyDTO);
+        boolean exists = this.accountExists(thirdPartyDTO.getAccessToken());
+        if (exists) {
+            throw new SuperException("用户已绑定其他账号，请先解绑！");
+        }
+        Account externalAccount = Account
+                .external(thirdPartyDTO.getUid(),
+                        thirdPartyDTO.getType(),
+                        thirdPartyDTO.getOpenid(),
+                        thirdPartyDTO.getAccessToken());
+        accountMapper.insert(externalAccount);
 
     }
 

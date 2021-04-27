@@ -4,6 +4,7 @@ package dev.chenjr.attendance.service;
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.SetPasswordFailException;
+import dev.chenjr.attendance.service.dto.InputBindThirdPartyDTO;
 import dev.chenjr.attendance.service.dto.InputLoginDTO;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 
@@ -116,4 +117,11 @@ public interface IAccountService extends IService {
     boolean accountExists(String account);
 
     User currentUser();
+
+    /**
+     * 绑定第三方账号
+     *
+     * @param thirdPartyDTO 绑定信息
+     */
+    void bindThirdParty(InputBindThirdPartyDTO thirdPartyDTO);
 }

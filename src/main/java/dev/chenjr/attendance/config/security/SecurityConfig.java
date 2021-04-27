@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.config.security;
 
 import dev.chenjr.attendance.config.security.filter.JwtAuthTokenFilter;
+import dev.chenjr.attendance.handler.AuthenticationFailHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,15 +10,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
-//    @Autowired
-//    private UserDetailService myUserDetailsService;
-
+    @Autowired
+    AuthenticationFailHandler authenticationFailHandler;
     @Autowired
     private JwtAuthTokenFilter jwtAuthTokenFilter;
 
@@ -28,11 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity
                 // 处理预检(preflight)方法, 不加会导致预检方法403
                 .cors().and()
-                // 认证失败处理类
-                //.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 // 基于token，所以不需要session,这里设置STATELESS(无状态)是在请求是不生成session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .exceptionHandling().and()
+//                .exceptionHandling().authenticationEntryPoint(authenticationFailHandler).and()
                 //配置权限
                 .authorizeRequests()
                 // swagger
@@ -61,6 +60,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
 
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return this.authenticationFailHandler;
+    }
+
     // 在通过数据库验证登录的方式中不需要配置此种密码加密方式, 因为已经在JWT配置中指定
     @Bean
     public BCryptPasswordEncoder getBCryptPasswordEncoder() {
@@ -87,6 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // System WHITELIST
     public static final String[] SYSTEM_WHITELIST = {
             "/auth/login",
+            "/oauth/callback/**",
             "/users/signup", "/users",
             "/auth/password/*",
             "/randomString",

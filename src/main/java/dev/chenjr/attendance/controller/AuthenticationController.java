@@ -48,6 +48,17 @@ public class AuthenticationController {
         return RestResponse.okWithData(tokenUidDTO);
     }
 
+    @GetMapping("/token")
+    @Operation(description = "获取新的token")
+    public RestResponse<TokenUidDTO> refreshToken(@AuthenticationPrincipal @Parameter(hidden = true) User user) {
+        // 尝试登录
+        TokenUidDTO tokenUidDTO = new TokenUidDTO();
+        tokenUidDTO.setToken(authenticationService.createToken(user));
+        tokenUidDTO.setUid(user.getId());
+        log.info("refresh, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
+        return RestResponse.okWithData(tokenUidDTO);
+    }
+
 
     // 暂时不需要logout, 客户端直接将token销毁即可
     @PostMapping("/logout")

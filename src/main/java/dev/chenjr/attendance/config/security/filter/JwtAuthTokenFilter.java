@@ -34,7 +34,8 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
         String token = request.getHeader(jwtTokenUtil.getHeader());
 
         if (token == null || token.length() <= jwtTokenUtil.headerPrefix.length()) {
-            throw new TokenException(HttpStatus.UNAUTHORIZED);
+            filterChain.doFilter(request, response);
+            return;
         }
 
         token = token.substring(jwtTokenUtil.headerPrefix.length());

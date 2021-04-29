@@ -10,8 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -31,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 // 基于token，所以不需要session,这里设置STATELESS(无状态)是在请求是不生成session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-//                .exceptionHandling().authenticationEntryPoint(authenticationFailHandler).and()
+                .exceptionHandling().authenticationEntryPoint(authenticationFailHandler).and()
                 //配置权限
                 .authorizeRequests()
                 // swagger
@@ -48,8 +47,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable();
         //登出功能
         httpSecurity.logout().logoutUrl("/logout");
+//        httpSecurity.httpBasic();
         //  添加JWT  filter, 在每次http请求前进行拦截
-        httpSecurity.addFilterBefore(jwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        // UsernamePasswordAuthenticationFilter.class
+        httpSecurity.addFilterAfter(jwtAuthTokenFilter, ExceptionTranslationFilter.class);
     }
 
 
@@ -60,10 +61,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
 
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return this.authenticationFailHandler;
-    }
+//    @Bean
+//    public AuthenticationFailureHandler authenticationFailureHandler() {
+//        return this.authenticationFailHandler;
+//    }
 
     // 在通过数据库验证登录的方式中不需要配置此种密码加密方式, 因为已经在JWT配置中指定
     @Bean

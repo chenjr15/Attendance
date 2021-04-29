@@ -8,6 +8,7 @@ import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.SmsService;
 import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,7 @@ public class UserController {
 
     @GetMapping("/me")
     @Operation(description = "获取指定用户的信息")
-    public RestResponse<?> getCurrentUser(@AuthenticationPrincipal User user) {
+    public RestResponse<?> getCurrentUser(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
         return RestResponse.okWithData(userService.userToUserInfo(user));
     }
 

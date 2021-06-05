@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Select;
  * @since 2021-04-11
  */
 public interface UserCourseMapper extends MyBaseMapper<UserCourse> {
-    @Select("SELECT 1 FROM user WHERE user_id = #{uid},course_id=#{courseId} limit 1 ")
+    @Select("SELECT 1 FROM user_course WHERE user_id = #{uid} and course_id=#{courseId} limit 1 ")
     Boolean elected(@Param("uid") long uid, @Param("courseId") long courseId);
 
 

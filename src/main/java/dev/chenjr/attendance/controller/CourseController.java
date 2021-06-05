@@ -44,8 +44,9 @@ public class CourseController {
     @PostMapping("/student/{uid}")
     @Operation(description = "学生加入班课")
     public RestResponse<?> studentElectCourse(@PathVariable long uid, @RequestBody long courseId) {
-
-        // TODO 权限校验
+        
+//        courseService.joinCourse(uid, courseId);
+        // TODO 权限校验 是当前用户或者是该课程的老师或者是管理员
         return courseService.joinCourse(uid, courseId);
     }
 

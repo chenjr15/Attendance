@@ -20,7 +20,7 @@ public class UserCourse extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Schema(name = "该用户在课程中是什么角色，是学生或老师，连接到字典表")
-    private Integer characterType;
+    private Integer characterType = 0;
 
     private Long userId;
 

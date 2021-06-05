@@ -88,7 +88,8 @@ public class UserService extends BaseService implements IUserService {
     @Override
     public List<UserInfoDTO> getUsers(long pageIndex, long pageSize) {
         Page<User> userPage = new Page<>(pageIndex, pageSize);
-        List<User> records = userMapper.selectPage(userPage, null).getRecords();
+        userMapper.selectPage(userPage, null);
+        List<User> records = userPage.getRecords();
         Stream<UserInfoDTO> infoResponseStream = records.stream().map(this::userToUserInfo);
         return infoResponseStream.collect(Collectors.toList());
     }

@@ -1,6 +1,7 @@
 package dev.chenjr.attendance;
 
 
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import dev.chenjr.attendance.config.security.DocInfo;
 import io.swagger.v3.oas.models.Components;
@@ -48,13 +49,17 @@ public class AttendanceApplication {
         };
     }
 
+    @SuppressWarnings("deprecation")
     @Bean
     MybatisSqlSessionFactoryBean createSqlSessionFactoryBean(@Autowired DataSource dataSource) {
         // 用默认的SqlSessionFactoryBean会报没有语句(无法自动生成sql)
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
+        // 加入分页的终极配置，PaginationInnerInterceptor 没用
+        sqlSessionFactoryBean.setPlugins(new PaginationInterceptor());
         return sqlSessionFactoryBean;
     }
+
 
     @Bean
     PlatformTransactionManager createTxManager(@Autowired DataSource dataSource) {

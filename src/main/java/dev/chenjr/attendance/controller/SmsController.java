@@ -5,6 +5,7 @@ import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.SmsCodeDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,9 @@ public class SmsController {
         return RestResponse.okWithMsg("Matched");
     }
 
+    @SecurityRequirements
     @PostMapping("/{type}/{phone}")
-    @Operation(description = "发送短信验证码")
+    @Operation(description = "发送短信验证码", deprecated = true)
     public RestResponse<?> sendSmsCode(@PathVariable String type, @PathVariable String phone) {
         smsService.sendCode(phone, type);
         return RestResponse.ok();
@@ -44,6 +46,7 @@ public class SmsController {
         return RestResponse.okWithData(smsCodeTes);
     }
 
+    @SecurityRequirements
     @PostMapping("")
     @Operation(description = "发送短信验证码")
     public RestResponse<?> sendSmsCode(@Validated @RequestBody SmsCodeDTO smsCodeDTO) {

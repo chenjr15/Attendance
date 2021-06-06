@@ -4,12 +4,15 @@ package dev.chenjr.attendance;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import dev.chenjr.attendance.config.security.DocInfo;
+import dev.chenjr.attendance.dao.enums.ParamEnum;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.apache.ibatis.type.EnumOrdinalTypeHandler;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -51,12 +54,14 @@ public class AttendanceApplication {
 
     @SuppressWarnings("deprecation")
     @Bean
-    MybatisSqlSessionFactoryBean createSqlSessionFactoryBean(@Autowired DataSource dataSource) {
+    MybatisSqlSessionFactoryBean createSqlSessionFactoryBean(@Autowired DataSource dataSource) throws Exception {
         // 用默认的SqlSessionFactoryBean会报没有语句(无法自动生成sql)
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         // 加入分页的终极配置，PaginationInnerInterceptor 没用
         sqlSessionFactoryBean.setPlugins(new PaginationInterceptor());
+        TypeHandlerRegistry typeHandlerRegistry = sqlSessionFactoryBean.getObject().getConfiguration().getTypeHandlerRegistry();
+        typeHandlerRegistry.register(ParamEnum.class, EnumOrdinalTypeHandler.class);
         return sqlSessionFactoryBean;
     }
 
@@ -90,4 +95,5 @@ public class AttendanceApplication {
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .info(info);
     }
+
 }

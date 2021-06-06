@@ -1,37 +1,28 @@
 package dev.chenjr.attendance.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.fasterxml.jackson.annotation.JsonValue;
+import dev.chenjr.attendance.dao.enums.ParamEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 系统参数，一张表
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class SystemParam extends BaseEntity {
-    public enum ParamEnum {
-        DOUBLE(0),
-        STRING(1);
-
-        ParamEnum(int code) {
-            this.code = code;
-        }
-
-        @JsonValue
-        @EnumValue
-        private final int code;
-    }
 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "参数中文名", example = "签到范围(米)")
-    private Long paramName;
+    private String paramName;
 
     @Schema(description = "参数标识，标识不可修改", example = "max_check_in_distance")
-    private Integer paramCode;
+    private String paramCode;
 
     @SuppressWarnings("FieldMayBeFinal")
     @Schema(description = "参数类型", example = "0")
-    private ParamEnum paramType = ParamEnum.DOUBLE;
+    private Integer paramType = ParamEnum.DOUBLE.getValue();
 
     @Schema(description = "参数值", example = "100")
     private String value;

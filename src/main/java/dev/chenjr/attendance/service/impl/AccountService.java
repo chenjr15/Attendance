@@ -74,7 +74,7 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public boolean registerAccount(dev.chenjr.attendance.dao.entity.User user, String rawPassword) {
+    public boolean registerAccount(User user, String rawPassword) {
         return false;
     }
 
@@ -108,7 +108,7 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public void setUserPasswordWithSmsCode(@NotNull dev.chenjr.attendance.dao.entity.User user, String password, String code) {
+    public void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) {
         if (user == null) {
             throw new UserNotFoundException("got empty user!");
         }
@@ -120,7 +120,7 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public boolean setUserPassword(dev.chenjr.attendance.dao.entity.User user, String password) {
+    public boolean setUserPassword(User user, String password) {
         if (user == null) {
             throw new UserNotFoundException("got empty user!");
         }
@@ -196,9 +196,24 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public String createToken(dev.chenjr.attendance.dao.entity.User user) {
+    public String createToken(User user) {
         // TODO 获取用户角色信息
         return jwtTokenUtil.generateToken(user);
+    }
+
+    /**
+     * 创建Token
+     *
+     * @param user     用户实体
+     * @param longTerm 是否为长期有效的token
+     * @return 成功返回token，失败返回null
+     */
+    @Override
+    public String createToken(User user, boolean longTerm) {
+        if (!longTerm) {
+            return this.createToken(user);
+        }
+        return jwtTokenUtil.generateLongTermToken(user);
     }
 
     @Override

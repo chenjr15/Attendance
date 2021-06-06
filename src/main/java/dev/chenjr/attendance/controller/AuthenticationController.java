@@ -40,7 +40,7 @@ public class AuthenticationController {
     // @SecurityRequirements() 传入空数组清空全局的认证设定
     @PostMapping("/login")
     @SecurityRequirements
-    @Operation(description = "这个方法用于在登录后登录验证后返回token和uid")
+    @Operation(description = "这个方法用于登录验证后返回token和uid")
     public RestResponse<TokenUidDTO> login(@RequestBody @Validated InputLoginDTO request) {
         // 尝试登录
         TokenUidDTO tokenUidDTO = authenticationService.loginAndCreateToken(request);
@@ -50,10 +50,13 @@ public class AuthenticationController {
 
     @GetMapping("/token")
     @Operation(description = "获取新的token")
-    public RestResponse<TokenUidDTO> refreshToken(@AuthenticationPrincipal @Parameter(hidden = true) User user) {
+    public RestResponse<TokenUidDTO> refreshToken(
+            @AuthenticationPrincipal @Parameter(hidden = true) User user,
+            @RequestParam(defaultValue = "false") Boolean longTerm
+    ) {
         // 尝试登录
         TokenUidDTO tokenUidDTO = new TokenUidDTO();
-        tokenUidDTO.setToken(authenticationService.createToken(user));
+        tokenUidDTO.setToken(authenticationService.createToken(user, longTerm));
         tokenUidDTO.setUid(user.getId());
         log.info("refresh, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
         return RestResponse.okWithData(tokenUidDTO);

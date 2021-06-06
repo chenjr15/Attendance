@@ -42,13 +42,32 @@ public class JwtTokenUtil {
      * @return 令token牌
      */
     public String generateToken(User user) {
-        log.info("[JwtTokenUtils] generateToken " + user.getId().toString());
+        log.debug("[JwtTokenUtils] generateToken " + user.getId().toString());
         Map<String, Object> claims = new HashMap<>(2);
         claims.put("sub", user.getLoginName());
         claims.put("uid", user.getId().toString());
         claims.put("created", new Date());
 
         return generateToken(claims);
+    }
+
+    /**
+     * 生成长期token令牌，100倍过期时间
+     *
+     * @param user 用户实体
+     * @return 令token牌
+     */
+    public String generateLongTermToken(User user) {
+        log.debug("[JwtTokenUtils] generateLongTermToken " + user.getId().toString());
+        Map<String, Object> claims = new HashMap<>(2);
+        claims.put("sub", user.getLoginName());
+        claims.put("uid", user.getId().toString());
+        claims.put("created", new Date());
+        Date expirationDate = new Date(System.currentTimeMillis() + expiration * 100);
+        return Jwts.builder().setClaims(claims)
+                .setExpiration(expirationDate)
+                .signWith(getKeyInstance(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
 

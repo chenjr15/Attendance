@@ -25,7 +25,7 @@ public interface IAccountService extends IService {
      * @param rawPassword 未加密的原始密码
      * @return 是否成功
      */
-    boolean registerAccount(dev.chenjr.attendance.dao.entity.User user, String rawPassword);
+    boolean registerAccount(User user, String rawPassword);
 
     /**
      * 校验密码是否匹配
@@ -80,9 +80,9 @@ public interface IAccountService extends IService {
      * @param password 明文密码
      * @return 成功与否
      */
-    boolean setUserPassword(dev.chenjr.attendance.dao.entity.User user, String password);
+    boolean setUserPassword(User user, String password);
 
-    void setUserPasswordWithSmsCode(@NotNull dev.chenjr.attendance.dao.entity.User user, String password, String code) throws SetPasswordFailException;
+    void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) throws SetPasswordFailException;
 
     /**
      * 登陆并创建用户Token
@@ -98,7 +98,16 @@ public interface IAccountService extends IService {
      * @param user 用户实体
      * @return 成功返回token，失败返回null
      */
-    String createToken(dev.chenjr.attendance.dao.entity.User user);
+    String createToken(User user);
+
+    /**
+     * 创建Token
+     *
+     * @param user     用户实体
+     * @param longTerm 是否为长期有效的token
+     * @return 成功返回token，失败返回null
+     */
+    String createToken(User user, boolean longTerm);
 
     /**
      * 判断账号是否存在，通过id判断

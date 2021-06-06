@@ -23,8 +23,9 @@ public class SysParameterController {
     }
 
     @PostMapping("")
-    @Operation(description = "添加系统参数")
-    public RestResponse<?> addSysParameter(@RequestBody InputSysParameterDTO parameterDTO) {
+    @Operation(description = "初始化系统参数(仅供调试,添加测试数据)")
+    public RestResponse<?> initSysParameter() {
+        // 仅在系统参数为空的时候有效
         return RestResponse.notImplemented();
     }
 
@@ -41,9 +42,9 @@ public class SysParameterController {
         return RestResponse.notImplemented();
     }
 
-    @DeleteMapping("/{paramId}")
-    @Operation(description = "删除系统参数")
-    public RestResponse<?> delSysParameter(@PathVariable Long paramId) {
+    @PostMapping("/reset")
+    @Operation(description = "重置系统参数(仅供调试,删除测试数据)")
+    public RestResponse<?> resetParams(@PathVariable Long paramId) {
         return RestResponse.notImplemented();
     }
 

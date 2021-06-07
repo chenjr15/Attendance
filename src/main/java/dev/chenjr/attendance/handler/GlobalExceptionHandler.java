@@ -53,4 +53,5 @@ public class GlobalExceptionHandler {
         return RestResponse.error(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
     }
 
+
 }

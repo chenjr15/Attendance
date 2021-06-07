@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ISysParamService;
 import dev.chenjr.attendance.service.dto.RestResponse;
@@ -44,7 +45,7 @@ public class SysParameterController {
         return RestResponse.okWithData(systemParam);
     }
 
-    @PutMapping("/{paramId}")
+    @PutMapping("/{paramCode}")
     @Operation(description = "修改系统参数")
     public RestResponse<?> modifySysParameter(@RequestBody SysParameterDTO parameterDTO, @PathVariable @NotBlank String paramCode) {
         if (paramCode.equals(parameterDTO.getCode())) {
@@ -61,7 +62,7 @@ public class SysParameterController {
             this.sysParamService.deleteAll();
             return RestResponse.okWithMsg("Deleted!");
         }
-        return RestResponse.httpStatus(HttpStatus.NOT_MODIFIED);
+        throw new HttpStatusException(HttpStatus.NOT_MODIFIED);
     }
 
 }

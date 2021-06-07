@@ -1,4 +1,4 @@
-package dev.chenjr.attendance.config.security;
+package dev.chenjr.attendance.config;
 
 import io.swagger.v3.oas.models.info.Contact;
 import lombok.Data;
@@ -18,11 +18,12 @@ public class DocInfo {
     String version;
     Contact contact;
     List<String> servers;
+
     @Component
     @ConfigurationProperties(prefix = "doc.repo")
     @Data
     public static class Repo {
-        
+
         String docs;
         String mobile;
         String frontend;

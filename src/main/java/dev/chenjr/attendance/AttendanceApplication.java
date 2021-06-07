@@ -3,7 +3,7 @@ package dev.chenjr.attendance;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import dev.chenjr.attendance.config.security.DocInfo;
+import dev.chenjr.attendance.config.DocInfo;
 import dev.chenjr.attendance.dao.enums.ParamEnum;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -8,7 +8,6 @@ import dev.chenjr.attendance.dao.mapper.SystemParamMapper;
 import dev.chenjr.attendance.service.ISysParamService;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,8 +125,8 @@ public class SysParamService implements ISysParamService {
         SystemParam systemParam = dtoToSysParam(dto);
         systemParamMapper.insert(systemParam);
     }
+    
 
-    @NotNull
     private SystemParam dtoToSysParam(SysParameterDTO dto) {
         SystemParam sysParameter = new SystemParam();
         sysParameter.setParamCode(dto.getCode());

@@ -1,9 +1,9 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.dao.entity.PageWrapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ISysParamService;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;

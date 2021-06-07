@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.service;
 
-import dev.chenjr.attendance.dao.entity.PageWrapper;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
 
 /**

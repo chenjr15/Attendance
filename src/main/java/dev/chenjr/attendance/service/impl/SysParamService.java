@@ -2,11 +2,11 @@ package dev.chenjr.attendance.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import dev.chenjr.attendance.dao.entity.PageWrapper;
 import dev.chenjr.attendance.dao.entity.SystemParam;
 import dev.chenjr.attendance.dao.enums.ParamEnum;
 import dev.chenjr.attendance.dao.mapper.SystemParamMapper;
 import dev.chenjr.attendance.service.ISysParamService;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

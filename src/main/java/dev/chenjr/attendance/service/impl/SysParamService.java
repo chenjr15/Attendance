@@ -2,6 +2,7 @@ package dev.chenjr.attendance.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import dev.chenjr.attendance.dao.entity.PageWrapper;
 import dev.chenjr.attendance.dao.entity.SystemParam;
 import dev.chenjr.attendance.dao.enums.ParamEnum;
 import dev.chenjr.attendance.dao.mapper.SystemParamMapper;
@@ -31,10 +32,13 @@ public class SysParamService implements ISysParamService {
      * @return 系统参数列表
      */
     @Override
-    public List<SysParameterDTO> getAllSystemParams(long curPage, long pageSize) {
+    public PageWrapper<SysParameterDTO> getAllSystemParams(long curPage, long pageSize) {
         Page<SystemParam> page = new Page<>(curPage, pageSize);
-        systemParamMapper.selectPage(page, null);
-        return page.getRecords().stream().map(SysParamService::sysParamToDTO).collect(Collectors.toList());
+        page = systemParamMapper.selectPage(page, null);
+        List<SysParameterDTO> collect = page.getRecords().stream().map(SysParamService::sysParamToDTO).collect(Collectors.toList());
+        PageWrapper<SysParameterDTO> dtoPage = PageWrapper.fromIPage(page);
+        dtoPage.setContent(collect);
+        return dtoPage;
     }
 
     /**
@@ -43,7 +47,7 @@ public class SysParamService implements ISysParamService {
      * @return 系统参数列表
      */
     @Override
-    public List<SysParameterDTO> getAllSystemParams() {
+    public PageWrapper<SysParameterDTO> getAllSystemParams() {
         return getAllSystemParams(1, 10);
     }
 
@@ -125,7 +129,7 @@ public class SysParamService implements ISysParamService {
         SystemParam systemParam = dtoToSysParam(dto);
         systemParamMapper.insert(systemParam);
     }
-    
+
 
     private SystemParam dtoToSysParam(SysParameterDTO dto) {
         SystemParam sysParameter = new SystemParam();

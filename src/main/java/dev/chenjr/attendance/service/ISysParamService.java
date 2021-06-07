@@ -1,8 +1,7 @@
 package dev.chenjr.attendance.service;
 
+import dev.chenjr.attendance.dao.entity.PageWrapper;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
-
-import java.util.List;
 
 /**
  * 系统参数服务
@@ -15,14 +14,15 @@ public interface ISysParamService extends IService {
      * @param pageSize 页面大小
      * @return 系统参数列表
      */
-    List<SysParameterDTO> getAllSystemParams(long curPage, long pageSize);
+
+    PageWrapper<SysParameterDTO> getAllSystemParams(long curPage, long pageSize);
 
     /**
      * 获取所有系统参数，不带分页参数
      *
      * @return 系统参数列表
      */
-    List<SysParameterDTO> getAllSystemParams();
+    PageWrapper<SysParameterDTO> getAllSystemParams();
 
     /**
      * 获取某个系统参数的详细信息

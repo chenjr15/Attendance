@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.dao.entity.PageWrapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ISysParamService;
@@ -12,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 @RestController
 @RequestMapping("/sys-parameters")
@@ -23,9 +23,9 @@ public class SysParameterController {
 
     @GetMapping("")
     @Operation(description = "列出所有参数")
-    public RestResponse<List<SysParameterDTO>> listParameters(
+    public RestResponse<PageWrapper<SysParameterDTO>> listParameters(
             @RequestParam(defaultValue = "1") long curPage, @RequestParam(defaultValue = "10") long pageSize) {
-        List<SysParameterDTO> allSystemParams = sysParamService.getAllSystemParams(curPage, pageSize);
+        PageWrapper<SysParameterDTO> allSystemParams = sysParamService.getAllSystemParams(curPage, pageSize);
         return RestResponse.okWithData(allSystemParams);
     }
 

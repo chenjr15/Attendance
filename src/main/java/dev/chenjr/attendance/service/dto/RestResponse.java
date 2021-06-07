@@ -59,6 +59,10 @@ public class RestResponse<T> implements Serializable {
         return new RestResponse<>(CODE_OK, "OK");
     }
 
+    public static RestResponse<?> httpStatus(HttpStatus status) {
+        return new RestResponse<>(status.value(), status.name());
+    }
+
     public static RestResponse<?> badRequest(String msg, Object data) {
         return new RestResponse<>(HttpStatus.BAD_REQUEST.value(), msg, data);
     }

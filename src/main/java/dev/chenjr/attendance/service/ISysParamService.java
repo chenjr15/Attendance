@@ -44,5 +44,8 @@ public interface ISysParamService extends IService {
      */
     void initSysParams();
 
-
+    /**
+     * 清空(删除所有的)系统参数数据库
+     */
+    void deleteAll();
 }

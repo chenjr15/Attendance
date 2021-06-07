@@ -7,6 +7,7 @@ import dev.chenjr.attendance.service.dto.SysParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sys-parameters")
-@Tag(name = "系统参数", description = "系统参数CRUD")
+@Tag(name = "系统参数", description = "系统参数一般只能更新")
 public class SysParameterController {
     @Autowired
     ISysParamService sysParamService;
@@ -53,5 +54,14 @@ public class SysParameterController {
         throw new SuperException("paramCode mismatch!");
     }
 
+    @DeleteMapping("/")
+    @Operation(description = "!清空!系统参数")
+    public RestResponse<?> deleteAllSysParameter(@RequestParam(defaultValue = "false") Boolean confirm) {
+        if (confirm) {
+            this.sysParamService.deleteAll();
+            return RestResponse.okWithMsg("Deleted!");
+        }
+        return RestResponse.httpStatus(HttpStatus.NOT_MODIFIED);
+    }
 
 }

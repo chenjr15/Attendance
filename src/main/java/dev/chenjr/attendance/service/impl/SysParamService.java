@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,24 +79,42 @@ public class SysParamService implements ISysParamService {
      * 初始化测试数据
      */
     @Override
+    @Transactional
     public void initSysParams() {
         SysParameterDTO checkInRange = new SysParameterDTO();
         checkInRange.setParamType(ParamEnum.DOUBLE.getValue());
         checkInRange.setCode("sys_check_in_range");
         checkInRange.setValue("1000");
         checkInRange.setName("最大签到范围");
+        checkInRange.setDescription("超过该范围无法签到");
 
         this.createSystemParams(checkInRange);
 
         SysParameterDTO checkInExp = new SysParameterDTO();
         checkInExp.setParamType(ParamEnum.DOUBLE.getValue());
         checkInExp.setCode("sys_check_in_exp");
-        checkInExp.setValue("10");
-        checkInExp.setName("每次签到的经验值");
+        checkInExp.setValue("2");
+        checkInExp.setName("签到经验值");
+        checkInExp.setDescription("每次签到的经验值");
+        this.createSystemParams(checkInExp);
 
-        this.createSystemParams(checkInRange);
+        SysParameterDTO checkInLateExp = new SysParameterDTO();
+        checkInLateExp.setParamType(ParamEnum.DOUBLE.getValue());
+        checkInLateExp.setCode("sys_check_late_exp");
+        checkInLateExp.setValue("1");
+        checkInLateExp.setName("迟到经验值");
+        checkInLateExp.setDescription("签到时标记为迟到的经验值");
+        this.createSystemParams(checkInLateExp);
 
 
+    }
+
+    /**
+     * 清空(删除所有的)系统参数数据库
+     */
+    @Override
+    public void deleteAll() {
+        systemParamMapper.delete(null);
     }
 
     /**

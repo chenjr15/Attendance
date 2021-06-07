@@ -33,7 +33,7 @@ public class SysParameterController {
     public RestResponse<?> initSysParameter() {
         // 仅在系统参数为空的时候有效
         sysParamService.initSysParams();
-        return RestResponse.notImplemented();
+        return RestResponse.ok();
     }
 
 

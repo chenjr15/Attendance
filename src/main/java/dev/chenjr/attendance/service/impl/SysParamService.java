@@ -1,15 +1,16 @@
 package dev.chenjr.attendance.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.SystemParam;
 import dev.chenjr.attendance.dao.enums.ParamEnum;
 import dev.chenjr.attendance.dao.mapper.SystemParamMapper;
+import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.ISysParamService;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,8 +61,10 @@ public class SysParamService implements ISysParamService {
     @Override
     public SysParameterDTO getSystemParam(String paramCode) {
 
-        QueryWrapper<SystemParam> wrapper = new QueryWrapper<SystemParam>().eq("param_code", paramCode);
-        SystemParam systemParam = systemParamMapper.selectOne(wrapper);
+        SystemParam systemParam = systemParamMapper.getByParamCode(paramCode);
+        if (systemParam == null) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND);
+        }
         return sysParamToDTO(systemParam);
     }
 
@@ -121,11 +124,22 @@ public class SysParamService implements ISysParamService {
     }
 
     /**
+     * 删除指定的系统参数
+     *
+     * @param paramCode 系统参数标识
+     */
+    @Override
+    public void deleteByCode(String paramCode) {
+        systemParamMapper.deleteByParamCode(paramCode);
+    }
+
+    /**
      * 创建系统参数
      *
      * @param dto 系统参数细节
      */
-    private void createSystemParams(SysParameterDTO dto) {
+    @Override
+    public void createSystemParams(SysParameterDTO dto) {
         SystemParam systemParam = dtoToSysParam(dto);
         systemParamMapper.insert(systemParam);
     }

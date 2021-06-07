@@ -55,6 +55,20 @@ public class SysParameterController {
         throw new SuperException("paramCode mismatch!");
     }
 
+    @PostMapping("/")
+    @Operation(description = "添加系统参数")
+    public RestResponse<?> createSysParameter(@RequestBody SysParameterDTO parameterDTO) {
+        sysParamService.createSystemParams(parameterDTO);
+        return RestResponse.ok();
+    }
+
+    @DeleteMapping("/{paramCode}")
+    @Operation(description = "删除指定系统参数")
+    public RestResponse<?> deleteSysParameter(@PathVariable @NotBlank String paramCode) {
+        sysParamService.deleteByCode(paramCode);
+        return RestResponse.okWithMsg("Deleted");
+    }
+
     @DeleteMapping("/")
     @Operation(description = "!清空!系统参数")
     public RestResponse<?> deleteAllSysParameter(@RequestParam(defaultValue = "false") Boolean confirm) {

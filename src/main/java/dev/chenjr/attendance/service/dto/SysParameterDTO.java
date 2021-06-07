@@ -29,7 +29,7 @@ public class SysParameterDTO {
     @Schema(description = "参数类型", example = "0")
     private Integer paramType = ParamEnum.DOUBLE.getValue();
 
-    @Schema(description = "该项的描述")
+    @Schema(description = "该项的描述", example = "该参数设置每次签到的经验值")
     private String description;
 
     @Schema(description = "参数可选值,逗号分割。字符串型就是可选值，数值型就是范围", defaultValue = "10,5000")

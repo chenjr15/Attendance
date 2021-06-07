@@ -48,4 +48,18 @@ public interface ISysParamService extends IService {
      * 清空(删除所有的)系统参数数据库
      */
     void deleteAll();
+
+    /**
+     * 删除指定的系统参数
+     *
+     * @param paramCode 系统参数标识
+     */
+    void deleteByCode(String paramCode);
+
+    /**
+     * 创建新的系统参数
+     *
+     * @param dto 要创建的系统参数
+     */
+    void createSystemParams(SysParameterDTO dto);
 }

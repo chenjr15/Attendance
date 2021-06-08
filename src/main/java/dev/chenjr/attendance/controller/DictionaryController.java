@@ -46,18 +46,18 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictId}")
-    @Operation(description = "修改数据字典，返回修改后的数据", hidden = true)
+    @Operation(description = "修改数据字典(**不修改明细**)，返回修改后的数据", hidden = true)
     public RestResponse<DictionaryDTO> modifyDictionary(
             @RequestBody @Validated DictionaryDTO dictionaryDTO,
             @PathVariable Long dictId
     ) {
-
-        DictionaryDTO dto = dictionaryService.modifyDictionary(dictId, dictionaryDTO);
+        dictionaryDTO.setId(dictId);
+        DictionaryDTO dto = dictionaryService.modifyDictionary(dictionaryDTO);
         return RestResponse.okWithData(dto);
     }
 
     @PutMapping("/{dictId}/{detailId}")
-    @Operation(description = "修改数据字典__明细项__，返回修改后的整个数据字典信息,`body`中的明细`id`可以不填", hidden = true)
+    @Operation(description = "修改数据字典__明细项__，返回修改后的__整个数据字典__信息,`body`中的明细`id`可以不填", hidden = true)
     public RestResponse<DictionaryDTO> modifyDictionaryDetail(
             @RequestBody @Validated DictionaryDetailDTO detailDTO,
             @PathVariable Long dictId,

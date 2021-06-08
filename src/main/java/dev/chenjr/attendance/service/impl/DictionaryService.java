@@ -6,6 +6,7 @@ import dev.chenjr.attendance.dao.entity.Dictionary;
 import dev.chenjr.attendance.dao.entity.DictionaryDetail;
 import dev.chenjr.attendance.dao.mapper.DictionaryDetailMapper;
 import dev.chenjr.attendance.dao.mapper.DictionaryMapper;
+import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.dto.DictionaryDTO;
 import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
@@ -37,7 +38,7 @@ public class DictionaryService implements IDictionaryService {
         final Dictionary dictionary = dto2Dict(dictionaryDTO);
         dictMapper.insert(dictionary);
         // 获取创建后的数据
-        final DictionaryDTO createdDTO = this.getDictionaryByCode();
+        final DictionaryDTO createdDTO = this.getDictionaryByCode(dictionaryDTO.getCode());
         createdDTO.setDetails(new ArrayList<>());
         boolean gotDefault = false;
         // 逐条创建明细
@@ -49,6 +50,26 @@ public class DictionaryService implements IDictionaryService {
             createdDTO.getDetails().add(createdDetailDTO);
         }
         return createdDTO;
+
+    }
+
+    /**
+     * 给某个数据字典添加明细
+     *
+     * @param dictId    数据字典id
+     * @param detailDTO 需要添加的明细
+     * @return 添加后的结果
+     */
+    @Override
+    public DictionaryDetailDTO addDictionaryDetail(long dictId, DictionaryDetailDTO detailDTO) {
+        Boolean exists = this.dictMapper.exists(dictId);
+        if (exists == null || !exists) {
+            throw HttpStatusException.notFound();
+        }
+        DictionaryDetail dictionaryDetail = dto2Detail(dictId, detailDTO);
+        int insert = detailMapper.insert(dictionaryDetail);
+        // TODO 处理插入失败
+        return detailDTO;
 
     }
 
@@ -77,7 +98,7 @@ public class DictionaryService implements IDictionaryService {
      * @return 数据字典详细信息
      */
     @Override
-    public DictionaryDTO getDictionary(Long dictId) {
+    public DictionaryDTO getDictionary(long dictId) {
         Dictionary dictionary = dictMapper.selectById(dictId);
         QueryWrapper<DictionaryDetail> wr = new QueryWrapper<DictionaryDetail>().eq("dictionary_id", dictId);
         List<DictionaryDetail> dictionaryDetails = detailMapper.selectList(wr);
@@ -90,15 +111,20 @@ public class DictionaryService implements IDictionaryService {
 
 
     /**
-     * 修改数据字典(全量修改)
+     * 修改数据字典(不修改明细！)
      *
-     * @param dictId        数据字典id
      * @param dictionaryDTO 修改的数据
      * @return 修改后的数据
      */
     @Override
-    public DictionaryDTO modifyDictionary(Long dictId, DictionaryDTO dictionaryDTO) {
-        return null;
+    public DictionaryDTO modifyDictionary(DictionaryDTO dictionaryDTO) {
+        Boolean exists = dictMapper.exists(dictionaryDTO.getId());
+        if (exists == null || !exists) {
+            throw HttpStatusException.notFound();
+        }
+        Dictionary dictionary = dto2Dict(dictionaryDTO);
+        this.dictMapper.update(dictionary, null);
+        return this.getDictionary(dictionaryDTO.getId());
     }
 
     /**
@@ -109,8 +135,25 @@ public class DictionaryService implements IDictionaryService {
      * @return 修改后的完整的数据字典
      */
     @Override
-    public DictionaryDTO modifyDictionaryDetail(Long dictId, DictionaryDetailDTO detailDTO) {
-        return null;
+    public DictionaryDTO modifyDictionaryDetail(long dictId, DictionaryDetailDTO detailDTO) {
+
+        Boolean exists = detailMapper.exists(detailDTO.getId());
+        if (exists == null || !exists) {
+            throw HttpStatusException.notFound();
+        }
+        DictionaryDetail dictionaryDetail = dto2Detail(dictId, detailDTO);
+        this.detailMapper.update(dictionaryDetail, null);
+        return this.getDictionary(dictId);
+    }
+
+    /**
+     * 删除指定的数据字典明细
+     *
+     * @param detailId 要删除的明细id
+     */
+    @Override
+    public void deleteDictionaryDetail(long detailId) {
+        this.detailMapper.deleteByDictId(detailId);
     }
 
     /**
@@ -119,32 +162,43 @@ public class DictionaryService implements IDictionaryService {
      * @param dictId 要删除的数据字典id
      */
     @Override
-    public void deleteDictionary(Long dictId) {
-
+    public void deleteDictionary(long dictId) {
+        // 1. 先删掉关联的字典明细
+        // 2. 再把本体删掉
+        this.detailMapper.deleteByDictId(dictId);
+        this.dictMapper.deleteById(dictId);
     }
 
     /**
      * 通过英文表示获取数据字典
      *
+     * @param code 英文标识
      * @return 数据字典
      */
     @Override
-    public DictionaryDTO getDictionaryByCode() {
-        return null;
+    public DictionaryDTO getDictionaryByCode(String code) {
+        Dictionary dictionary = dictMapper.getByCode(code);
+        if (dictionary == null) {
+            throw HttpStatusException.notFound();
+        }
+        DictionaryDTO dto = dict2dto(dictionary);
+        List<DictionaryDetailDTO> dictionaryDetails = this.getDictionaryDetails(dictionary.getId());
+        dto.setDetails(dictionaryDetails);
+        return dto;
     }
 
     /**
-     * 给某个数据字典添加明细
+     * 查询某个字典的 所有字典明细
      *
-     * @param dictId    数据字典id
-     * @param detailDTO 需要添加的明细
-     * @return 添加后的结果
+     * @param dictId 字典id
+     * @return 明细列表
      */
     @Override
-    public DictionaryDetailDTO addDictionaryDetail(Long dictId, DictionaryDetailDTO detailDTO) {
-        // TODO 判断重复
-        return null;
+    public List<DictionaryDetailDTO> getDictionaryDetails(long dictId) {
+        List<DictionaryDetail> details = detailMapper.getByDictId(dictId);
+        return details.stream().map(this::detail2DTO).collect(Collectors.toList());
     }
+
 
     private Dictionary dto2Dict(DictionaryDTO dictionaryDTO) {
         final Dictionary dictionary = new Dictionary();
@@ -173,5 +227,16 @@ public class DictionaryService implements IDictionaryService {
         detailDTO.setShouldDisplay(detail.getDisplay());
         detailDTO.setOrder(detail.getOrderValue());
         return detailDTO;
+    }
+
+    private DictionaryDetail dto2Detail(Long dictId, DictionaryDetailDTO detailDTO) {
+        DictionaryDetail dictionaryDetail = new DictionaryDetail();
+        dictionaryDetail.setDictionaryId(dictId);
+        dictionaryDetail.setDisplay(detailDTO.getShouldDisplay());
+        dictionaryDetail.setDefaultItem(detailDTO.getIsDefault());
+        dictionaryDetail.setItemName(detailDTO.getName());
+        dictionaryDetail.setItemValue(detailDTO.getValue());
+        dictionaryDetail.setOrderValue(detailDTO.getOrder());
+        return dictionaryDetail;
     }
 }

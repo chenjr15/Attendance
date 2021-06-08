@@ -12,7 +12,17 @@ public class HttpStatusException extends SuperException {
         this.status = status;
     }
 
+    public HttpStatusException(HttpStatus status, String msg) {
+        super(msg);
+        this.status = status;
+    }
+
     public static HttpStatusException notFound() {
         return new HttpStatusException(HttpStatus.NOT_FOUND);
     }
+
+    public static HttpStatusException badRequest(String msg) {
+        return new HttpStatusException(HttpStatus.BAD_REQUEST);
+    }
+
 }

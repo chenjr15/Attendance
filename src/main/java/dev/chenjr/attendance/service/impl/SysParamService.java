@@ -129,7 +129,7 @@ public class SysParamService implements ISysParamService {
      */
     @Override
     public void deleteByCode(String paramCode) {
-        systemParamMapper.deleteByParamCode(paramCode);
+        int i = systemParamMapper.deleteByParamCode(paramCode);
     }
 
     /**

@@ -16,6 +16,9 @@ import java.util.List;
  * @since 2021-04-11
  */
 public interface DictionaryDetailMapper extends MyBaseMapper<DictionaryDetail> {
+    @Override
+    @Select("SELECT 1 FROM dictionary_detail WHERE id=#{id} limit 1 ")
+    Boolean exists(@Param("id") long id);
 
     @Select("SELECT * FROM dictionary_detail where dictionary_id=#{dictId}")
     List<DictionaryDetail> getByDictId(@Param("dictId") Long dictId);

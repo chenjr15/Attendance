@@ -37,4 +37,8 @@ public interface AccountMapper extends MyBaseMapper<Account> {
 
     @Select("SELECT 1 FROM account WHERE account=#{account} LIMIT 1 ")
     Boolean existsByAccount(@Param("account") String account);
+
+    @Override
+    @Select("SELECT 1 FROM account WHERE id=#{id} limit 1 ")
+    Boolean exists(@Param("id") long id);
 }

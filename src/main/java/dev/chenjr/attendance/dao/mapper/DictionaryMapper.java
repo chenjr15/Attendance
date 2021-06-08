@@ -13,8 +13,10 @@ import org.apache.ibatis.annotations.Select;
  * @since 2021-04-11
  */
 public interface DictionaryMapper extends MyBaseMapper<Dictionary> {
+    @Override
+    @Select("SELECT 1 FROM dictionary WHERE id=#{id} limit 1 ")
+    Boolean exists(@Param("id") long id);
 
-    @Select("SELECT * FORM dictionary WHERE code=#{code}")
+    @Select("SELECT * FROM dictionary WHERE code = #{code}")
     Dictionary getByCode(@Param("code") String code);
-
 }

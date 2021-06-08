@@ -20,10 +20,10 @@ public class DictionaryController {
     IDictionaryService dictionaryService;
 
     @PostMapping("")
-    @Operation(description = "添加数据字典，其可以明细一起添加")
-    public RestResponse<?> addDictionary(@RequestBody @Validated DictionaryDTO dictionaryDTO) {
-        dictionaryService.addDictionary(dictionaryDTO);
-        return RestResponse.ok();
+    @Operation(description = "添加数据字典，其可以明细一起添加,传入的时候不要传`defaultCode`")
+    public RestResponse<DictionaryDTO> addDictionary(@RequestBody @Validated DictionaryDTO dictionaryDTO) {
+        DictionaryDTO created = dictionaryService.addDictionary(dictionaryDTO);
+        return RestResponse.okWithData(created);
     }
 
     @GetMapping("")
@@ -37,8 +37,8 @@ public class DictionaryController {
 
     @GetMapping("/{dictId}")
     @Operation(description = "显示数据字典信息")
-    public RestResponse<DictionaryDTO> getDictionaryInfo(@PathVariable Long dictId) {
-        DictionaryDTO dto = dictionaryService.getDictionaryInfo(dictId);
+    public RestResponse<DictionaryDTO> getDictionary(@PathVariable Long dictId) {
+        DictionaryDTO dto = dictionaryService.getDictionary(dictId);
         if (dto == null) {
             throw HttpStatusException.notFound();
         }
@@ -46,7 +46,7 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictId}")
-    @Operation(description = "修改数据字典，返回修改后的数据")
+    @Operation(description = "修改数据字典，返回修改后的数据", hidden = true)
     public RestResponse<DictionaryDTO> modifyDictionary(
             @RequestBody @Validated DictionaryDTO dictionaryDTO,
             @PathVariable Long dictId
@@ -57,7 +57,7 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictId}/{detailId}")
-    @Operation(description = "修改数据字典__明细项__，返回修改后的整个数据字典信息,body 中的明细id可以不填")
+    @Operation(description = "修改数据字典__明细项__，返回修改后的整个数据字典信息,`body`中的明细`id`可以不填", hidden = true)
     public RestResponse<DictionaryDTO> modifyDictionaryDetail(
             @RequestBody @Validated DictionaryDetailDTO detailDTO,
             @PathVariable Long dictId,
@@ -69,7 +69,7 @@ public class DictionaryController {
     }
 
     @DeleteMapping("/{dictId}")
-    @Operation(description = "删除字典类型")
+    @Operation(description = "删除字典类型", hidden = true)
     public RestResponse<?> deleteDictionary(@PathVariable Long dictId) {
         dictionaryService.deleteDictionary(dictId);
         return RestResponse.okWithMsg("Deleted!");

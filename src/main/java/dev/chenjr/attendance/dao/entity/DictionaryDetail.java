@@ -22,11 +22,11 @@ public class DictionaryDetail extends BaseEntity {
     private Long dictionaryId;
 
     @Schema(description = "存在数据库里的项id，如1,2,3")
-    private Integer itemKey;
+    private Integer itemValue;
 
     @Schema(description = "显示在前端的文本, 如男，女，未知")
-    private String itemValue;
-    
+    private String itemName;
+
     @Schema(description = "明细项的排序值")
     private Integer orderValue;
 

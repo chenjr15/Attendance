@@ -16,17 +16,15 @@ public class DictionaryDetailDTO {
     @Schema(description = "明细项id")
     Long id;
 
-    @Schema(description = "字典项英文标识", example = "dict_gender_male")
-    String code;
     @Schema(description = "字典项数据库代码", example = "1")
-    Integer key;
-    @Schema(description = "字典项前端显示值", example = "男")
-    String value;
+    Integer value;
+    @Schema(description = "字典项前端显示名字", example = "男")
+    String name;
     @Schema(description = "是否默认", example = "true")
     Boolean isDefault;
     @Schema(description = "显示顺序", example = "0")
     Integer order;
     @Schema(description = "是否显示", example = "true")
-    Integer shouldDisplay;
+    Boolean shouldDisplay;
 
 }

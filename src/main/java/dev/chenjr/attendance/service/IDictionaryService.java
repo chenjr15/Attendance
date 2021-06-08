@@ -12,8 +12,9 @@ public interface IDictionaryService extends IService {
      * 添加新的数据字典和明细项
      *
      * @param dictionaryDTO 前端过来的数据字典dto
+     * @return 添加后的数据
      */
-    void addDictionary(DictionaryDTO dictionaryDTO);
+    DictionaryDTO addDictionary(DictionaryDTO dictionaryDTO);
 
     /**
      * 分页获取数据字典
@@ -30,7 +31,7 @@ public interface IDictionaryService extends IService {
      * @param dictId 数据字典id
      * @return 数据字典详细信息
      */
-    DictionaryDTO getDictionaryInfo(Long dictId);
+    DictionaryDTO getDictionary(Long dictId);
 
     /**
      * 修改数据字典(全量修改)
@@ -57,4 +58,19 @@ public interface IDictionaryService extends IService {
      */
     void deleteDictionary(Long dictId);
 
+    /**
+     * 通过英文表示获取数据字典
+     *
+     * @return 数据字典
+     */
+    DictionaryDTO getDictionaryByCode();
+
+    /**
+     * 给某个数据字典添加明细
+     *
+     * @param dictId    数据字典id
+     * @param detailDTO 需要添加的明细
+     * @return 添加后的结果
+     */
+    DictionaryDetailDTO addDictionaryDetail(Long dictId, DictionaryDetailDTO detailDTO);
 }

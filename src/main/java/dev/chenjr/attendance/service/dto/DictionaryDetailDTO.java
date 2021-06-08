@@ -1,5 +1,7 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DictionaryDetailDTO {
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "明细项id")
+    Long id;
 
     @Schema(description = "字典项英文标识", example = "dict_gender_male")
     String code;

@@ -26,7 +26,8 @@ public class DictionaryDetail extends BaseEntity {
 
     @Schema(description = "显示在前端的文本, 如男，女，未知")
     private String itemValue;
-
+    
+    @Schema(description = "明细项的排序值")
     private Integer orderValue;
 
     @Schema(description = "该项是否默认")

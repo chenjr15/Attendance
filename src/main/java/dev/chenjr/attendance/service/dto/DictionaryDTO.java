@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class InputDictionaryDTO {
+public class DictionaryDTO {
     @Schema(description = "字典项名", example = "性别")
     private String name;
 
@@ -14,8 +14,8 @@ public class InputDictionaryDTO {
     private String code;
 
     @Schema(description = "默认的项的Item")
-
     private String defaultCode;
+    
     @Schema(description = "包含的子项")
     private List<DictionaryDetailDTO> details;
 

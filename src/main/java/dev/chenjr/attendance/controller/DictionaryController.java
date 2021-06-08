@@ -1,47 +1,68 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.exception.HttpStatusException;
+import dev.chenjr.attendance.service.IDictionaryService;
+import dev.chenjr.attendance.service.dto.DictionaryDTO;
 import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
-import dev.chenjr.attendance.service.dto.InputDictionaryDTO;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
 @RequestMapping("/dictionaries")
-@Tag(name = "字典项", description = "男女未知")
+@Tag(name = "数据字典项", description = "男女未知")
 public class DictionaryController {
+    @Autowired
+    IDictionaryService dictionaryService;
+
     @PostMapping("")
-    @Operation(description = "添加字典类型")
-    public RestResponse<?> addDictionary(@RequestBody @Validated InputDictionaryDTO dictionaryDTO) {
-        return RestResponse.notImplemented();
+    @Operation(description = "添加数据字典，其可以明细一起添加")
+    public RestResponse<?> addDictionary(@RequestBody @Validated DictionaryDTO dictionaryDTO) {
+        dictionaryService.addDictionary(dictionaryDTO);
+        return RestResponse.ok();
     }
 
     @GetMapping("")
-    @Operation(description = "列出所有字典类型")
-    public RestResponse<List<DictionaryDetailDTO>> listDictionary(@RequestParam long curPage, @RequestParam(defaultValue = "10") long pageSize) {
-        return RestResponse.okWithData(new ArrayList<>());
+    @Operation(description = "列出所有数据字典")
+    public RestResponse<PageWrapper<DictionaryDTO>> listDictionary(@RequestParam(defaultValue = "1") long curPage, @RequestParam(defaultValue = "10") long pageSize) {
+        PageWrapper<DictionaryDTO> dictionaryPage = dictionaryService.listDictionary(curPage, pageSize);
+        return RestResponse.okWithData(dictionaryPage);
     }
 
     @GetMapping("/{dictId}")
-    @Operation(description = "显示字典类型信息")
-    public RestResponse<DictionaryDetailDTO> getDictionaryInfo(@PathVariable Long dictId) {
-        return RestResponse.okWithData(new DictionaryDetailDTO());
+    @Operation(description = "显示数据字典信息")
+    public RestResponse<DictionaryDTO> getDictionaryInfo(@PathVariable Long dictId) {
+        DictionaryDTO dto = dictionaryService.getDictionaryInfo(dictId);
+        if (dto == null) {
+            throw HttpStatusException.notFound();
+        }
+        return RestResponse.okWithData(dto);
     }
 
     @PutMapping("/{dictId}")
-    @Operation(description = "修改字典类型")
-    public RestResponse<?> modifyDictionary(@RequestBody @Validated InputDictionaryDTO dictionaryDTO, @PathVariable Long dictId) {
-        return RestResponse.notImplemented();
+    @Operation(description = "修改数据字典，返回修改后的数据")
+    public RestResponse<DictionaryDTO> modifyDictionary(@RequestBody @Validated DictionaryDTO dictionaryDTO, @PathVariable Long dictId) {
+
+        DictionaryDTO dto = dictionaryService.modifyDictionary(dictionaryDTO);
+        return RestResponse.okWithData(dto);
+    }
+
+    @PutMapping("/{dictId}")
+    @Operation(description = "修改数据字典__明细项__，返回修改后的整个数据字典信息")
+    public RestResponse<DictionaryDTO> modifyDictionaryDetail(@RequestBody @Validated DictionaryDetailDTO detailDTO, @PathVariable Long dictId) {
+
+        DictionaryDTO dto = dictionaryService.modifyDictionaryDetail(dictId, detailDTO);
+        return RestResponse.okWithData(dto);
     }
 
     @DeleteMapping("/{dictId}")
     @Operation(description = "删除字典类型")
-    public RestResponse<?> delDictionary(@PathVariable Long dictId) {
-        return RestResponse.notImplemented();
+    public RestResponse<?> deleteDictionary(@PathVariable Long dictId) {
+        dictionaryService.deleteDictionary(dictId);
+        return RestResponse.okWithMsg("Deleted!");
     }
 }

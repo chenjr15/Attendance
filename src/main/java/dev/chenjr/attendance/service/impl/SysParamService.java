@@ -33,7 +33,7 @@ public class SysParamService implements ISysParamService {
      * @return 系统参数列表
      */
     @Override
-    public PageWrapper<SysParameterDTO> getAllSystemParams(long curPage, long pageSize) {
+    public PageWrapper<SysParameterDTO> listSystemParams(long curPage, long pageSize) {
         Page<SystemParam> page = new Page<>(curPage, pageSize);
         page = systemParamMapper.selectPage(page, null);
         List<SysParameterDTO> collect = page.getRecords().stream().map(SysParamService::sysParamToDTO).collect(Collectors.toList());
@@ -48,8 +48,8 @@ public class SysParamService implements ISysParamService {
      * @return 系统参数列表
      */
     @Override
-    public PageWrapper<SysParameterDTO> getAllSystemParams() {
-        return getAllSystemParams(1, 10);
+    public PageWrapper<SysParameterDTO> listSystemParams() {
+        return listSystemParams(1, 10);
     }
 
     /**

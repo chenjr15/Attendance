@@ -15,14 +15,14 @@ public interface ISysParamService extends IService {
      * @return 系统参数列表
      */
 
-    PageWrapper<SysParameterDTO> getAllSystemParams(long curPage, long pageSize);
+    PageWrapper<SysParameterDTO> listSystemParams(long curPage, long pageSize);
 
     /**
      * 获取所有系统参数，不带分页参数
      *
      * @return 系统参数列表
      */
-    PageWrapper<SysParameterDTO> getAllSystemParams();
+    PageWrapper<SysParameterDTO> listSystemParams();
 
     /**
      * 获取某个系统参数的详细信息

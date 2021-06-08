@@ -25,7 +25,7 @@ public class SysParameterController {
     @Operation(description = "列出所有参数")
     public RestResponse<PageWrapper<SysParameterDTO>> listParameters(
             @RequestParam(defaultValue = "1") long curPage, @RequestParam(defaultValue = "10") long pageSize) {
-        PageWrapper<SysParameterDTO> allSystemParams = sysParamService.getAllSystemParams(curPage, pageSize);
+        PageWrapper<SysParameterDTO> allSystemParams = sysParamService.listSystemParams(curPage, pageSize);
         return RestResponse.okWithData(allSystemParams);
     }
 

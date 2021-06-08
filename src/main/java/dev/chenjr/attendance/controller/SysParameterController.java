@@ -6,13 +6,13 @@ import dev.chenjr.attendance.service.ISysParamService;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
+import dev.chenjr.attendance.service.dto.validation.KeyWord;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/sys-parameters")
@@ -47,25 +47,33 @@ public class SysParameterController {
 
     @PutMapping("/{paramCode}")
     @Operation(description = "修改系统参数")
-    public RestResponse<?> modifySysParameter(@RequestBody SysParameterDTO parameterDTO, @PathVariable @NotBlank String paramCode) {
+    public RestResponse<?> modifySysParameter(
+            @RequestBody @Validated SysParameterDTO parameterDTO,
+            @PathVariable @KeyWord String paramCode) {
+
         if (paramCode.equals(parameterDTO.getCode())) {
             sysParamService.updateSystemParams(parameterDTO);
             return RestResponse.ok();
         }
+
         throw new SuperException("paramCode mismatch!");
     }
 
     @PostMapping("/")
     @Operation(description = "添加系统参数")
-    public RestResponse<?> createSysParameter(@RequestBody SysParameterDTO parameterDTO) {
+    public RestResponse<?> createSysParameter(
+            @RequestBody @Validated SysParameterDTO parameterDTO) {
         sysParamService.createSystemParams(parameterDTO);
         return RestResponse.ok();
     }
 
     @DeleteMapping("/{paramCode}")
     @Operation(description = "删除指定系统参数")
-    public RestResponse<?> deleteSysParameter(@PathVariable @NotBlank String paramCode) {
+    public RestResponse<?> deleteSysParameter(
+            @PathVariable @KeyWord String paramCode) {
+
         sysParamService.deleteByCode(paramCode);
+
         return RestResponse.okWithMsg("Deleted");
     }
 

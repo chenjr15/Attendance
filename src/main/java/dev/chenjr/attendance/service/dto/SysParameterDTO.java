@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.service.dto;
 
 import dev.chenjr.attendance.dao.enums.ParamEnum;
+import dev.chenjr.attendance.service.dto.validation.KeyWord;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class SysParameterDTO {
 
+    @KeyWord
     @Schema(description = "参数英文标识,该标识不可修改", example = "course_sign_exp")
     private String code;
 

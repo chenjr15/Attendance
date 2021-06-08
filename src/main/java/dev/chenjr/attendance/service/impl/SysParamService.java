@@ -10,7 +10,6 @@ import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.SysParameterDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +62,7 @@ public class SysParamService implements ISysParamService {
 
         SystemParam systemParam = systemParamMapper.getByParamCode(paramCode);
         if (systemParam == null) {
-            throw new HttpStatusException(HttpStatus.NOT_FOUND);
+            throw HttpStatusException.notFound();
         }
         return sysParamToDTO(systemParam);
     }

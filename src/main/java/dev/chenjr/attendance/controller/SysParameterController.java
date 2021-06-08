@@ -1,7 +1,6 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.exception.HttpStatusException;
-import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ISysParamService;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RestResponse;
@@ -46,17 +45,13 @@ public class SysParameterController {
     }
 
     @PutMapping("/{paramCode}")
-    @Operation(description = "修改系统参数")
+    @Operation(description = "修改系统参数, body中的 paramCode 可以不填，会被覆盖url中的paramCode")
     public RestResponse<?> modifySysParameter(
             @RequestBody @Validated SysParameterDTO parameterDTO,
             @PathVariable @KeyWord String paramCode) {
-
-        if (paramCode.equals(parameterDTO.getCode())) {
-            sysParamService.updateSystemParams(parameterDTO);
-            return RestResponse.ok();
-        }
-
-        throw new SuperException("paramCode mismatch!");
+        parameterDTO.setCode(paramCode);
+        sysParamService.updateSystemParams(parameterDTO);
+        return RestResponse.ok();
     }
 
     @PostMapping("/")

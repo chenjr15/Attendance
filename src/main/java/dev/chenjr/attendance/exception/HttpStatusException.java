@@ -11,4 +11,8 @@ public class HttpStatusException extends SuperException {
         super(status.name());
         this.status = status;
     }
+
+    public static HttpStatusException notFound() {
+        return new HttpStatusException(HttpStatus.NOT_FOUND);
+    }
 }

@@ -40,7 +40,7 @@ public class DictionaryController {
     public RestResponse<DictionaryDTO> getDictionary(@PathVariable Long dictId) {
         DictionaryDTO dto = dictionaryService.getDictionary(dictId);
         if (dto == null) {
-            throw HttpStatusException.notFound();
+            throw HttpStatusException.notFound("Can not found dict by id:" + dictId.toString());
         }
         return RestResponse.okWithData(dto);
     }

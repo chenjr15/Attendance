@@ -35,8 +35,12 @@ public class DictionaryService implements IDictionaryService {
     @Override
     @Transactional
     public DictionaryDTO addDictionary(DictionaryDTO dictionaryDTO) {
+        dictionaryDTO.setId(null);
         final Dictionary dictionary = dto2Dict(dictionaryDTO);
-        dictMapper.insert(dictionary);
+        int insert = dictMapper.insert(dictionary);
+        if (insert == 0) {
+            throw new RuntimeException("Fail to insert dict!");
+        }
         // 获取创建后的数据
         final DictionaryDTO createdDTO = this.getDictionaryByCode(dictionaryDTO.getCode());
         createdDTO.setDetails(new ArrayList<>());
@@ -46,7 +50,7 @@ public class DictionaryService implements IDictionaryService {
             if (!gotDefault && detailDTO.getIsDefault()) {
                 gotDefault = true;
             }
-            final DictionaryDetailDTO createdDetailDTO = this.addDictionaryDetail(createdDTO.getId(), detailDTO);
+            final DictionaryDetailDTO createdDetailDTO = this.addDictionaryDetailNoCheck(createdDTO.getId(), detailDTO);
             createdDTO.getDetails().add(createdDetailDTO);
         }
         return createdDTO;
@@ -61,18 +65,21 @@ public class DictionaryService implements IDictionaryService {
      * @return 添加后的结果
      */
     @Override
+    @Transactional
     public DictionaryDetailDTO addDictionaryDetail(long dictId, DictionaryDetailDTO detailDTO) {
         Boolean exists = this.dictMapper.exists(dictId);
         if (exists == null || !exists) {
             throw HttpStatusException.notFound();
         }
+        return addDictionaryDetailNoCheck(dictId, detailDTO);
+    }
+
+    public DictionaryDetailDTO addDictionaryDetailNoCheck(long dictId, DictionaryDetailDTO detailDTO) {
         DictionaryDetail dictionaryDetail = dto2Detail(dictId, detailDTO);
         int insert = detailMapper.insert(dictionaryDetail);
         // TODO 处理插入失败
         return detailDTO;
-
     }
-
 
     /**
      * 分页获取数据字典, 不返回明细项
@@ -100,11 +107,22 @@ public class DictionaryService implements IDictionaryService {
     @Override
     public DictionaryDTO getDictionary(long dictId) {
         Dictionary dictionary = dictMapper.selectById(dictId);
-        QueryWrapper<DictionaryDetail> wr = new QueryWrapper<DictionaryDetail>().eq("dictionary_id", dictId);
-        List<DictionaryDetail> dictionaryDetails = detailMapper.selectList(wr);
-        List<DictionaryDetailDTO> detailDTOS = dictionaryDetails.stream()
-                .map(this::detail2DTO).collect(Collectors.toList());
+        if (dictionary == null) {
+            throw HttpStatusException.notFound("Can't find Dictionary by id:" + dictId);
+        }
         DictionaryDTO dto = dict2dto(dictionary);
+        QueryWrapper<DictionaryDetail> wr = new QueryWrapper<DictionaryDetail>().eq("dictionary_id", dictId);
+        
+        List<DictionaryDetail> dictionaryDetails = detailMapper.selectList(wr);
+
+        List<DictionaryDetailDTO> detailDTOS = new ArrayList<>(dictionaryDetails.size());
+        for (DictionaryDetail detail : dictionaryDetails) {
+            DictionaryDetailDTO detailDTO = detail2DTO(detail);
+            detailDTOS.add(detailDTO);
+            if (detail.getDefaultItem()) {
+                dto.setDefaultValue(detail.getItemValue());
+            }
+        }
         dto.setDetails(detailDTOS);
         return dto;
     }
@@ -120,7 +138,7 @@ public class DictionaryService implements IDictionaryService {
     public DictionaryDTO modifyDictionary(DictionaryDTO dictionaryDTO) {
         Boolean exists = dictMapper.exists(dictionaryDTO.getId());
         if (exists == null || !exists) {
-            throw HttpStatusException.notFound();
+            throw HttpStatusException.notFound("Can not found dict by id:" + dictionaryDTO.getId().toString());
         }
         Dictionary dictionary = dto2Dict(dictionaryDTO);
         this.dictMapper.update(dictionary, null);

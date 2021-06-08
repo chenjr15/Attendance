@@ -12,7 +12,7 @@ public class DictionaryDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "数据字典id")
     Long id;
-    
+
     @Schema(description = "字典项名", example = "性别")
     private String name;
 
@@ -20,7 +20,7 @@ public class DictionaryDTO {
     private String code;
 
     @Schema(description = "默认的项的Item")
-    private String defaultCode;
+    private int defaultValue;
     @Schema(description = "该项的描述")
     private String description;
     @Schema(description = "包含的子项")

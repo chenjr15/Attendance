@@ -21,6 +21,10 @@ public class HttpStatusException extends SuperException {
         return new HttpStatusException(HttpStatus.NOT_FOUND);
     }
 
+    public static HttpStatusException notFound(String msg) {
+        return new HttpStatusException(HttpStatus.NOT_FOUND, msg);
+    }
+
     public static HttpStatusException badRequest(String msg) {
         return new HttpStatusException(HttpStatus.BAD_REQUEST);
     }

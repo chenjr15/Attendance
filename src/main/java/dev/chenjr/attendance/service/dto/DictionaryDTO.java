@@ -19,8 +19,10 @@ public class DictionaryDTO {
     @Schema(description = "字典项英文标识", example = "dict_gender")
     private String code;
 
-    @Schema(description = "默认的项的Item")
+    @Schema(description = "默认的明细项的值")
     private int defaultValue;
+    @Schema(description = "默认的明细项的名称")
+    private String defaultName;
     @Schema(description = "该项的描述")
     private String description;
     @Schema(description = "包含的子项")

@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  * @since 2021-04-11
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Schema(description = "数据字典中的每个类别的具体项")
 public class DictionaryDetail extends BaseEntity {
 

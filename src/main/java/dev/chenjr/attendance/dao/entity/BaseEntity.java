@@ -22,8 +22,8 @@ public abstract class BaseEntity implements Serializable {
     private LocalDateTime updateTime;
 
     public BaseEntity() {
-        this.createTime = LocalDateTime.now();
-        this.updateTime = this.createTime;
+//        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public void createBy(Long uid) {
@@ -36,6 +36,7 @@ public abstract class BaseEntity implements Serializable {
     public void updateBy(Long uid) {
         this.updateTime = LocalDateTime.now();
         this.updater = uid;
+        this.createTime = null;
     }
 
 }

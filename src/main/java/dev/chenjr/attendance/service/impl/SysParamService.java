@@ -76,7 +76,7 @@ public class SysParamService implements ISysParamService {
     public void updateSystemParams(SysParameterDTO dto) {
         SystemParam sysParameter = dtoToSysParam(dto);
 
-        systemParamMapper.update(sysParameter, null);
+        systemParamMapper.updateById(sysParameter);
     }
 
 

@@ -146,7 +146,7 @@ public class UserService extends BaseService implements IUserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        userMapper.update(user, null);
+        userMapper.updateById(user);
     }
 
 

@@ -141,7 +141,9 @@ public class DictionaryService implements IDictionaryService {
             throw HttpStatusException.notFound("Can not found dict by id:" + dictionaryDTO.getId().toString());
         }
         Dictionary dictionary = dto2Dict(dictionaryDTO);
-        this.dictMapper.update(dictionary, null);
+        dictionary.updateBy(0L);
+        this.dictMapper.updateById(dictionary);
+
         return this.getDictionary(dictionaryDTO.getId());
     }
 

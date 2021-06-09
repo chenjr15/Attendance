@@ -4,6 +4,7 @@ import dev.chenjr.attendance.dao.entity.DictionaryDetail;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -25,4 +26,10 @@ public interface DictionaryDetailMapper extends MyBaseMapper<DictionaryDetail> {
 
     @Delete("DELETE FROM dictionary_detail where dictionary_id=#{dictId}")
     void deleteByDictId(@Param("dictId") Long dictId);
+
+    @Update("UPDATE dictionary_detail SET default_item=0 WHERE dictionary_id=#{dictId}")
+    void unSetDefault(@Param("dictId") long dictId);
+
+    @Update("UPDATE dictionary_detail SET default_item=1 WHERE id=#{id} ")
+    void setDefault(@Param("id") long id);
 }

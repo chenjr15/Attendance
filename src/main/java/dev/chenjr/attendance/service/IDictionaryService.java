@@ -76,7 +76,7 @@ public interface IDictionaryService extends IService {
     List<DictionaryDetailDTO> getDictionaryDetails(long dictId);
 
     /**
-     * 修改某个数据字典的某个明细项
+     * 修改某个数据字典的某个明细项, 如果设置了default会导致其他变更
      *
      * @param dictId    数据字典id
      * @param detailDTO 要修改的明细

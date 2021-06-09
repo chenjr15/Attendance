@@ -11,14 +11,18 @@ import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.dto.DictionaryDTO;
 import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
 import dev.chenjr.attendance.service.dto.PageWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class DictionaryService implements IDictionaryService {
     @Autowired
@@ -47,8 +51,11 @@ public class DictionaryService implements IDictionaryService {
         boolean gotDefault = false;
         // 逐条创建明细
         for (DictionaryDetailDTO detailDTO : dictionaryDTO.getDetails()) {
+            // 只有第一个default有效，后面的都设成False
             if (!gotDefault && detailDTO.getIsDefault()) {
                 gotDefault = true;
+            } else {
+                detailDTO.setIsDefault(false);
             }
             final DictionaryDetailDTO createdDetailDTO = this.addDictionaryDetailNoCheck(createdDTO.getId(), detailDTO);
             createdDTO.getDetails().add(createdDetailDTO);
@@ -71,18 +78,25 @@ public class DictionaryService implements IDictionaryService {
         if (exists == null || !exists) {
             throw HttpStatusException.notFound();
         }
+        // 防止传入id
+        detailDTO.setId(null);
         return addDictionaryDetailNoCheck(dictId, detailDTO);
     }
 
+    @Transactional
     public DictionaryDetailDTO addDictionaryDetailNoCheck(long dictId, DictionaryDetailDTO detailDTO) {
         DictionaryDetail dictionaryDetail = dto2Detail(dictId, detailDTO);
+        if (dictionaryDetail.getDefaultItem()) {
+            // 将原来的非默认属性改成默认属性，将原来的default设为False
+            detailMapper.unSetDefault(dictId);
+        }
         int insert = detailMapper.insert(dictionaryDetail);
         // TODO 处理插入失败
         return detailDTO;
     }
 
     /**
-     * 分页获取数据字典, 不返回明细项
+     * 分页获取数据字典
      *
      * @param curPage  当前页,1开始
      * @param pageSize 页面大小
@@ -91,10 +105,17 @@ public class DictionaryService implements IDictionaryService {
     @Override
     public PageWrapper<DictionaryDTO> listDictionary(long curPage, long pageSize) {
         Page<Dictionary> page = new Page<>(curPage, pageSize);
-        dictMapper.selectPage(page, null);
+        QueryWrapper<Dictionary> wr = new QueryWrapper<Dictionary>().select("id");
+        dictMapper.selectPage(page, wr);
         PageWrapper<DictionaryDTO> pageWrapper = PageWrapper.fromIPage(page);
-        List<DictionaryDTO> dictionaryList = page.getRecords().stream().map(this::dict2dto).collect(Collectors.toList());
-        pageWrapper.setContent(dictionaryList);
+        List<Dictionary> records = page.getRecords();
+        List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
+
+        for (Dictionary dict : records) {
+            DictionaryDTO dto = getDictionary(dict.getId());
+            dictDtoList.add(dto);
+        }
+        pageWrapper.setContent(dictDtoList);
         return pageWrapper;
     }
 
@@ -111,17 +132,13 @@ public class DictionaryService implements IDictionaryService {
             throw HttpStatusException.notFound("Can't find Dictionary by id:" + dictId);
         }
         DictionaryDTO dto = dict2dto(dictionary);
-        QueryWrapper<DictionaryDetail> wr = new QueryWrapper<DictionaryDetail>().eq("dictionary_id", dictId);
-        
-        List<DictionaryDetail> dictionaryDetails = detailMapper.selectList(wr);
 
-        List<DictionaryDetailDTO> detailDTOS = new ArrayList<>(dictionaryDetails.size());
-        for (DictionaryDetail detail : dictionaryDetails) {
-            DictionaryDetailDTO detailDTO = detail2DTO(detail);
-            detailDTOS.add(detailDTO);
-            if (detail.getDefaultItem()) {
-                dto.setDefaultValue(detail.getItemValue());
-            }
+        Stream<DictionaryDetailDTO> detailStream = getDictionaryDetailStream(dictId);
+        List<DictionaryDetailDTO> detailDTOS = detailStream.collect(Collectors.toList());
+        DictionaryDetailDTO defaultDetail = getDefaultDetail(detailDTOS.stream());
+        if (defaultDetail != null) {
+            dto.setDefaultValue(defaultDetail.getValue());
+            dto.setDefaultName(defaultDetail.getName());
         }
         dto.setDetails(detailDTOS);
         return dto;
@@ -148,21 +165,28 @@ public class DictionaryService implements IDictionaryService {
     }
 
     /**
-     * 修改某个数据字典的某个明细项
+     * 修改某个数据字典的某个明细项，如果设置了default会导致其他变更
      *
-     * @param dictId    数据字典id
-     * @param detailDTO 要修改的明细
+     * @param dictId     数据字典id
+     * @param desiredDTO 要修改的明细
      * @return 修改后的完整的数据字典
      */
     @Override
-    public DictionaryDTO modifyDictionaryDetail(long dictId, DictionaryDetailDTO detailDTO) {
-
-        Boolean exists = detailMapper.exists(detailDTO.getId());
-        if (exists == null || !exists) {
+    @Transactional
+    public DictionaryDTO modifyDictionaryDetail(long dictId, DictionaryDetailDTO desiredDTO) {
+        DictionaryDetail existingDetail = detailMapper.selectById(desiredDTO.getId());
+        if (existingDetail == null) {
             throw HttpStatusException.notFound();
         }
-        DictionaryDetail dictionaryDetail = dto2Detail(dictId, detailDTO);
-        this.detailMapper.update(dictionaryDetail, null);
+        if (desiredDTO.getIsDefault() != null && !existingDetail.getDefaultItem() && desiredDTO.getIsDefault()) {
+            // 将原来的非默认属性改成默认属性，将原来的default设为False
+            detailMapper.unSetDefault(dictId);
+            detailMapper.setDefault(existingDetail.getId());
+        }
+        desiredDTO.setIsDefault(null);
+        DictionaryDetail dictionaryDetail = dto2Detail(dictId, desiredDTO);
+        dictionaryDetail.updateBy(0L);
+        detailMapper.updateById(dictionaryDetail);
         return this.getDictionary(dictId);
     }
 
@@ -215,13 +239,23 @@ public class DictionaryService implements IDictionaryService {
      */
     @Override
     public List<DictionaryDetailDTO> getDictionaryDetails(long dictId) {
+        return getDictionaryDetailStream(dictId).collect(Collectors.toList());
+    }
+
+    private Stream<DictionaryDetailDTO> getDictionaryDetailStream(long dictId) {
         List<DictionaryDetail> details = detailMapper.getByDictId(dictId);
-        return details.stream().map(this::detail2DTO).collect(Collectors.toList());
+        return details.stream().map(this::detail2DTO);
+    }
+
+    public DictionaryDetailDTO getDefaultDetail(Stream<DictionaryDetailDTO> stream) {
+        Optional<DictionaryDetailDTO> defaultOpt = stream.filter(DictionaryDetailDTO::getIsDefault).findFirst();
+        return defaultOpt.orElse(null);
     }
 
 
     private Dictionary dto2Dict(DictionaryDTO dictionaryDTO) {
         final Dictionary dictionary = new Dictionary();
+        dictionary.setId(dictionaryDTO.getId());
         dictionary.setName(dictionaryDTO.getName());
         dictionary.setDescription(dictionaryDTO.getDescription());
         dictionary.setCode(dictionaryDTO.getCode());
@@ -257,6 +291,7 @@ public class DictionaryService implements IDictionaryService {
         dictionaryDetail.setItemName(detailDTO.getName());
         dictionaryDetail.setItemValue(detailDTO.getValue());
         dictionaryDetail.setOrderValue(detailDTO.getOrder());
+        dictionaryDetail.setId(detailDTO.getId());
         return dictionaryDetail;
     }
 }

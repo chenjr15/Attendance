@@ -26,6 +26,15 @@ public class DictionaryController {
         return RestResponse.okWithData(created);
     }
 
+    @PostMapping("/{dictId}")
+    @Operation(description = "添加数据字典明细")
+    public RestResponse<DictionaryDetailDTO> addDictionaryDetail(
+            @RequestBody @Validated DictionaryDetailDTO detailDTO,
+            @PathVariable Long dictId) {
+        DictionaryDetailDTO added = dictionaryService.addDictionaryDetail(dictId, detailDTO);
+        return RestResponse.okWithData(added);
+    }
+
     @GetMapping("")
     @Operation(description = "列出所有数据字典")
     public RestResponse<PageWrapper<DictionaryDTO>> listDictionary(
@@ -46,7 +55,8 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictId}")
-    @Operation(description = "修改数据字典(**不修改明细**)，返回修改后的数据")
+    @Operation(description = "修改数据字典(**不修改明细**)，返回修改后的数据。\n" +
+            "")
     public RestResponse<DictionaryDTO> modifyDictionary(
             @RequestBody @Validated DictionaryDTO dictionaryDTO,
             @PathVariable Long dictId
@@ -57,7 +67,8 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictId}/{detailId}")
-    @Operation(description = "修改数据字典__明细项__，返回修改后的__整个数据字典__信息,`body`中的明细`id`可以不填")
+    @Operation(description = "修改数据字典__明细项__，返回修改后的__整个数据字典__信息,`body`中的明细`id`可以不填\n " +
+            "- 支持修改该项为默认项，传入` {\"isDefault\": true}`")
     public RestResponse<DictionaryDTO> modifyDictionaryDetail(
             @RequestBody @Validated DictionaryDetailDTO detailDTO,
             @PathVariable Long dictId,

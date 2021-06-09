@@ -1,6 +1,8 @@
 package dev.chenjr.attendance.service.dto;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import dev.chenjr.attendance.dao.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -14,6 +16,7 @@ public class MyUserDetail extends org.springframework.security.core.userdetails.
 
 
     private String password;
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long uid;
 
     public MyUserDetail(String account, String password, long uid, Collection<? extends GrantedAuthority> authorities) {

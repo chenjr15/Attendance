@@ -7,7 +7,7 @@ import lombok.NonNull;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class InputSignupTaskLogDTO {
+public class InputCheckInTaskLogDTO {
 
     @NonNull
     @Schema(description = "学生id")

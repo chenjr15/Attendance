@@ -1,10 +1,12 @@
-package dev.chenjr.attendance.config.security;
+package dev.chenjr.attendance.config;
 
 import io.swagger.v3.oas.models.info.Contact;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @ConfigurationProperties(prefix = "doc")
@@ -15,12 +17,13 @@ public class DocInfo {
     String title;
     String version;
     Contact contact;
+    List<String> servers;
 
     @Component
     @ConfigurationProperties(prefix = "doc.repo")
     @Data
     public static class Repo {
-        
+
         String docs;
         String mobile;
         String frontend;
@@ -29,12 +32,11 @@ public class DocInfo {
         @Override
         public String toString() {
 
-            String format = "项目仓库<ul>" +
-                    "<li><a href=\"%s\">文档</a></li>" +
-                    "<li><a href=\"%s\">移动端</a></li>" +
-                    "<li><a href=\"%s\">前端</a></li>" +
-                    "<li><a href=\"%s\">后端</a></li>" +
-                    "<ul>";
+            String format = "## 项目仓库:\n" +
+                    "1. [文档](%s)\n" +
+                    "2. [移动端](%s)\n" +
+                    "3. [前端](%s)\n" +
+                    "4. [后端](%s)\n";
             return String.format(format, docs, mobile, frontend, backend);
 
         }

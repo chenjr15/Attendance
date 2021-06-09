@@ -42,11 +42,9 @@ public class Course extends BaseEntity {
 
     private LocalDateTime endTime;
 
-    private String teachers;
-
     private String location;
 
-    private Long checkCount;
+    // private Long checkCount;
     @Schema(description = "学校院系专业的ID")
     private Long schoolMajor;
 

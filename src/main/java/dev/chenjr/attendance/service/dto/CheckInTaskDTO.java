@@ -7,7 +7,7 @@ import lombok.NonNull;
 import java.time.LocalDateTime;
 
 @Data
-public class SignupTaskDTO {
+public class CheckInTaskDTO {
 
     @NonNull
     @Schema(description = "班课号", required = true)

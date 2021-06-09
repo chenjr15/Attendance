@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.dao.mapper;
 
-import dev.chenjr.attendance.dao.entity.SignupTask;
+import dev.chenjr.attendance.dao.entity.CheckInTask;
 
 /**
  * <p>
@@ -10,6 +10,6 @@ import dev.chenjr.attendance.dao.entity.SignupTask;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface SignupTaskMapper extends MyBaseMapper<SignupTask> {
+public interface CheckInTaskMapper extends MyBaseMapper<CheckInTask> {
 
 }

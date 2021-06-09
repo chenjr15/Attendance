@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  *
@@ -15,13 +17,17 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "存储每次签到任务")
-public class SignupTask extends BaseEntity {
+public class CheckInTask extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     private Long courseId;
 
-    private String location;
+    private Double longitude;
+    private Double latitude;
+
+    private LocalDateTime deadline;
+    private Boolean finished;
 
     private Long type;
 

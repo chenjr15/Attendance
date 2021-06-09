@@ -13,6 +13,9 @@ import org.apache.ibatis.annotations.Select;
  * @since 2021-04-11
  */
 public interface UserMapper extends MyBaseMapper<User> {
+    @Override
+    @Select("SELECT 1 FROM user WHERE id=#{id} limit 1 ")
+    Boolean exists(@Param("id") long id);
 
     @Select("SELECT * FROM user WHERE email = #{email}")
     User getByEmail(@Param("email") String email);

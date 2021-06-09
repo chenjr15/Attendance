@@ -53,7 +53,10 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-//    implementation 'org.apache.commons:commons-pool2'
+    //    implementation 'org.apache.commons:commons-pool2'
+    
+    // javax.annotation.meta.When.MAYBE
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
 }
 

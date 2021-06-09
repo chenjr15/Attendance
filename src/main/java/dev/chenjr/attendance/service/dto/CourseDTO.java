@@ -20,6 +20,7 @@ public class CourseDTO {
     @Schema(defaultValue = "0")
     private Integer state;
 
+    @Schema(description = "上课时间信息，文本描述")
     private String schedule;
 
     @Schema(description = "学期")
@@ -29,7 +30,6 @@ public class CourseDTO {
 
     private LocalDateTime endTime;
 
-    private String teachers;
 
     private String location;
 
@@ -47,6 +47,6 @@ public class CourseDTO {
     public static Course dtoToCourse(CourseDTO dto) {
         return new Course("",
                 dto.name, dto.description, dto.state, dto.schedule, dto.semester,
-                dto.startTime, dto.endTime, dto.teachers, dto.location, 0L, 0L);
+                dto.startTime, dto.endTime, dto.location, 0L);
     }
 }

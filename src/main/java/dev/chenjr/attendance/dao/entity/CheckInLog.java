@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "签到记录，记录用户在每门课的签到时间签到地点，对应的签到任务id")
-public class SignupLog extends BaseEntity {
+public class CheckInLog extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,11 +25,12 @@ public class SignupLog extends BaseEntity {
 
     private Long courseId;
 
-    private String location;
+    private Double longitude;
+    private Double latitude;
 
     private Long type;
 
-    private String ext;
+    private String extend;
 
 
 }

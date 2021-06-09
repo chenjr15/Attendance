@@ -4,6 +4,7 @@ import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
+import dev.chenjr.attendance.exception.CodeMismatch;
 import dev.chenjr.attendance.exception.SmsException;
 import dev.chenjr.attendance.service.ICacheService;
 import dev.chenjr.attendance.service.ISmsService;
@@ -25,10 +26,10 @@ public class SmsService implements ISmsService {
     private String templateCode;
     @Value("${aliyun.sms.signName}")
     private String signName;
+    @Value("${aliyun.sms.expireTime}")
+    long expireTime = 120;
     @Autowired
     private ICacheService cacheService;
-
-    long EXPIRE_TIME = 120;
 
 
     /**
@@ -40,6 +41,10 @@ public class SmsService implements ISmsService {
      */
     @Override
     public boolean sendCode(String phone, String type) throws SmsException {
+        String oldCode = getCode(phone, type);
+        if (oldCode != null && !"".equals(oldCode)) {
+            return true;
+        }
         // 生成随机验证代码
         String smsCode = RandomUtil.randomNumberString(4);
         // 构造短信发送请求
@@ -66,6 +71,18 @@ public class SmsService implements ISmsService {
         return "OK".equals(retCode);
     }
 
+    /**
+     * 获取验证码 指定手机号和类型
+     *
+     * @param phone 手机号
+     * @param type  类型
+     * @return 发送结果
+     */
+    @Override
+    public String getSmsCodeTes(String phone, String type) {
+        return this.getCode(phone, type);
+    }
+
     private String getCode(String phone, String type) {
 
         String typeHashName = getKeyNameOfTypePhone(type, phone);
@@ -74,7 +91,7 @@ public class SmsService implements ISmsService {
 
     private String storeCode(String phone, String type, String code) {
         String typeHashName = getKeyNameOfTypePhone(type, phone);
-        cacheService.setValue(typeHashName, code, EXPIRE_TIME);
+        cacheService.setValue(typeHashName, code, expireTime);
         return code;
     }
 
@@ -90,6 +107,13 @@ public class SmsService implements ISmsService {
     @Override
     public boolean codeValid(String phone, String type, String code) {
         return Objects.equals(getCode(phone, type), code);
+    }
+
+    @Override
+    public void codeValidAndThrow(String phone, String type, String code) {
+        if (!Objects.equals(getCode(phone, type), code)) {
+            throw new CodeMismatch();
+        }
     }
 
     @Bean

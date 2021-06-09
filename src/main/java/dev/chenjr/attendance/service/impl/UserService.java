@@ -3,10 +3,13 @@ package dev.chenjr.attendance.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.exception.RegisterException;
+import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserInfoResponse;
+import dev.chenjr.attendance.service.dto.UserInfoDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,7 +26,8 @@ import java.util.stream.Stream;
 public class UserService extends BaseService implements IUserService {
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    private AccountMapper accountMapper;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -35,7 +39,7 @@ public class UserService extends BaseService implements IUserService {
 
         User user = userMapper.selectById(id);
         if (user == null) {
-            throw new RuntimeException("User not found by id.");
+            throw new UserNotFoundException("User not found by id.");
         }
         return user;
     }
@@ -82,15 +86,18 @@ public class UserService extends BaseService implements IUserService {
 
 
     @Override
-    public List<UserInfoResponse> getUsers(long pageIndex, long pageSize) {
+    public List<UserInfoDTO> getUsers(long pageIndex, long pageSize) {
         Page<User> userPage = new Page<>(pageIndex, pageSize);
-        List<User> records = userMapper.selectPage(userPage, null).getRecords();
-        Stream<UserInfoResponse> infoResponseStream = records.stream().map(this::userToUserInfo);
+        userMapper.selectPage(userPage, null);
+        List<User> records = userPage.getRecords();
+        Stream<UserInfoDTO> infoResponseStream = records.stream().map(this::userToUserInfo);
         return infoResponseStream.collect(Collectors.toList());
     }
 
-    private UserInfoResponse userToUserInfo(User user) {
-        UserInfoResponse userInfo = new UserInfoResponse(
+    @Override
+    public UserInfoDTO userToUserInfo(User user) {
+        UserInfoDTO userInfo = new UserInfoDTO(
+                user.getId(),
                 user.getLoginName(),
                 user.getRealName(),
                 "UNKNOWN",
@@ -117,15 +124,14 @@ public class UserService extends BaseService implements IUserService {
         user.setLoginName(request.getLoginName());
         user.setPhone(request.getPhone());
         user.setGender(0);
-        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
-            return null;
-        }
+//        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
+//            return null;
+//        }
         // TODO 设置role
         int inserted = userMapper.insert(user);
         if (inserted != 1) {
-            // TODO 抛出异常
-            log.error("Fail to insert user!");
-            return null;
+            log.error("Fail to insert user!" + inserted);
+            throw new RegisterException("db fail!");
         }
         accountService.setUserPassword(user, request.getPassword());
         return user;
@@ -140,7 +146,7 @@ public class UserService extends BaseService implements IUserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        userMapper.update(user, null);
+        userMapper.updateById(user);
     }
 
 
@@ -157,5 +163,11 @@ public class UserService extends BaseService implements IUserService {
             exists = userMapper.emailExists(account);
         }
         return exists != null;
+    }
+
+    @Override
+    public void deleteByUid(long uid) {
+        accountMapper.deleteByUid(uid);
+        userMapper.deleteById(uid);
     }
 }

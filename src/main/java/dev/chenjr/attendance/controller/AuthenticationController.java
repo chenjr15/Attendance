@@ -77,7 +77,7 @@ public class AuthenticationController {
      * @return 设置结果
      */
     @PutMapping("/password")
-    @Operation(description = "修改当前用户密码，_要求先获取短信验证码_，type:`reset_password`, *这里的手机号可以不填*")
+    @Operation(description = "修改**当前**用户密码，_要求先获取短信验证码_，type:`reset_password`, *这里的手机号可以不填*")
     public RestResponse<?> setPassword(@AuthenticationPrincipal @Parameter(hidden = true) User user,
                                        @RequestBody @Validated(ResetPasswordGroup.class) ResetPasswordDTO resetPasswordDTO
     ) {
@@ -87,7 +87,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/password")
-    @Operation(description = "修改指定用户密码/忘记密码，_要求先获取短信验证码_，type:`reset_password`")
+    @Operation(description = "修改**指定**用户密码/忘记密码，_要求先获取短信验证码_，type:`reset_password`")
     public RestResponse<?> setPassword(
             @RequestBody @Validated(ForgetPasswordGroup.class) ResetPasswordDTO resetPasswordDTO) {
         User user = userService.getUserByAccount(resetPasswordDTO.getPhone());

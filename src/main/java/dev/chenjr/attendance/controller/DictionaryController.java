@@ -55,8 +55,7 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictId}")
-    @Operation(description = "修改数据字典(**不修改明细**)，返回修改后的数据。\n" +
-            "")
+    @Operation(description = "修改数据字典(**不修改明细**)，返回修改后的数据。\n")
     public RestResponse<DictionaryDTO> modifyDictionary(
             @RequestBody @Validated DictionaryDTO dictionaryDTO,
             @PathVariable Long dictId

@@ -280,6 +280,7 @@ public class DictionaryService implements IDictionaryService {
         detailDTO.setIsDefault(detail.getDefaultItem());
         detailDTO.setShouldDisplay(detail.getDisplay());
         detailDTO.setOrder(detail.getOrderValue());
+        detailDTO.setCode(detail.getItemCode());
         return detailDTO;
     }
 
@@ -292,6 +293,8 @@ public class DictionaryService implements IDictionaryService {
         dictionaryDetail.setItemValue(detailDTO.getValue());
         dictionaryDetail.setOrderValue(detailDTO.getOrder());
         dictionaryDetail.setId(detailDTO.getId());
+        dictionaryDetail.setItemCode(detailDTO.getCode());
+
         return dictionaryDetail;
     }
 }

@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.dao.mapper;
 
-import dev.chenjr.attendance.dao.entity.University;
+import dev.chenjr.attendance.dao.entity.Organization;
 
 /**
  * <p>
@@ -10,6 +10,6 @@ import dev.chenjr.attendance.dao.entity.University;
  * @author chenjr
  * @since 2021-04-11
  */
-public interface UniversityMapper extends MyBaseMapper<University> {
+public interface OrganizationMapper extends MyBaseMapper<Organization> {
 
 }

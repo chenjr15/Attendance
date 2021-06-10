@@ -14,8 +14,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "学校信息表，学校-> 院系->专业->班级")
-public class University extends BaseEntity {
+@Schema(description = "组织机构表，学校-> 院系->专业->班级")
+public class Organization extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,6 +26,8 @@ public class University extends BaseEntity {
     private String comment;
 
     private String code;
-
-
+    @Schema(description = "类型，院校为0", defaultValue = "0")
+    private Integer orgType;
+    @Schema(description = "所属省份，，0为其他", defaultValue = "0")
+    private Long province;
 }

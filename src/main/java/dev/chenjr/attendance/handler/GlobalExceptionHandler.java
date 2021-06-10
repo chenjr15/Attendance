@@ -2,6 +2,7 @@ package dev.chenjr.attendance.handler;
 
 import dev.chenjr.attendance.exception.TokenException;
 import dev.chenjr.attendance.service.dto.RestResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -16,7 +17,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public RestResponse<?> handleGlobalException(Exception ex, HttpServletRequest request) {
@@ -25,6 +26,7 @@ public class GlobalExceptionHandler {
         return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public RestResponse<?> handleSQLException(SQLIntegrityConstraintViolationException ex, HttpServletRequest request) {
@@ -33,6 +35,7 @@ public class GlobalExceptionHandler {
         return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "SQL ERROR!", request.getRequestURI());
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler({
             HttpRequestMethodNotSupportedException.class,
@@ -43,6 +46,7 @@ public class GlobalExceptionHandler {
         return RestResponse.error(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage(), request.getRequestURI());
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler({
             TokenException.class,

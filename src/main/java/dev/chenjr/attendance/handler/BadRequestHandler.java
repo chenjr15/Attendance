@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.dto.RestResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -56,6 +57,7 @@ public class BadRequestHandler {
 
     }
 
+    @Operation(hidden = true)
     @ExceptionHandler({
             JsonParseException.class,
             SuperException.class,

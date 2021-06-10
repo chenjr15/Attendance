@@ -20,6 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.groups.Default;
+
 @Slf4j
 @RestController
 @RequestMapping("/auth")
@@ -79,7 +81,7 @@ public class AuthenticationController {
     @PutMapping("/password")
     @Operation(description = "修改**当前**用户密码，_要求先获取短信验证码_，type:`reset_password`, *这里的手机号可以不填*")
     public RestResponse<?> setPassword(@AuthenticationPrincipal @Parameter(hidden = true) User user,
-                                       @RequestBody @Validated(ResetPasswordGroup.class) ResetPasswordDTO resetPasswordDTO
+                                       @RequestBody @Validated({ResetPasswordGroup.class, Default.class}) ResetPasswordDTO resetPasswordDTO
     ) {
         Long uid = user.getId();
         accountService.setUserPasswordWithSmsCode(user, resetPasswordDTO.getPassword(), resetPasswordDTO.getSmsCode());
@@ -89,7 +91,7 @@ public class AuthenticationController {
     @PostMapping("/password")
     @Operation(description = "修改**指定**用户密码/忘记密码，_要求先获取短信验证码_，type:`reset_password`")
     public RestResponse<?> setPassword(
-            @RequestBody @Validated(ForgetPasswordGroup.class) ResetPasswordDTO resetPasswordDTO) {
+            @RequestBody @Validated({ForgetPasswordGroup.class, Default.class}) ResetPasswordDTO resetPasswordDTO) {
         User user = userService.getUserByAccount(resetPasswordDTO.getPhone());
 
         accountService.setUserPasswordWithSmsCode(user, resetPasswordDTO.getPassword(), resetPasswordDTO.getSmsCode());

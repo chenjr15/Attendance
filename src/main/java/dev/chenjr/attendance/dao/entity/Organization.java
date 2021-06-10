@@ -22,9 +22,8 @@ public class Organization extends BaseEntity {
     private Long parentId;
 
     private String name;
-
+    private String parents;
     private String comment;
-
     private String code;
     @Schema(description = "类型，院校为0", defaultValue = "0")
     private Integer orgType;

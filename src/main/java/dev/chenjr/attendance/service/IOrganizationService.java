@@ -6,6 +6,11 @@ import dev.chenjr.attendance.service.dto.PageWrapper;
 public interface IOrganizationService extends IService {
 
     /**
+     * 手动加载字典项中的数据变化
+     */
+    void loadOrgValueMapping();
+
+    /**
      * 返回指定类型的组织结构
      *
      * @param orgType  类型英文名
@@ -16,7 +21,7 @@ public interface IOrganizationService extends IService {
     PageWrapper<OrganizationDTO> listPage(String orgType, long curPage, long pageSize);
 
     /**
-     * 获取某个节点的信息
+     * 获取某个节点的信息, 返回一级子节点
      *
      * @param orgId 节点id
      * @return 节点信息

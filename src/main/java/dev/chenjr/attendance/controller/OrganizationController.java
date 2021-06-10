@@ -29,9 +29,9 @@ public class OrganizationController {
     }
 
 
-    @GetMapping("/{orgId}")
+    @GetMapping("/node/{orgId}")
     @Operation(description = "显示某个组织结构信息,包括其儿子节点(仅一级儿子)")
-    public RestResponse<OrganizationDTO> getOrg(@PathVariable Long orgId) {
+    public RestResponse<OrganizationDTO> getOrg(@PathVariable long orgId) {
         OrganizationDTO org = organizationService.fetch(orgId);
         return RestResponse.okWithData(org);
     }

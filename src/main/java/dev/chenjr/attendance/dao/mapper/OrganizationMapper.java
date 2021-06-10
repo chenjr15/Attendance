@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.Organization;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
@@ -11,5 +12,7 @@ import dev.chenjr.attendance.dao.entity.Organization;
  * @since 2021-04-11
  */
 public interface OrganizationMapper extends MyBaseMapper<Organization> {
-
+    @Override
+    @Select("SELECT 1 FROM organization WHERE id=#{id} limit 1 ")
+    Boolean exists(long id);
 }

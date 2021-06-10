@@ -1,14 +1,49 @@
 package dev.chenjr.attendance.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import dev.chenjr.attendance.dao.entity.Organization;
+import dev.chenjr.attendance.dao.mapper.OrganizationMapper;
+import dev.chenjr.attendance.exception.HttpStatusException;
+import dev.chenjr.attendance.exception.SuperException;
+import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.IOrganizationService;
+import dev.chenjr.attendance.service.dto.DictionaryDTO;
+import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
 import dev.chenjr.attendance.service.dto.OrganizationDTO;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Slf4j
 @Service
 public class OrganizationService implements IOrganizationService {
+    public static final String ORG_TYPE = "org_type";
+    private Map<String, Integer> orgValMap;
+    private Map<Integer, String> valOrgMap;
+    @Autowired
+    IDictionaryService dictionaryService;
+    @Autowired
+    OrganizationMapper organizationMapper;
+
+    int getOrgValue(String orgCode) {
+        loadOrgValueMapping();
+        return orgValMap.getOrDefault(orgCode, -1);
+
+    }
+
+    String getOrgType(int orgValue) {
+        loadOrgValueMapping();
+        return valOrgMap.getOrDefault(orgValue, "");
+    }
+
+
     /**
      * 返回指定类型的组织结构
      *
@@ -19,18 +54,57 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public PageWrapper<OrganizationDTO> listPage(String orgType, long curPage, long pageSize) {
-        return null;
+        int orgValue = getOrgValue(orgType);
+        if (orgValue < 0) {
+            throw HttpStatusException.notFound("找不到该类型的组织结构:" + orgType);
+        }
+        Page<Organization> page = new Page<>(curPage, pageSize);
+        QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
+                .eq(ORG_TYPE, orgValue)
+                .eq("parent_id", 0);
+        page = organizationMapper.selectPage(page, wr);
+
+        PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
+        List<Organization> records = page.getRecords();
+        List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
+
+        for (Organization record : records) {
+            OrganizationDTO organizationDTO = organization2DTO(record);
+            orgDtoList.add(organizationDTO);
+        }
+
+        pageWrapper.setContent(orgDtoList);
+        return pageWrapper;
     }
 
+
     /**
-     * 获取某个节点的信息
+     * 获取某个节点的信息, 返回一级子节点
      *
      * @param orgId 节点id
      * @return 节点信息
      */
     @Override
     public OrganizationDTO fetch(long orgId) {
-        return null;
+        Organization organization = organizationMapper.selectById(orgId);
+        if (organization == null) {
+            throw HttpStatusException.notFound();
+        }
+        OrganizationDTO organizationDTO = organization2DTO(organization);
+        organizationDTO.setProvince("");
+
+        QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
+                .eq("parent_id", organization.getId());
+        List<Organization> records = organizationMapper.selectList(wr);
+        List<OrganizationDTO> orgChildren = new ArrayList<>(records.size());
+
+        for (Organization record : records) {
+            OrganizationDTO childDTO = organization2DTO(record);
+            orgChildren.add(childDTO);
+        }
+        organizationDTO.setChildrenCount(orgChildren.size());
+        organizationDTO.setChildren(orgChildren);
+        return organizationDTO;
     }
 
     /**
@@ -40,8 +114,15 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public OrganizationDTO modify(OrganizationDTO orgDTO) {
-        return null;
+        Boolean exists = organizationMapper.exists(orgDTO.getId());
+        if (exists == null) {
+            throw HttpStatusException.notFound();
+        }
+        Organization newOne = dto2Organization(orgDTO);
+        organizationMapper.updateById(newOne);
+        return fetch(orgDTO.getId());
     }
+
 
     /**
      * 创建节点，会递归创建子类
@@ -51,8 +132,32 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public OrganizationDTO create(OrganizationDTO organizationDTO) {
-        return null;
+        long id = createOnly(organizationDTO, 0);
+        return fetch(id);
     }
+
+    public long createOnly(OrganizationDTO organizationDTO, int depth) {
+        if (depth > 4) {
+            // 限制四层递归
+            return 0;
+        }
+//        organizationDTO.setId(null);
+        Organization newOne = dto2Organization(organizationDTO);
+        int insert = organizationMapper.insert(newOne);
+        if (insert != 1) {
+            throw new SuperException("Failed to create.");
+        }
+
+        List<OrganizationDTO> children = organizationDTO.getChildren();
+        if (children != null) {
+            for (OrganizationDTO child : children) {
+                child.setParentId(newOne.getId());
+                createOnly(child, depth + 1);
+            }
+        }
+        return newOne.getId();
+    }
+
 
     /**
      * 删除节点，不会级联删除儿子节点
@@ -61,6 +166,57 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public void delete(long orgId) {
+        Boolean exists = organizationMapper.exists(orgId);
+        if (exists == null) {
+            throw HttpStatusException.notFound();
+        }
+        organizationMapper.deleteById(orgId);
+    }
 
+    /**
+     * 手动加载字典项中的数据变化
+     */
+    @Override
+    public void loadOrgValueMapping() {
+        if (orgValMap == null || valOrgMap == null) {
+            // load orgType
+            orgValMap = new TreeMap<>();
+            valOrgMap = new TreeMap<>();
+        } else {
+            orgValMap.clear();
+            valOrgMap.clear();
+        }
+        DictionaryDTO orgTypeDict = dictionaryService.getDictionaryByCode(ORG_TYPE);
+        for (DictionaryDetailDTO detail : orgTypeDict.getDetails()) {
+            String code = detail.getCode();
+            Integer value = detail.getValue();
+            orgValMap.put(code, value);
+            valOrgMap.put(value, code);
+        }
+    }
+
+    private Organization dto2Organization(OrganizationDTO orgDTO) {
+        Organization newOne = new Organization();
+        newOne.setId(orgDTO.getId());
+        newOne.setCode(null);
+        newOne.setName(orgDTO.getName());
+        newOne.setComment(orgDTO.getComment());
+        newOne.setProvince(orgDTO.getProvinceId());
+        newOne.setParentId(orgDTO.getParentId());
+        newOne.setParents(orgDTO.getParents());
+        newOne.setOrgType(getOrgValue(orgDTO.getOrgType()));
+        return newOne;
+    }
+
+    private OrganizationDTO organization2DTO(Organization record) {
+        OrganizationDTO dto = new OrganizationDTO();
+        dto.setId(record.getId());
+        dto.setParentId(record.getParentId());
+        dto.setProvinceId(record.getProvince());
+        dto.setName(record.getName());
+        dto.setComment(record.getComment());
+        dto.setParents(record.getParents());
+        dto.setOrgType(getOrgType(record.getOrgType()));
+        return dto;
     }
 }

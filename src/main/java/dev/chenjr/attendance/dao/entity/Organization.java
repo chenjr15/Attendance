@@ -19,6 +19,7 @@ public class Organization extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    
     private Long parentId;
 
     private String name;

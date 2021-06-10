@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -43,15 +42,17 @@ public class BadRequestHandler {
         return RestResponse.error(HttpStatus.BAD_REQUEST, BAD_ARGUMENT_MESSAGE, request.getRequestURI(), errorMap);
     }
 
+    /**
+     * 针对http状态码异常的通用方法，通过ResponseEntity来处理
+     *
+     * @param ex      异常
+     * @param request 请求
+     * @return 通过返回ResponseEntity来指定返回的http 状态码
+     */
     @ExceptionHandler(HttpStatusException.class)
-    public ResponseEntity<Map<String, Object>> handleHttpStatusException(HttpStatusException ex, HttpServletRequest request) {
-
-        Map<String, Object> map = new TreeMap<>();
-        map.put("timestamp", LocalDateTime.now());
-        map.put("status", ex.getStatus().value());
-        map.put("message", ex.getStatus().name());
-        map.put("path", request.getRequestURI());
-        return new ResponseEntity<>(map, ex.getStatus());
+    public ResponseEntity<RestResponse<?>> handleHttpStatusException(HttpStatusException ex, HttpServletRequest request) {
+        RestResponse<?> error = RestResponse.error(ex.getStatus(), ex.getMessage(), request.getRequestURI());
+        return new ResponseEntity<>(error, ex.getStatus());
 
     }
 

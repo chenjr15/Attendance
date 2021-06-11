@@ -109,13 +109,15 @@ public class DictionaryService implements IDictionaryService {
         dictMapper.selectPage(page, wr);
         PageWrapper<DictionaryDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Dictionary> records = page.getRecords();
-        List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
-
-        for (Dictionary dict : records) {
-            DictionaryDTO dto = getDictionary(dict.getId());
-            dictDtoList.add(dto);
+        if (records != null && records.size() != 0) {
+            List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
+            for (Dictionary dict : records) {
+                DictionaryDTO dto = getDictionary(dict.getId());
+                dictDtoList.add(dto);
+            }
+            pageWrapper.setContent(dictDtoList);
         }
-        pageWrapper.setContent(dictDtoList);
+
         return pageWrapper;
     }
 

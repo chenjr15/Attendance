@@ -66,14 +66,16 @@ public class OrganizationService implements IOrganizationService {
 
         PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Organization> records = page.getRecords();
-        List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
-
-        for (Organization record : records) {
-            OrganizationDTO organizationDTO = organization2DTO(record);
-            orgDtoList.add(organizationDTO);
+        
+        if (records != null && records.size() != 0) {
+            List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
+            for (Organization record : records) {
+                OrganizationDTO organizationDTO = organization2DTO(record);
+                orgDtoList.add(organizationDTO);
+            }
+            pageWrapper.setContent(orgDtoList);
         }
 
-        pageWrapper.setContent(orgDtoList);
         return pageWrapper;
     }
 
@@ -133,6 +135,7 @@ public class OrganizationService implements IOrganizationService {
     @Override
     public OrganizationDTO create(OrganizationDTO organizationDTO) {
         long id = createOnly(organizationDTO, 0);
+        // 可以用层次遍历，每一层一次插入
         return fetch(id);
     }
 

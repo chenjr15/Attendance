@@ -36,9 +36,7 @@ public class SysParamService implements ISysParamService {
         Page<SystemParam> page = new Page<>(curPage, pageSize);
         page = systemParamMapper.selectPage(page, null);
         List<SysParameterDTO> collect = page.getRecords().stream().map(SysParamService::sysParamToDTO).collect(Collectors.toList());
-        PageWrapper<SysParameterDTO> dtoPage = PageWrapper.fromIPage(page);
-        dtoPage.setContent(collect);
-        return dtoPage;
+        return PageWrapper.fromList(page, collect);
     }
 
     /**

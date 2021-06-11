@@ -19,7 +19,9 @@ import java.util.List;
 public class PageWrapper<T> {
     @Schema(description = "数据内容(数组)")
     private List<T> content;
-    @Schema(description = "当前分页下表, 从1开始")
+    @Schema(description = "当前分页元素数量")
+    private long curItemCount;
+    @Schema(description = "当前分页下标, 从1开始")
     private long current;
     @Schema(description = "页面大小")
     private long size;
@@ -28,9 +30,15 @@ public class PageWrapper<T> {
     @Schema(description = "页面数")
     private long pageCount;
 
+
     public static <E> PageWrapper<E> fromIPage(IPage<?> iPage) {
+        int curCount = 0;
+        if (iPage.getRecords() != null) {
+            curCount = iPage.getRecords().size();
+        }
         return new PageWrapper<>(
                 null,
+                curCount,
                 iPage.getCurrent(),
                 iPage.getSize(),
                 iPage.getTotal(),
@@ -40,8 +48,11 @@ public class PageWrapper<T> {
 
     public static <E> PageWrapper<E> fromList(IPage<?> iPage, List<E> list) {
 
-        PageWrapper<E> ePageWrapper = PageWrapper.fromIPage(iPage);
-        ePageWrapper.setContent(list);
-        return ePageWrapper;
+        PageWrapper<E> wrapper = PageWrapper.fromIPage(iPage);
+        if (list != null) {
+            wrapper.setCurItemCount(list.size());
+        }
+        wrapper.setContent(list);
+        return wrapper;
     }
 }

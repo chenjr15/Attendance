@@ -46,7 +46,7 @@ public class OrganizationDTO {
   private String parents;
 
   @Schema(description = "子结构数量")
-  private Integer childrenCount;
+  private int childrenCount;
   @Schema(description = "子结构")
   private List<OrganizationDTO> children;
 }

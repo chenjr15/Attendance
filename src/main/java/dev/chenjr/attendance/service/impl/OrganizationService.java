@@ -66,7 +66,7 @@ public class OrganizationService implements IOrganizationService {
 
         PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Organization> records = page.getRecords();
-        
+
         if (records != null && records.size() != 0) {
             List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
             for (Organization record : records) {
@@ -98,14 +98,16 @@ public class OrganizationService implements IOrganizationService {
         QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
                 .eq("parent_id", organization.getId());
         List<Organization> records = organizationMapper.selectList(wr);
-        List<OrganizationDTO> orgChildren = new ArrayList<>(records.size());
-
-        for (Organization record : records) {
-            OrganizationDTO childDTO = organization2DTO(record);
-            orgChildren.add(childDTO);
+        if (records != null && records.size() != 0) {
+            List<OrganizationDTO> orgChildren = new ArrayList<>(records.size());
+            for (Organization record : records) {
+                OrganizationDTO childDTO = organization2DTO(record);
+                orgChildren.add(childDTO);
+            }
+            organizationDTO.setChildrenCount(orgChildren.size());
+            organizationDTO.setChildren(orgChildren);
         }
-        organizationDTO.setChildrenCount(orgChildren.size());
-        organizationDTO.setChildren(orgChildren);
+
         return organizationDTO;
     }
 

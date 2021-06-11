@@ -16,4 +16,6 @@ public interface CourseMapper extends MyBaseMapper<Course> {
     @Override
     @Select("SELECT 1 FROM course WHERE id=#{id} limit 1 ")
     Boolean exists(@Param("id") long id);
+
+
 }

@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.UserCourse;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -16,5 +17,6 @@ public interface UserCourseMapper extends MyBaseMapper<UserCourse> {
     @Select("SELECT 1 FROM user_course WHERE user_id = #{uid} and course_id=#{courseId} limit 1 ")
     Boolean elected(@Param("uid") long uid, @Param("courseId") long courseId);
 
-
+    @Delete("DELETE  FROM user_course WHERE user_id = #{uid} and course_id=#{courseId}limit 1 ")
+    int quit(@Param("uid") long uid, @Param("courseId") long courseId);
 }

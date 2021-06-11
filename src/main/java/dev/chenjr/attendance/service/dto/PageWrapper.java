@@ -20,13 +20,13 @@ public class PageWrapper<T> {
     @Schema(description = "数据内容(数组)")
     private List<T> content;
     @Schema(description = "当前分页下表, 从1开始")
-    private Long current;
+    private long current;
     @Schema(description = "页面大小")
-    private Long size;
+    private long size;
     @Schema(description = "所有的数据项数量")
-    private Long total;
+    private long total;
     @Schema(description = "页面数")
-    private Long pageCount;
+    private long pageCount;
 
     public static <E> PageWrapper<E> fromIPage(IPage<?> iPage) {
         return new PageWrapper<>(
@@ -38,4 +38,10 @@ public class PageWrapper<T> {
         );
     }
 
+    public static <E> PageWrapper<E> fromList(IPage<?> iPage, List<E> list) {
+
+        PageWrapper<E> ePageWrapper = PageWrapper.fromIPage(iPage);
+        ePageWrapper.setContent(list);
+        return ePageWrapper;
+    }
 }

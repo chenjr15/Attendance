@@ -92,6 +92,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // System WHITELIST
     public static final String[] SYSTEM_WHITELIST = {
             "/auth/login",
+            "/auth/password",
             "/oauth/callback/**",
             "/users/signup", "/users",
             "/auth/password/*",

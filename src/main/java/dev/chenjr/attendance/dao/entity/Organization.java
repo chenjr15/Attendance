@@ -19,7 +19,7 @@ public class Organization extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    
+
     private Long parentId;
 
     private String name;
@@ -29,5 +29,5 @@ public class Organization extends BaseEntity {
     @Schema(description = "类型，院校为0", defaultValue = "0")
     private Integer orgType;
     @Schema(description = "所属省份，，0为其他", defaultValue = "0")
-    private Long province;
+    private Long provinceId;
 }

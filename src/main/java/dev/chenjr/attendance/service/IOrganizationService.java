@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.service.dto.OrganizationDTO;
+import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 
 public interface IOrganizationService extends IService {
@@ -49,4 +50,6 @@ public interface IOrganizationService extends IService {
      * @param orgId 要删除id
      */
     void delete(long orgId);
+
+    PageWrapper<OrganizationDTO> listPage(String orgType, PageSort pageSort);
 }

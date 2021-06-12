@@ -8,10 +8,8 @@ import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.IOrganizationService;
-import dev.chenjr.attendance.service.dto.DictionaryDTO;
-import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
-import dev.chenjr.attendance.service.dto.OrganizationDTO;
-import dev.chenjr.attendance.service.dto.PageWrapper;
+import dev.chenjr.attendance.service.dto.*;
+import dev.chenjr.attendance.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,8 +36,11 @@ public class OrganizationService implements IOrganizationService {
 
     }
 
-    String getOrgType(int orgValue) {
+    String getOrgType(Integer orgValue) {
         loadOrgValueMapping();
+        if (orgValue == null) {
+            orgValue = 0;
+        }
         return valOrgMap.getOrDefault(orgValue, "");
     }
 
@@ -61,7 +62,38 @@ public class OrganizationService implements IOrganizationService {
         Page<Organization> page = new Page<>(curPage, pageSize);
         QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
                 .eq(ORG_TYPE, orgValue)
-                .eq("parent_id", 0);
+                .eq(StringUtil.toUnderlineCase("parentId"), 0);
+        page = organizationMapper.selectPage(page, wr);
+
+        PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
+        List<Organization> records = page.getRecords();
+
+        if (records != null && records.size() != 0) {
+            List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
+            for (Organization record : records) {
+                OrganizationDTO organizationDTO = organization2DTO(record);
+                orgDtoList.add(organizationDTO);
+            }
+            pageWrapper.setContent(orgDtoList);
+        }
+
+        return pageWrapper;
+    }
+
+    @Override
+    public PageWrapper<OrganizationDTO> listPage(String orgType, PageSort pageSort) {
+
+        int orgValue = getOrgValue(orgType);
+        if (orgValue < 0) {
+            throw HttpStatusException.notFound("找不到该类型的组织结构:" + orgType);
+        }
+        Page<Organization> page = pageSort.getPage();
+
+        QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
+                .eq(ORG_TYPE, orgValue)
+                .eq(StringUtil.toUnderlineCase("parentId"), 0);
+
+        wr = pageSort.buildQueryWrapper(wr, "name");
         page = organizationMapper.selectPage(page, wr);
 
         PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
@@ -206,7 +238,7 @@ public class OrganizationService implements IOrganizationService {
         newOne.setCode(null);
         newOne.setName(orgDTO.getName());
         newOne.setComment(orgDTO.getComment());
-        newOne.setProvince(orgDTO.getProvinceId());
+        newOne.setProvinceId(orgDTO.getProvinceId());
         newOne.setParentId(orgDTO.getParentId());
         newOne.setParents(orgDTO.getParents());
         newOne.setOrgType(getOrgValue(orgDTO.getOrgType()));
@@ -217,7 +249,7 @@ public class OrganizationService implements IOrganizationService {
         OrganizationDTO dto = new OrganizationDTO();
         dto.setId(record.getId());
         dto.setParentId(record.getParentId());
-        dto.setProvinceId(record.getProvince());
+        dto.setProvinceId(record.getProvinceId());
         dto.setName(record.getName());
         dto.setComment(record.getComment());
         dto.setParents(record.getParents());

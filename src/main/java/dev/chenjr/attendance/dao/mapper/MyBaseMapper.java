@@ -3,6 +3,8 @@ package dev.chenjr.attendance.dao.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Optional;
+
 public interface MyBaseMapper<T> extends BaseMapper<T> {
     /**
      * 必须重写才能用！
@@ -14,5 +16,5 @@ public interface MyBaseMapper<T> extends BaseMapper<T> {
      * @return !不存在返回 null, 存在返回true,
      */
 //    @Select("SELECT 1 FROM {TABLE} WHERE id=#{id} limit 1 ")
-    Boolean exists(@Param("id") long id);
+    Optional<Boolean> exists(@Param("id") long id);
 }

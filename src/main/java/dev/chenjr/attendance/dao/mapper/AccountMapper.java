@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -40,5 +41,5 @@ public interface AccountMapper extends MyBaseMapper<Account> {
 
     @Override
     @Select("SELECT 1 FROM account WHERE id=#{id} limit 1 ")
-    Boolean exists(@Param("id") long id);
+    Optional<Boolean> exists(@Param("id") long id);
 }

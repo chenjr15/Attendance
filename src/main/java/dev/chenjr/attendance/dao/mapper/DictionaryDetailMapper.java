@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -19,7 +20,7 @@ import java.util.List;
 public interface DictionaryDetailMapper extends MyBaseMapper<DictionaryDetail> {
     @Override
     @Select("SELECT 1 FROM dictionary_detail WHERE id=#{id} limit 1 ")
-    Boolean exists(@Param("id") long id);
+    Optional<Boolean> exists(@Param("id") long id);
 
     @Select("SELECT * FROM dictionary_detail where dictionary_id=#{dictId}")
     List<DictionaryDetail> getByDictId(@Param("dictId") Long dictId);

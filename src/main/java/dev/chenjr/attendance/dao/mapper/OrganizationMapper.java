@@ -3,6 +3,8 @@ package dev.chenjr.attendance.dao.mapper;
 import dev.chenjr.attendance.dao.entity.Organization;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Optional;
+
 /**
  * <p>
  * 学校信息表，学校-> 院系->专业->班级 Mapper 接口
@@ -14,5 +16,5 @@ import org.apache.ibatis.annotations.Select;
 public interface OrganizationMapper extends MyBaseMapper<Organization> {
     @Override
     @Select("SELECT 1 FROM organization WHERE id=#{id} limit 1 ")
-    Boolean exists(long id);
+    Optional<Boolean> exists(long id);
 }

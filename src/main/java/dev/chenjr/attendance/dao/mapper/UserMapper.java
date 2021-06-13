@@ -4,6 +4,8 @@ import dev.chenjr.attendance.dao.entity.User;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Optional;
+
 /**
  * <p>
  * 用户表，所有系统内的用户都在这个表里 Mapper 接口
@@ -15,7 +17,7 @@ import org.apache.ibatis.annotations.Select;
 public interface UserMapper extends MyBaseMapper<User> {
     @Override
     @Select("SELECT 1 FROM user WHERE id=#{id} limit 1 ")
-    Boolean exists(@Param("id") long id);
+    Optional<Boolean> exists(@Param("id") long id);
 
     @Select("SELECT * FROM user WHERE email = #{email}")
     User getByEmail(@Param("email") String email);

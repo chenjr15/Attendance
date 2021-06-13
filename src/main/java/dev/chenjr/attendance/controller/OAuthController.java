@@ -3,7 +3,7 @@ package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.SuperException;
-import dev.chenjr.attendance.service.dto.InputBindThirdPartyDTO;
+import dev.chenjr.attendance.service.dto.BindThirdPartyDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.impl.AccountService;
 import dev.chenjr.attendance.service.impl.UserService;
@@ -41,7 +41,7 @@ public class OAuthController {
 
     @PostMapping("/{uid}")
     @Operation(description = "绑定第三方账号")
-    public RestResponse<?> bindThirdParty(@Validated @RequestBody InputBindThirdPartyDTO thirdPartyDTO,
+    public RestResponse<?> bindThirdParty(@Validated @RequestBody BindThirdPartyDTO thirdPartyDTO,
                                           @PathVariable Long uid,
                                           @AuthenticationPrincipal User user
     ) {

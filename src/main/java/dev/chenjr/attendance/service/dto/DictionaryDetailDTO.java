@@ -12,8 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DictionaryDetailDTO {
-    @JsonSerialize(using = ToStringSerializer.class)
+
     @Schema(description = "明细项id")
+    @JsonSerialize(using = ToStringSerializer.class)
     Long id;
 
     @Schema(description = "明细项数据库代码", example = "1")

@@ -1,7 +1,7 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.service.dto.CheckInTaskDTO;
-import dev.chenjr.attendance.service.dto.InputCheckInTaskLogDTO;
+import dev.chenjr.attendance.service.dto.CheckInTaskLogDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -64,7 +64,7 @@ public class CheckInTaskController {
 
     @PostMapping("/{taskId}/log/")
     @Operation(description = "签到")
-    public RestResponse<?> checkIn(@RequestBody @Validated InputCheckInTaskLogDTO checkInTaskLogDTO, @PathVariable Long taskId) {
+    public RestResponse<?> checkIn(@RequestBody @Validated CheckInTaskLogDTO checkInTaskLogDTO, @PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
 }

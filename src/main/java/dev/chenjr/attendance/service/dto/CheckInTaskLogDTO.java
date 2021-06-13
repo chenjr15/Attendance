@@ -1,19 +1,23 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.NonNull;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
-public class InputCheckInTaskLogDTO {
+public class CheckInTaskLogDTO {
 
-    @NonNull
+    @NotNull
     @Schema(description = "学生id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long userId;
-    @NonNull
+    @NotNull
     @Schema(description = "签到任务id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long taskId;
     @NotBlank
     @Schema(description = "签到地点(gps)")

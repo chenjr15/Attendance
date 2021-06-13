@@ -1,5 +1,7 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InputBindThirdPartyDTO {
+public class BindThirdPartyDTO {
     @NotBlank
     private String openid;
     @NotBlank
@@ -18,6 +20,7 @@ public class InputBindThirdPartyDTO {
     @NotBlank
     private String type;
     @Schema(hidden = true)
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long uid;
 
 }

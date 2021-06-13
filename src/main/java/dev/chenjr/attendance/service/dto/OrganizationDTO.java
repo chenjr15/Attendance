@@ -21,9 +21,9 @@ public class OrganizationDTO {
   private Long id;
 
   @NotNull
-  @JsonSerialize(using = ToStringSerializer.class)
   @Schema(type = "string", description = "父级id，如果为0则为顶级结构", example = "0")
   @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonSerialize(using = ToStringSerializer.class)
   private Long parentId;
 
   @NotBlank

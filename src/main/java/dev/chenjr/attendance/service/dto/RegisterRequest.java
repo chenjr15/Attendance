@@ -11,22 +11,26 @@ import javax.validation.constraints.Size;
 @Data
 public class RegisterRequest {
 
-    @Schema(description = "登录名", pattern = LoginNameValidator.RE_LOGIN_NAME)
     @LoginName
+    @Schema(description = "登录名", pattern = LoginNameValidator.RE_LOGIN_NAME)
     private String loginName;
 
-    @Schema(description = "真实姓名")
     @Size(min = 2, max = 20)
+    @Schema(description = "真实姓名")
     private String realName;
+
     @Email
     @Schema(description = "用户邮箱，可以不填")
     private String email;
+
     @NotBlank
     @PhoneNumber
     @Schema(required = true, pattern = PhoneNumberValidator.RE_PHONE_NUMBER)
     private String phone;
+
     @Schema(description = "性别", example = "0")
     private Integer gender = 0;
+    
     @Schema(description = "用户角色", example = "ROLE_STUDENT")
     private String roles;
 

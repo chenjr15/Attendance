@@ -1,5 +1,7 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +43,7 @@ public class CourseDTO {
     private long checkCount;
 
     @Schema(description = "学校院系专业ID", example = "102210")
+    @JsonSerialize(using = ToStringSerializer.class)
     private long schoolMajorID;
     @Schema(description = "学校院系专业名", example = "xx大学-计算机学院-软件工程专业-软工1班")
     private String schoolMajorName;

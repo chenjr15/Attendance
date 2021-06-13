@@ -9,8 +9,8 @@ import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.InputBindThirdPartyDTO;
-import dev.chenjr.attendance.service.dto.InputLoginDTO;
+import dev.chenjr.attendance.service.dto.BindThirdPartyDTO;
+import dev.chenjr.attendance.service.dto.LoginDTO;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -171,7 +171,7 @@ public class AccountService extends BaseService implements IAccountService {
      * @return Token
      */
     @Override
-    public TokenUidDTO loginAndCreateToken(InputLoginDTO loginRequest) {
+    public TokenUidDTO loginAndCreateToken(LoginDTO loginRequest) {
         Account accountInfo = accountMapper.getOneByAccount(loginRequest.getAccount());
         if (accountInfo == null) {
             throw new UsernameNotFoundException("用户不存在");
@@ -250,17 +250,17 @@ public class AccountService extends BaseService implements IAccountService {
     }
 
     @Override
-    public void bindThirdParty(InputBindThirdPartyDTO thirdPartyDTO) {
+    public void bindThirdParty(BindThirdPartyDTO thirdPartyDTO) {
         log.info("{}", thirdPartyDTO);
         boolean exists = this.accountExists(thirdPartyDTO.getAccessToken());
         if (exists) {
             throw new SuperException("用户已绑定其他账号，请先解绑！");
         }
         Account externalAccount = Account
-                .external(thirdPartyDTO.getUid(),
-                        thirdPartyDTO.getType(),
-                        thirdPartyDTO.getOpenid(),
-                        thirdPartyDTO.getAccessToken());
+            .external(thirdPartyDTO.getUid(),
+                thirdPartyDTO.getType(),
+                thirdPartyDTO.getOpenid(),
+                thirdPartyDTO.getAccessToken());
         accountMapper.insert(externalAccount);
 
     }

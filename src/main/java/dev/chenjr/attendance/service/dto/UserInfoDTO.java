@@ -36,6 +36,7 @@ public class UserInfoDTO {
     @Schema(description = "学工号")
     private String academicId;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "学校院系专业ID", example = "102210")
     private Long schoolMajorID;
     @Schema(description = "学校院系专业名", example = "xx大学-计算机学院-软件工程专业-软工1班")

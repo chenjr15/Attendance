@@ -9,8 +9,9 @@ import java.util.List;
 
 @Data
 public class DictionaryDTO {
-    @JsonSerialize(using = ToStringSerializer.class)
+
     @Schema(description = "数据字典id")
+    @JsonSerialize(using = ToStringSerializer.class)
     Long id;
 
     @Schema(description = "字典项名", example = "性别")

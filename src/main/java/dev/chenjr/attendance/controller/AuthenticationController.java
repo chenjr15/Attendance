@@ -4,7 +4,7 @@ import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.InputLoginDTO;
+import dev.chenjr.attendance.service.dto.LoginDTO;
 import dev.chenjr.attendance.service.dto.ResetPasswordDTO;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
@@ -43,7 +43,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     @SecurityRequirements
     @Operation(description = "这个方法用于登录验证后返回token和uid")
-    public RestResponse<TokenUidDTO> login(@RequestBody @Validated InputLoginDTO request) {
+    public RestResponse<TokenUidDTO> login(@RequestBody @Validated LoginDTO request) {
         // 尝试登录
         TokenUidDTO tokenUidDTO = authenticationService.loginAndCreateToken(request);
         log.info("Login, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
@@ -67,7 +67,7 @@ public class AuthenticationController {
 
     // 暂时不需要logout, 客户端直接将token销毁即可
     @PostMapping("/logout")
-    public RestResponse<?> logout(@RequestBody @Validated InputLoginDTO request) {
+    public RestResponse<?> logout(@RequestBody @Validated LoginDTO request) {
         return RestResponse.notImplemented();
     }
 

@@ -4,8 +4,8 @@ package dev.chenjr.attendance.service;
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.SetPasswordFailException;
-import dev.chenjr.attendance.service.dto.InputBindThirdPartyDTO;
-import dev.chenjr.attendance.service.dto.InputLoginDTO;
+import dev.chenjr.attendance.service.dto.BindThirdPartyDTO;
+import dev.chenjr.attendance.service.dto.LoginDTO;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 
 import javax.validation.constraints.NotNull;
@@ -90,7 +90,7 @@ public interface IAccountService extends IService {
      * @param loginRequest 登陆请求
      * @return token
      */
-    TokenUidDTO loginAndCreateToken(InputLoginDTO loginRequest);
+    TokenUidDTO loginAndCreateToken(LoginDTO loginRequest);
 
     /**
      * 创建Token
@@ -132,5 +132,5 @@ public interface IAccountService extends IService {
      *
      * @param thirdPartyDTO 绑定信息
      */
-    void bindThirdParty(InputBindThirdPartyDTO thirdPartyDTO);
+    void bindThirdParty(BindThirdPartyDTO thirdPartyDTO);
 }

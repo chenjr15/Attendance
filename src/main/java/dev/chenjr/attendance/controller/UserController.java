@@ -94,7 +94,7 @@ public class UserController {
 
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息")
-    public RestResponse<?> modifyUser(@PathVariable Long uid, @RequestBody InputModifyUserDTO modifyUserRequest) {
+    public RestResponse<?> modifyUser(@PathVariable Long uid, @RequestBody ModifyUserDTO modifyUserRequest) {
 //        BeanUtils.copyProperties();
         return RestResponse.notImplemented();
     }

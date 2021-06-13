@@ -74,8 +74,8 @@ public class DictionaryService implements IDictionaryService {
     @Override
     @Transactional
     public DictionaryDetailDTO addDictionaryDetail(long dictId, DictionaryDetailDTO detailDTO) {
-        Boolean exists = this.dictMapper.exists(dictId);
-        if (exists == null || !exists) {
+        Optional<Boolean> exists = this.dictMapper.exists(dictId);
+        if (!exists.isPresent()) {
             throw HttpStatusException.notFound();
         }
         // 防止传入id
@@ -155,8 +155,8 @@ public class DictionaryService implements IDictionaryService {
      */
     @Override
     public DictionaryDTO modifyDictionary(DictionaryDTO dictionaryDTO) {
-        Boolean exists = dictMapper.exists(dictionaryDTO.getId());
-        if (exists == null || !exists) {
+        Optional<Boolean> exists = dictMapper.exists(dictionaryDTO.getId());
+        if (!exists.isPresent()) {
             throw HttpStatusException.notFound("Can not found dict by id:" + dictionaryDTO.getId().toString());
         }
         Dictionary dictionary = dto2Dict(dictionaryDTO);

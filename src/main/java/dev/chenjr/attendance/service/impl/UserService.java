@@ -5,21 +5,30 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserInfoDTO;
+import dev.chenjr.attendance.service.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static dev.chenjr.attendance.utils.RandomUtil.randomStringWithDate;
+import static org.springframework.util.StringUtils.getFilenameExtension;
 
 @Service
 @Slf4j
@@ -86,25 +95,17 @@ public class UserService extends BaseService implements IUserService {
 
 
     @Override
-    public List<UserInfoDTO> getUsers(long pageIndex, long pageSize) {
+    public List<UserDTO> getUsers(long pageIndex, long pageSize) {
         Page<User> userPage = new Page<>(pageIndex, pageSize);
         userMapper.selectPage(userPage, null);
         List<User> records = userPage.getRecords();
-        Stream<UserInfoDTO> infoResponseStream = records.stream().map(this::userToUserInfo);
+        Stream<UserDTO> infoResponseStream = records.stream().map(this::userToUserInfo);
         return infoResponseStream.collect(Collectors.toList());
     }
 
     @Override
-    public UserInfoDTO userToUserInfo(User user) {
-        UserInfoDTO userInfo = new UserInfoDTO(
-                user.getId(),
-                user.getLoginName(),
-                user.getRealName(),
-                "UNKNOWN",
-                user.getEmail(),
-                user.getPhone(),
-                user.getAcademicId(),
-                0L, "UNKNOWN");
+    public UserDTO userToUserInfo(User user) {
+        UserDTO userInfo = user2DTO(user);
         // TODO 改到字典类中查询
         HashMap<Integer, String> genderMap = new HashMap<>();
         genderMap.put(0, "未知");
@@ -152,7 +153,7 @@ public class UserService extends BaseService implements IUserService {
 
     @Override
     public boolean userExists(long uid) {
-        return userMapper.exists(uid) != null;
+        return userMapper.exists(uid).orElse(false);
     }
 
     @Override
@@ -169,5 +170,45 @@ public class UserService extends BaseService implements IUserService {
     public void deleteByUid(long uid) {
         accountMapper.deleteByUid(uid);
         userMapper.deleteById(uid);
+    }
+
+    @Value("${avatar.storage.path}")
+    String avatarStoragePath;
+
+    @Override
+    public String modifyAvatar(Long uid, MultipartFile uploaded) {
+        Optional<Boolean> exists = this.userMapper.exists(uid);
+        log.info("EXISTS : {}", exists);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound();
+        }
+        String storeName = randomStringWithDate(20);
+        String extension = getFilenameExtension(uploaded.getOriginalFilename());
+        storeName = storeName + '.' + extension;
+        File saveFile = new File(avatarStoragePath + storeName);
+        try {
+            uploaded.transferTo(saveFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw HttpStatusException.badRequest("上传失败！");
+        }
+        User user = new User();
+        user.setId(uid);
+        user.setAvatar(storeName);
+        userMapper.updateById(user);
+        return storeName;
+    }
+
+    UserDTO user2DTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setAcademicId(user.getAcademicId());
+        dto.setLoginName(user.getLoginName());
+        dto.setRealName(user.getRealName());
+        dto.setSchoolMajorID(user.getSchoolMajor());
+        dto.setAvatar(user.getAvatar());
+        return dto;
     }
 }

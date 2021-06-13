@@ -91,6 +91,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // System WHITELIST
     public static final String[] SYSTEM_WHITELIST = {
+            "/favicon.ico",
+            "/avatar/**",
             "/auth/login",
             "/auth/password",
             "/oauth/callback/**",
@@ -102,7 +104,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/",
             "/version",
             "/account/unique/**"
-
     };
 
 

@@ -14,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -150,8 +147,8 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public OrganizationDTO modify(OrganizationDTO orgDTO) {
-        Boolean exists = organizationMapper.exists(orgDTO.getId());
-        if (exists == null) {
+        Optional<Boolean> exists = organizationMapper.exists(orgDTO.getId());
+        if (!exists.isPresent()) {
             throw HttpStatusException.notFound();
         }
         Organization newOne = dto2Organization(orgDTO);
@@ -203,8 +200,8 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public void delete(long orgId) {
-        Boolean exists = organizationMapper.exists(orgId);
-        if (exists == null) {
+        Optional<Boolean> exists = organizationMapper.exists(orgId);
+        if (!exists.isPresent()) {
             throw HttpStatusException.notFound();
         }
         organizationMapper.deleteById(orgId);

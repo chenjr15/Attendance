@@ -15,7 +15,7 @@ import javax.validation.constraints.Email;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfoDTO {
+public class UserDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     @Schema(type = "string", description = "userid会返回字符串格式的uid以防止json数字精度丢失问题")
     private Long id;
@@ -29,7 +29,7 @@ public class UserInfoDTO {
 
     @Email
     private String email;
-    
+
     @PhoneNumber
     private String phone;
 
@@ -41,4 +41,7 @@ public class UserInfoDTO {
     private Long schoolMajorID;
     @Schema(description = "学校院系专业名", example = "xx大学-计算机学院-软件工程专业-软工1班")
     private String schoolMajorName;
+
+    @Schema(description = "头像链接")
+    private String avatar;
 }

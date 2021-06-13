@@ -54,7 +54,7 @@ public class DictionaryController {
         return RestResponse.okWithData(dto);
     }
 
-    @PutMapping("/{dictId}")
+    @PatchMapping("/{dictId}")
     @Operation(description = "修改数据字典(**不修改明细**)，返回修改后的数据。\n")
     public RestResponse<DictionaryDTO> modifyDictionary(
             @RequestBody @Validated DictionaryDTO dictionaryDTO,
@@ -65,7 +65,7 @@ public class DictionaryController {
         return RestResponse.okWithData(dto);
     }
 
-    @PutMapping("/{dictId}/{detailId}")
+    @PatchMapping("/{dictId}/{detailId}")
     @Operation(description = "修改数据字典__明细项__，返回修改后的__整个数据字典__信息,`body`中的明细`id`可以不填\n " +
             "- 支持修改该项为默认项，传入` {\"isDefault\": true}`")
     public RestResponse<DictionaryDTO> modifyDictionaryDetail(

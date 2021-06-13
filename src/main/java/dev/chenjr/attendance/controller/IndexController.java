@@ -5,15 +5,22 @@ import dev.chenjr.attendance.utils.RandomUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 @RestController
 @SecurityRequirements
 @Tag(name = "首页", description = "just for fun")
 public class IndexController {
+    @Value("${doc.version}")
+    String version;
 
     @GetMapping("/")
     @Operation(description = "Hello world！")
@@ -23,8 +30,13 @@ public class IndexController {
 
     @GetMapping("/version")
     @Operation(description = "Api Version")
-    public RestResponse<String> version() {
-        return RestResponse.okWithData("alpha.0.1");
+    public RestResponse<Map<String, String>> version() {
+        Map<String, String> map = new TreeMap<>();
+        map.put("version", version);
+        String cwd = Paths.get(".").toAbsolutePath().normalize().toString();
+        map.put("cwd", cwd);
+
+        return RestResponse.okWithData(map);
     }
 
     @GetMapping("/randomString")

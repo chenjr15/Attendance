@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -35,10 +36,10 @@ public class UserController {
 
     @GetMapping("")
     @Operation(description = "获取用户列表")
-    public RestResponse<List<UserInfoDTO>> listUsers(
+    public RestResponse<List<UserDTO>> listUsers(
             @RequestParam(defaultValue = "1") long curPage,
             @RequestParam(defaultValue = "10") long pageSize) {
-        List<UserInfoDTO> users = this.userService.getUsers(curPage, pageSize);
+        List<UserDTO> users = this.userService.getUsers(curPage, pageSize);
         return RestResponse.okWithData(users);
     }
 
@@ -68,7 +69,7 @@ public class UserController {
 
     @GetMapping("/{uid}")
     @Operation(description = "获取指定用户的信息")
-    public RestResponse<UserInfoDTO> getUser(@PathVariable Long uid) {
+    public RestResponse<UserDTO> getUser(@PathVariable Long uid) {
         log.info("Getting user:" + uid.toString());
         User user = userService.getUserById(uid);
         return RestResponse.okWithData(userService.userToUserInfo(user));
@@ -93,9 +94,28 @@ public class UserController {
     }
 
     @PatchMapping("/{uid}")
-    @Operation(description = "修改用户信息")
+    @Operation(description = "修改用户信息,部分修改")
     public RestResponse<?> modifyUser(@PathVariable Long uid, @RequestBody ModifyUserDTO modifyUserRequest) {
 //        BeanUtils.copyProperties();
         return RestResponse.notImplemented();
     }
+
+    @PutMapping("/{uid}/avatar")
+    @Operation(description = "修改头像（上传）")
+    public RestResponse<String> modifyAvatar(@PathVariable Long uid, @RequestParam("avatar") MultipartFile uploaded) {
+
+        String storeName = userService.modifyAvatar(uid, uploaded);
+
+        return RestResponse.okWithData(storeName);
+    }
+
+    @PutMapping("/me/avatar")
+    @Operation(description = "修改头像（上传）")
+    public RestResponse<String> modifyMyAvatar(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            @RequestPart("avatar") MultipartFile uploaded) {
+        String storeName = userService.modifyAvatar(user.getId(), uploaded);
+        return RestResponse.okWithData(storeName);
+    }
+
 }

@@ -3,8 +3,9 @@ package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserInfoDTO;
+import dev.chenjr.attendance.service.dto.UserDTO;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,9 +32,9 @@ public interface IUserService extends IService {
     User getUserByAccount(String account);
 
 
-    List<UserInfoDTO> getUsers(long pageIndex, long pageSize);
+    List<UserDTO> getUsers(long pageIndex, long pageSize);
 
-    UserInfoDTO userToUserInfo(User user);
+    UserDTO userToUserInfo(User user);
 
     @Transactional
     User register(RegisterRequest request);
@@ -46,6 +47,8 @@ public interface IUserService extends IService {
     boolean userExists(long uid);
 
     boolean userExists(String account);
-    
+
     void deleteByUid(long uid);
+
+    String modifyAvatar(Long uid, MultipartFile uploaded);
 }

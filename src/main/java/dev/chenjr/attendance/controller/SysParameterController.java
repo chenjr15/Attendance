@@ -44,7 +44,7 @@ public class SysParameterController {
         return RestResponse.okWithData(systemParam);
     }
 
-    @PutMapping("/{paramCode}")
+    @PatchMapping("/{paramCode}")
     @Operation(description = "修改系统参数, body中的 paramCode 可以不填，会被覆盖url中的paramCode")
     public RestResponse<?> modifySysParameter(
             @RequestBody @Validated SysParameterDTO parameterDTO,

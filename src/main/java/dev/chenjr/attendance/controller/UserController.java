@@ -3,22 +3,25 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
+import dev.chenjr.attendance.service.IAccountService;
+import dev.chenjr.attendance.service.ISmsService;
+import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.*;
-import dev.chenjr.attendance.service.impl.AccountService;
-import dev.chenjr.attendance.service.impl.SmsService;
-import dev.chenjr.attendance.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -27,19 +30,18 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    AccountService accountService;
+    IAccountService accountService;
     @Autowired
-    UserService userService;
+    IUserService userService;
 
     @Autowired
-    SmsService smsService;
+    ISmsService smsService;
 
     @GetMapping("")
     @Operation(description = "获取用户列表")
-    public RestResponse<List<UserDTO>> listUsers(
-            @RequestParam(defaultValue = "1") long curPage,
-            @RequestParam(defaultValue = "10") long pageSize) {
-        List<UserDTO> users = this.userService.getUsers(curPage, pageSize);
+    public RestResponse<PageWrapper<UserDTO>> listUsers(
+            @ParameterObject PageSort pageSort) {
+        PageWrapper<UserDTO> users = this.userService.listUser(pageSort);
         return RestResponse.okWithData(users);
     }
 
@@ -70,9 +72,8 @@ public class UserController {
     @GetMapping("/{uid}")
     @Operation(description = "获取指定用户的信息")
     public RestResponse<UserDTO> getUser(@PathVariable Long uid) {
-        log.info("Getting user:" + uid.toString());
-        User user = userService.getUserById(uid);
-        return RestResponse.okWithData(userService.userToUserInfo(user));
+        UserDTO user = userService.getUser(uid);
+        return RestResponse.okWithData(user);
     }
 
     @DeleteMapping("/{uid}")
@@ -100,7 +101,7 @@ public class UserController {
         return RestResponse.notImplemented();
     }
 
-    @PutMapping("/{uid}/avatar")
+    @PutMapping(value = "/{uid}/avatar", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(description = "修改头像（上传）")
     public RestResponse<String> modifyAvatar(@PathVariable Long uid, @RequestParam("avatar") MultipartFile uploaded) {
 
@@ -109,9 +110,27 @@ public class UserController {
         return RestResponse.okWithData(storeName);
     }
 
-    @PutMapping("/me/avatar")
+    @Operation(description = "直接返回指定用户的头像(文件)")
+    @GetMapping(value = "/{uid}/avatar")
+    public void getAvatar(@PathVariable Long uid, HttpServletResponse response) throws IOException {
+        UserDTO userDTO = userService.getUser(uid);
+        response.sendRedirect(userDTO.getAvatar());
+    }
+
+    @Operation(description = "直接返回当前用户的头像(文件)")
+    @GetMapping(value = "/me/avatar")
+    public void getCurrentAvatar(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            HttpServletResponse response
+    ) throws IOException {
+        UserDTO userDTO = userService.userToUserInfo(user);
+        // 重定向到当前用户的文件
+        response.sendRedirect(userDTO.getAvatar());
+    }
+
+    @PutMapping(value = "/me/avatar", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(description = "修改头像（上传）")
-    public RestResponse<String> modifyMyAvatar(
+    public RestResponse<String> modifyCurrentAvatar(
             @Parameter(hidden = true) @AuthenticationPrincipal User user,
             @RequestPart("avatar") MultipartFile uploaded) {
         String storeName = userService.modifyAvatar(user.getId(), uploaded);

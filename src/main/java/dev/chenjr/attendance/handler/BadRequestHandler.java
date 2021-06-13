@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -62,7 +63,8 @@ public class BadRequestHandler {
             JsonParseException.class,
             SuperException.class,
             MethodArgumentTypeMismatchException.class,
-            AuthenticationException.class
+            AuthenticationException.class,
+            MaxUploadSizeExceededException.class
     })
     public RestResponse<?> handleManyException(Exception ex, HttpServletRequest request) {
 

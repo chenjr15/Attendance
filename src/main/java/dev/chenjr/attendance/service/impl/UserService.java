@@ -218,7 +218,11 @@ public class UserService implements IUserService {
      */
     @Override
     public UserDTO getUser(Long uid) {
-        return null;
+        User user = userMapper.selectById(uid);
+        if (user == null) {
+            throw HttpStatusException.notFound("用户id不存在！");
+        }
+        return userToUserInfo(user);
     }
 
     /**

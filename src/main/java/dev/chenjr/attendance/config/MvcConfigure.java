@@ -25,7 +25,7 @@ public class MvcConfigure implements WebMvcConfigurer {
                 // preflight 会过来问能不能用下面的头
                 .allowedHeaders("Authorization", "Origin", "content-type")
                 // preflight 会过来问能不能用下面的方法
-                .allowedMethods("GET", "POST", "HEAD", "DELETE", "PUT");
+                .allowedMethods("GET", "POST", "HEAD", "DELETE", "PUT", "PATCH");
     }
 
     @Override

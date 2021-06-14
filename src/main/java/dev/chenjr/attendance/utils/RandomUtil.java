@@ -1,9 +1,12 @@
 package dev.chenjr.attendance.utils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class RandomUtil {
     public static final int MAX_RANDOM_STRING_LENGTH = 1000;
+    private static DateTimeFormatter dateTimeFormatter;
 
     /**
      * 生成随机字符串, 有一个最长的的限制MAX_RANDOM_STRING_LENGTH，不会返回大于限制长度的字符串
@@ -40,5 +43,15 @@ public class RandomUtil {
         }
 
         return str.toString();
+    }
+
+    public static String randomStringWithDate(int length) {
+        String s = randomString(length);
+        LocalDateTime now = LocalDateTime.now();
+        if (dateTimeFormatter == null) {
+            dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        }
+
+        return now.format(dateTimeFormatter) + s;
     }
 }

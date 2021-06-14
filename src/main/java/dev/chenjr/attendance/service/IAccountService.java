@@ -3,10 +3,12 @@ package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.dto.InputLoginDTO;
-import dev.chenjr.attendance.service.dto.MyUserDetail;
+import dev.chenjr.attendance.exception.SetPasswordFailException;
+import dev.chenjr.attendance.service.dto.BindThirdPartyDTO;
+import dev.chenjr.attendance.service.dto.LoginDTO;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -69,6 +71,7 @@ public interface IAccountService extends IService {
      */
     boolean setUserPassword(long uid, String password);
 
+
     /**
      * 设置(修改)用户密码
      * 注册的时候用这个方法会新建所有的Account
@@ -79,13 +82,15 @@ public interface IAccountService extends IService {
      */
     boolean setUserPassword(User user, String password);
 
+    void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) throws SetPasswordFailException;
+
     /**
      * 登陆并创建用户Token
      *
      * @param loginRequest 登陆请求
      * @return token
      */
-    TokenUidDTO loginAndCreateToken(InputLoginDTO loginRequest);
+    TokenUidDTO loginAndCreateToken(LoginDTO loginRequest);
 
     /**
      * 创建Token
@@ -94,6 +99,15 @@ public interface IAccountService extends IService {
      * @return 成功返回token，失败返回null
      */
     String createToken(User user);
+
+    /**
+     * 创建Token
+     *
+     * @param user     用户实体
+     * @param longTerm 是否为长期有效的token
+     * @return 成功返回token，失败返回null
+     */
+    String createToken(User user, boolean longTerm);
 
     /**
      * 判断账号是否存在，通过id判断
@@ -111,5 +125,12 @@ public interface IAccountService extends IService {
      */
     boolean accountExists(String account);
 
-    MyUserDetail currentUserDetail();
+    User currentUser();
+
+    /**
+     * 绑定第三方账号
+     *
+     * @param thirdPartyDTO 绑定信息
+     */
+    void bindThirdParty(BindThirdPartyDTO thirdPartyDTO);
 }

@@ -32,7 +32,7 @@ dependencies {
     implementation 'org.freemarker:freemarker:2.3.31'
 
     //swagger-ui
-    implementation 'org.springdoc:springdoc-openapi-ui:1.5.6'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.5.9'
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.16'
@@ -53,7 +53,10 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-//    implementation 'org.apache.commons:commons-pool2'
+    //    implementation 'org.apache.commons:commons-pool2'
+    
+    // javax.annotation.meta.When.MAYBE
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
 }
 

@@ -52,6 +52,11 @@ public class Account extends BaseEntity {
         return new Account(userId, TYPE_EMAIL, email, password, false, LocalDateTime.now(), true);
     }
 
+    public static Account external(long userId, String type, String openid, String token) {
+        return new Account(userId, type, openid, token, false, LocalDateTime.now(), false);
+    }
+
+
     public static final String TYPE_LOGIN_NAME = "login_name";
     public static final String TYPE_PHONE = "phone";
     public static final String TYPE_EMAIL = "email";

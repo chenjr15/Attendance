@@ -1,41 +1,61 @@
 package dev.chenjr.attendance.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.exception.HttpStatusException;
+import dev.chenjr.attendance.exception.RegisterException;
+import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IUserService;
+import dev.chenjr.attendance.service.dto.PageSort;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserInfoResponse;
+import dev.chenjr.attendance.service.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static dev.chenjr.attendance.utils.RandomUtil.randomStringWithDate;
+import static org.springframework.util.StringUtils.getFilenameExtension;
 
 @Service
 @Slf4j
-public class UserService extends BaseService implements IUserService {
+public class UserService implements IUserService {
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    private AccountMapper accountMapper;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     AccountService accountService;
+    @Value("${avatar.storage-path}")
+    String avatarStoragePath;
+
+    @Value("${avatar.route-prefix}")
+    String avatarUrlPrefix;
 
     @Override
     public User getUserById(long id) {
 
         User user = userMapper.selectById(id);
         if (user == null) {
-            throw new RuntimeException("User not found by id.");
+            throw new UserNotFoundException("User not found by id.");
         }
         return user;
     }
@@ -81,30 +101,33 @@ public class UserService extends BaseService implements IUserService {
     }
 
 
+    /**
+     * 将用户实体对象转成DTO，尽可能补全数据
+     *
+     * @param user 实体对象
+     * @return DTO对象
+     */
     @Override
-    public List<UserInfoResponse> getUsers(long pageIndex, long pageSize) {
-        Page<User> userPage = new Page<>(pageIndex, pageSize);
-        List<User> records = userMapper.selectPage(userPage, null).getRecords();
-        Stream<UserInfoResponse> infoResponseStream = records.stream().map(this::userToUserInfo);
-        return infoResponseStream.collect(Collectors.toList());
-    }
+    public UserDTO userToUserInfo(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setAcademicId(user.getAcademicId());
+        dto.setLoginName(user.getLoginName());
+        dto.setRealName(user.getRealName());
+        dto.setSchoolMajorID(user.getSchoolMajor());
+        String avatar = user.getAvatar();
+        String avatarUrl = avatarUrlPrefix + avatar;
+        dto.setAvatar(avatarUrl);
 
-    private UserInfoResponse userToUserInfo(User user) {
-        UserInfoResponse userInfo = new UserInfoResponse(
-                user.getLoginName(),
-                user.getRealName(),
-                "UNKNOWN",
-                user.getEmail(),
-                user.getPhone(),
-                user.getAcademicId(),
-                0L, "UNKNOWN");
         // TODO 改到字典类中查询
         HashMap<Integer, String> genderMap = new HashMap<>();
         genderMap.put(0, "未知");
         genderMap.put(1, "男");
         genderMap.put(2, "女");
-        userInfo.setGender(genderMap.getOrDefault(user.getGender(), "NOT_FOUND"));
-        return userInfo;
+        dto.setGender(genderMap.getOrDefault(user.getGender(), "NOT_FOUND"));
+        return dto;
     }
 
     @Override
@@ -117,15 +140,14 @@ public class UserService extends BaseService implements IUserService {
         user.setLoginName(request.getLoginName());
         user.setPhone(request.getPhone());
         user.setGender(0);
-        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
-            return null;
-        }
+//        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
+//            return null;
+//        }
         // TODO 设置role
         int inserted = userMapper.insert(user);
         if (inserted != 1) {
-            // TODO 抛出异常
-            log.error("Fail to insert user!");
-            return null;
+            log.error("Fail to insert user!" + inserted);
+            throw new RegisterException("db fail!");
         }
         accountService.setUserPassword(user, request.getPassword());
         return user;
@@ -140,13 +162,13 @@ public class UserService extends BaseService implements IUserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        userMapper.update(user, null);
+        userMapper.updateById(user);
     }
 
 
     @Override
     public boolean userExists(long uid) {
-        return userMapper.exists(uid) != null;
+        return userMapper.exists(uid).orElse(false);
     }
 
     @Override
@@ -158,4 +180,65 @@ public class UserService extends BaseService implements IUserService {
         }
         return exists != null;
     }
+
+    @Override
+    public void deleteByUid(long uid) {
+        accountMapper.deleteByUid(uid);
+        userMapper.deleteById(uid);
+    }
+
+
+    @Override
+    public String modifyAvatar(Long uid, MultipartFile uploaded) {
+        Optional<Boolean> exists = this.userMapper.exists(uid);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound();
+        }
+        String storeName = randomStringWithDate(20);
+        String extension = getFilenameExtension(uploaded.getOriginalFilename());
+        storeName = storeName + '.' + extension;
+        File saveFile = new File(avatarStoragePath + storeName);
+        try {
+            uploaded.transferTo(saveFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw HttpStatusException.badRequest("上传失败！");
+        }
+        User user = new User();
+        user.setId(uid);
+        user.setAvatar(storeName);
+        user.updateBy(uid);
+        userMapper.updateById(user);
+        return storeName;
+    }
+
+    /**
+     * @param uid 用户id
+     * @return 用户信息
+     */
+    @Override
+    public UserDTO getUser(Long uid) {
+        User user = userMapper.selectById(uid);
+        if (user == null) {
+            throw HttpStatusException.notFound("用户id不存在！");
+        }
+        return userToUserInfo(user);
+    }
+
+    /**
+     * 分页返回用户，同时支持筛选排序
+     *
+     * @param pageSort 分页排序筛选数据
+     * @return 分页后的数据
+     */
+    @Override
+    public PageWrapper<UserDTO> listUser(PageSort pageSort) {
+        Page<User> page = pageSort.getPage();
+        QueryWrapper<User> qw = new QueryWrapper<>();
+        qw = pageSort.buildQueryWrapper(qw);
+        page = userMapper.selectPage(page, qw);
+        List<UserDTO> collected = page.getRecords().stream().map(this::userToUserInfo).collect(Collectors.toList());
+        return PageWrapper.fromList(page, collected);
+    }
+
 }

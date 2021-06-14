@@ -33,6 +33,8 @@ public class JwtTokenUtil {
     @Value("${token.header}")
     private String header;
 
+    public String headerPrefix = "Bearer ";
+
     /**
      * 生成token令牌
      *
@@ -40,13 +42,32 @@ public class JwtTokenUtil {
      * @return 令token牌
      */
     public String generateToken(User user) {
-        log.info("[JwtTokenUtils] generateToken " + user.toString());
+        log.debug("[JwtTokenUtils] generateToken " + user.getId().toString());
         Map<String, Object> claims = new HashMap<>(2);
         claims.put("sub", user.getLoginName());
-        claims.put("uid", user.getId());
+        claims.put("uid", user.getId().toString());
         claims.put("created", new Date());
 
         return generateToken(claims);
+    }
+
+    /**
+     * 生成长期token令牌，100倍过期时间
+     *
+     * @param user 用户实体
+     * @return 令token牌
+     */
+    public String generateLongTermToken(User user) {
+        log.debug("[JwtTokenUtils] generateLongTermToken " + user.getId().toString());
+        Map<String, Object> claims = new HashMap<>(2);
+        claims.put("sub", user.getLoginName());
+        claims.put("uid", user.getId().toString());
+        claims.put("created", new Date());
+        Date expirationDate = new Date(System.currentTimeMillis() + expiration * 100);
+        return Jwts.builder().setClaims(claims)
+                .setExpiration(expirationDate)
+                .signWith(getKeyInstance(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
 
@@ -61,7 +82,7 @@ public class JwtTokenUtil {
         try {
             Claims claims = getClaimsFromToken(token);
             username = claims.get("sub", String.class);
-            System.out.println("从令牌中获取用户名:" + username);
+            log.info("get username from token:" + username);
         } catch (Exception e) {
             username = null;
         }
@@ -78,8 +99,9 @@ public class JwtTokenUtil {
         Long uid;
         try {
             Claims claims = getClaimsFromToken(token);
-            uid = claims.get("uid", Long.class);
-            System.out.println("从令牌中获取UID:" + uid);
+            String uidString = claims.get("uid", String.class);
+            uid = Long.valueOf(uidString);
+            log.info("get uid from:" + uid);
         } catch (Exception e) {
             uid = null;
         }
@@ -113,8 +135,6 @@ public class JwtTokenUtil {
         try {
             Claims claims = getClaimsFromToken(token);
             claims.put("created", new Date());
-
-
             refreshedToken = generateToken(claims);
         } catch (Exception e) {
             refreshedToken = null;

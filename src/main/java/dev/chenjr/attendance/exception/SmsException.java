@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.exception;
 
-public class SmsException extends RuntimeException {
+public class SmsException extends SuperException {
     public SmsException() {
         super("SmsException");
     }

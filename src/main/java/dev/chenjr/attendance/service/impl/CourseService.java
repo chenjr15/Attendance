@@ -4,47 +4,140 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.chenjr.attendance.dao.entity.Course;
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.entity.UserCourse;
 import dev.chenjr.attendance.dao.mapper.CourseMapper;
 import dev.chenjr.attendance.dao.mapper.UserCourseMapper;
+import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.exception.HttpStatusException;
+import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ICourseService;
 import dev.chenjr.attendance.service.dto.CourseDTO;
-import dev.chenjr.attendance.service.dto.MyUserDetail;
-import dev.chenjr.attendance.service.dto.RestResponse;
+import dev.chenjr.attendance.service.dto.PageSort;
+import dev.chenjr.attendance.service.dto.PageWrapper;
+import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.utils.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
 public class CourseService extends ServiceImpl<CourseMapper, Course> implements ICourseService {
-    public static final RestResponse<?> ELECTED_SUCCESSFULLY = RestResponse.okWithMsg("Elected successfully");
-    public static final RestResponse<?> ALREADY_ELECTED = new RestResponse<>(HttpStatus.ALREADY_REPORTED.value(), "Elected successfully");
     @Autowired
     UserCourseMapper userCourseMapper;
     @Autowired
     CourseMapper courseMapper;
+    @Autowired
+    UserMapper userMapper;
+    @Autowired
+    UserService userService;
 
+    /**
+     * 获取指定课程的信息
+     *
+     * @param id 课程id
+     * @return 课程信息
+     */
     @Override
-    public List<Course> getStudentElectedCourse(long uid, long curPage, long pageSize) {
+    public CourseDTO getCourseById(long id) {
+        Course course = courseMapper.selectById(id);
+        if (course == null) {
+            throw HttpStatusException.notFound("找不到课程！");
+        }
+        return course2DTO(course);
+    }
+
+    /**
+     * 通过课程代码获取指定课程的信息
+     *
+     * @param code 课程代码
+     * @return 课程信息
+     */
+    @Override
+    public CourseDTO getCourseByCode(String code) {
+        Course course = courseMapper.getByCode(code);
+        if (course == null) {
+            throw HttpStatusException.notFound("找不到课程！");
+        }
+        return course2DTO(course);
+    }
+
+    /**
+     * 获取所有课程
+     *
+     * @param pageSort 筛选排序分页
+     * @return 分页后的课程
+     */
+    @Override
+    public PageWrapper<CourseDTO> listAllCourse(PageSort pageSort) {
+        Page<Course> coursePage = pageSort.getPage();
+        QueryWrapper<Course> queryWrapper = new QueryWrapper<>();
+        queryWrapper = pageSort.buildQueryWrapper(queryWrapper);
+        coursePage = courseMapper.selectPage(coursePage, queryWrapper);
+        List<CourseDTO> dtoList = coursePage.getRecords().stream().map(this::course2DTO).collect(Collectors.toList());
+        return PageWrapper.fromList(coursePage, dtoList);
+    }
+
+    /**
+     * 获取某个学生的选课信息
+     *
+     * @param uid      学生uid
+     * @param pageSort 分页&筛选&排序
+     * @return 选课列表
+     */
+    @Override
+    public PageWrapper<CourseDTO> listStudentElectedCourses(long uid, PageSort pageSort) {
+        // 先获学生选的课的id
         QueryWrapper<UserCourse> userCourseQuery = new QueryWrapper<UserCourse>()
                 .eq("user_id", uid)
                 .select("course_id");
-        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(new Page<>(curPage, pageSize), userCourseQuery);
+        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(pageSort.getPage(), userCourseQuery);
         List<UserCourse> userCourses = userCoursePage.getRecords();
-        Stream<Long> courseIdStream = userCourses.stream().map(UserCourse::getCourseId);
-        Set<Long> courseIDSet = courseIdStream.collect(Collectors.toSet());
-        QueryWrapper<Course> courseQuery = new QueryWrapper<Course>()
-                .eq("user_id", uid)
-                .in("id", courseIDSet);
-        Page<Course> page = page(new Page<>(curPage, pageSize), courseQuery);
-        return page.getRecords();
+        if (userCourses.size() == 0) {
+            return new PageWrapper<>();
+        }
+        log.info("" + userCoursePage.getRecords());
+        // 获取课程详情
+        Set<Long> courseIDSet = userCourses
+                .stream()
+                .map(UserCourse::getCourseId)
+                .collect(Collectors.toSet());
+
+        QueryWrapper<Course> courseQuery = new QueryWrapper<Course>().in("id", courseIDSet);
+
+        List<Course> userElectedCourse = courseMapper.selectList(courseQuery);
+        List<CourseDTO> dtoList = userElectedCourse.stream().map(this::course2DTO).collect(Collectors.toList());
+        return PageWrapper.fromList(userCoursePage, dtoList);
+    }
+
+    /**
+     * 选择某个课程的所有学生
+     *
+     * @param courseId 课程id
+     * @param pageSort 分页&筛选&排序
+     * @return 学生列表
+     */
+    @Override
+    public PageWrapper<UserDTO> getCourseStudentsById(long courseId, PageSort pageSort) {
+        QueryWrapper<UserCourse> qw = new QueryWrapper<>();
+        qw = pageSort.buildQueryWrapper(qw);
+        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(pageSort.getPage(), qw);
+        List<UserDTO> students = userCoursePage.getRecords().stream()
+                .map(UserCourse::getUserId)
+                .map(uid -> {
+                    log.info("uid:{}", uid);
+                    return userService.getUser(uid);
+                })
+                .collect(Collectors.toList());
+        return PageWrapper.fromList(userCoursePage, students);
     }
 
     public boolean elected(long uid, long courseId) {
@@ -52,39 +145,117 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     }
 
     public boolean courseExists(long courseId) {
-        return courseMapper.exists(courseId) != null;
+        return courseMapper.exists(courseId).isPresent();
     }
 
-
+    /**
+     * 学生加入班课
+     *
+     * @param uid      学生id
+     * @param courseId 课程id
+     */
     @Override
-    public RestResponse<?> joinCourse(long uid, long courseId) {
-
+    @Transactional
+    public void joinCourse(long uid, long courseId) {
+        Optional<Boolean> exists = courseMapper.exists(courseId);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("课程不存在！");
+        }
+        exists = userMapper.exists(uid);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("用户不存在！");
+        }
+        log.info("!joinCourse!: uid: {} course:{} ", uid, courseId);
         boolean elected = this.elected(uid, courseId);
         if (elected) {
-            return ALREADY_ELECTED;
+            throw new HttpStatusException(HttpStatus.ALREADY_REPORTED, "已经加入该课程了！");
         }
         UserCourse userCourse = new UserCourse();
         userCourse.setCourseId(courseId);
         userCourse.setUserId(uid);
         userCourse.setCreator(uid);
-        userCourseMapper.insert(userCourse);
-
-        return ELECTED_SUCCESSFULLY;
+        userCourse.setCharacterType(0);
+        int insert = userCourseMapper.insert(userCourse);
+        if (insert != 1) {
+            throw new SuperException("加入课程失败！未知异常");
+        }
 
 
     }
 
+    /**
+     * 学生加入班课(通过课程代码)
+     *
+     * @param uid        学生id
+     * @param courseCode 课程id
+     */
     @Override
-    public RestResponse<?> createCourse(MyUserDetail creator, CourseDTO courseDTO) {
-        Course course = courseDTO.toCourse();
-        course.setCreator(creator.getUid());
-        course.setUpdater(creator.getUid());
+    public void joinCourse(long uid, String courseCode) {
+        Course course = courseMapper.getByCode(courseCode);
+        if (course == null) {
+            throw HttpStatusException.notFound("课程代码" + courseCode + "不存在！");
+        }
+        joinCourse(uid, course.getId());
+    }
+
+    /**
+     * 创建班课
+     *
+     * @param creator   创建者
+     * @param courseDTO 课程信息
+     * @return 创建结果
+     */
+    @Override
+    public CourseDTO createCourse(User creator, CourseDTO courseDTO) {
+        Course course = dto2Course(courseDTO);
+        course.setCode(RandomUtil.randomString(10));
+        course.createBy(creator.getId());
         courseMapper.insert(course);
-        return null;
+        return getCourseById(course.getId());
     }
 
+    /**
+     * 创建课程
+     *
+     * @param courseID 要删除的课程
+     * @param actor    删除者
+     */
     @Override
-    public boolean deleteCourse(long courseID, MyUserDetail actor) {
-        return false;
+    public void deleteCourse(long courseID, User actor) {
+        courseMapper.deleteById(courseID);
+    }
+
+    /**
+     * 退出课程
+     *
+     * @param uid      用户id
+     * @param courseId 课程id
+     */
+    @Override
+    public void quitCourse(long uid, long courseId) {
+        userCourseMapper.quit(uid, courseId);
+    }
+
+
+    private CourseDTO course2DTO(Course record) {
+        CourseDTO dto = new CourseDTO();
+        dto.setId(record.getId());
+        dto.setCode(record.getCode());
+        dto.setDescription(record.getDescription());
+        dto.setLocation(record.getLocation());
+        dto.setName(record.getName());
+        dto.setSchoolMajorID(record.getSchoolMajor());
+        dto.setSchedule(record.getSchedule());
+        dto.setEndTime(record.getEndTime());
+        dto.setSemester(record.getSemester());
+        dto.setStartTime(record.getStartTime());
+        dto.setState(record.getState());
+        return dto;
+    }
+
+    private Course dto2Course(CourseDTO dto) {
+        return new Course("",
+                dto.getName(), dto.getDescription(), dto.getState(), dto.getSchedule(), dto.getSemester(),
+                dto.getStartTime(), dto.getEndTime(), dto.getLocation(), dto.getSchoolMajorID());
     }
 }

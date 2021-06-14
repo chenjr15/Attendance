@@ -35,9 +35,15 @@ public class User extends BaseEntity {
 
     @Schema(description = "学工号，可能会有字母")
     private String academicId;
-    
+
     @Schema(description = "学校院系专业的ID")
     private Long schoolMajor;
 
+
+    /**
+     * 存储文件名(带后缀) 如：20210601e10910682d0f450fbf10.gif
+     */
+    @Schema(description = "存储文件名(带后缀)", example = "20210601e10910682d0f450fbf10.gif")
+    private String avatar;
 
 }

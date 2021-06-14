@@ -8,11 +8,14 @@ import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.entity.UserCourse;
 import dev.chenjr.attendance.dao.mapper.CourseMapper;
 import dev.chenjr.attendance.dao.mapper.UserCourseMapper;
+import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ICourseService;
 import dev.chenjr.attendance.service.dto.CourseDTO;
+import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
+import dev.chenjr.attendance.service.dto.UserDTO;
 import dev.chenjr.attendance.utils.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,22 +35,71 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     UserCourseMapper userCourseMapper;
     @Autowired
     CourseMapper courseMapper;
+    @Autowired
+    UserMapper userMapper;
+    @Autowired
+    UserService userService;
+
+    /**
+     * 获取指定课程的信息
+     *
+     * @param id 课程id
+     * @return 课程信息
+     */
+    @Override
+    public CourseDTO getCourseById(long id) {
+        Course course = courseMapper.selectById(id);
+        if (course == null) {
+            throw HttpStatusException.notFound("找不到课程！");
+        }
+        return course2DTO(course);
+    }
+
+    /**
+     * 通过课程代码获取指定课程的信息
+     *
+     * @param code 课程代码
+     * @return 课程信息
+     */
+    @Override
+    public CourseDTO getCourseByCode(String code) {
+        Course course = courseMapper.getByCode(code);
+        if (course == null) {
+            throw HttpStatusException.notFound("找不到课程！");
+        }
+        return course2DTO(course);
+    }
+
+    /**
+     * 获取所有课程
+     *
+     * @param pageSort 筛选排序分页
+     * @return 分页后的课程
+     */
+    @Override
+    public PageWrapper<CourseDTO> listAllCourse(PageSort pageSort) {
+        Page<Course> coursePage = pageSort.getPage();
+        QueryWrapper<Course> queryWrapper = new QueryWrapper<>();
+        queryWrapper = pageSort.buildQueryWrapper(queryWrapper);
+        coursePage = courseMapper.selectPage(coursePage, queryWrapper);
+        List<CourseDTO> dtoList = coursePage.getRecords().stream().map(this::course2DTO).collect(Collectors.toList());
+        return PageWrapper.fromList(coursePage, dtoList);
+    }
 
     /**
      * 获取某个学生的选课信息
      *
-     * @param studentUid 学生id
-     * @param curPage    当前分页
-     * @param pageSize   分页大小
+     * @param uid      学生uid
+     * @param pageSort 分页&筛选&排序
      * @return 选课列表
      */
     @Override
-    public PageWrapper<Course> getStudentElectedCourse(long studentUid, long curPage, long pageSize) {
+    public PageWrapper<CourseDTO> listStudentElectedCourses(long uid, PageSort pageSort) {
         // 先获学生选的课的id
         QueryWrapper<UserCourse> userCourseQuery = new QueryWrapper<UserCourse>()
-                .eq("user_id", studentUid)
+                .eq("user_id", uid)
                 .select("course_id");
-        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(new Page<>(curPage, pageSize), userCourseQuery);
+        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(pageSort.getPage(), userCourseQuery);
         List<UserCourse> userCourses = userCoursePage.getRecords();
         if (userCourses.size() == 0) {
             return new PageWrapper<>();
@@ -62,7 +114,30 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         QueryWrapper<Course> courseQuery = new QueryWrapper<Course>().in("id", courseIDSet);
 
         List<Course> userElectedCourse = courseMapper.selectList(courseQuery);
-        return PageWrapper.fromList(userCoursePage, userElectedCourse);
+        List<CourseDTO> dtoList = userElectedCourse.stream().map(this::course2DTO).collect(Collectors.toList());
+        return PageWrapper.fromList(userCoursePage, dtoList);
+    }
+
+    /**
+     * 选择某个课程的所有学生
+     *
+     * @param courseId 课程id
+     * @param pageSort 分页&筛选&排序
+     * @return 学生列表
+     */
+    @Override
+    public PageWrapper<UserDTO> getCourseStudentsById(long courseId, PageSort pageSort) {
+        QueryWrapper<UserCourse> qw = new QueryWrapper<>();
+        qw = pageSort.buildQueryWrapper(qw);
+        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(pageSort.getPage(), qw);
+        List<UserDTO> students = userCoursePage.getRecords().stream()
+                .map(UserCourse::getUserId)
+                .map(uid -> {
+                    log.info("uid:{}", uid);
+                    return userService.getUser(uid);
+                })
+                .collect(Collectors.toList());
+        return PageWrapper.fromList(userCoursePage, students);
     }
 
     public boolean elected(long uid, long courseId) {
@@ -70,7 +145,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     }
 
     public boolean courseExists(long courseId) {
-        return courseMapper.exists(courseId) != null;
+        return courseMapper.exists(courseId).isPresent();
     }
 
     /**
@@ -82,6 +157,14 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     @Override
     @Transactional
     public void joinCourse(long uid, long courseId) {
+        Optional<Boolean> exists = courseMapper.exists(courseId);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("课程不存在！");
+        }
+        exists = userMapper.exists(uid);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("用户不存在！");
+        }
         log.info("!joinCourse!: uid: {} course:{} ", uid, courseId);
         boolean elected = this.elected(uid, courseId);
         if (elected) {
@@ -101,6 +184,21 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     }
 
     /**
+     * 学生加入班课(通过课程代码)
+     *
+     * @param uid        学生id
+     * @param courseCode 课程id
+     */
+    @Override
+    public void joinCourse(long uid, String courseCode) {
+        Course course = courseMapper.getByCode(courseCode);
+        if (course == null) {
+            throw HttpStatusException.notFound("课程代码" + courseCode + "不存在！");
+        }
+        joinCourse(uid, course.getId());
+    }
+
+    /**
      * 创建班课
      *
      * @param creator   创建者
@@ -113,7 +211,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         course.setCode(RandomUtil.randomString(10));
         course.createBy(creator.getId());
         courseMapper.insert(course);
-        return getCourseInfo(course.getId());
+        return getCourseById(course.getId());
     }
 
     /**
@@ -138,33 +236,11 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         userCourseMapper.quit(uid, courseId);
     }
 
-    @Override
-    public PageWrapper<CourseDTO> listAllCourse(long curPage, long pageSize) {
-        Page<Course> coursePage = new Page<>(curPage, pageSize);
-        coursePage = courseMapper.selectPage(coursePage, null);
-        List<CourseDTO> dtoList = new ArrayList<>(coursePage.getRecords().size());
-        for (Course record : coursePage.getRecords()) {
-            dtoList.add(course2DTO(record));
-        }
-        return PageWrapper.fromList(coursePage, dtoList);
-    }
-
-
-    /**
-     * 获取指定课程的信息
-     *
-     * @param id 课程id
-     * @return 课程信息
-     */
-    @Override
-    public CourseDTO getCourseInfo(long id) {
-        Course course = courseMapper.selectById(id);
-        return course2DTO(course);
-    }
 
     private CourseDTO course2DTO(Course record) {
         CourseDTO dto = new CourseDTO();
-
+        dto.setId(record.getId());
+        dto.setCode(record.getCode());
         dto.setDescription(record.getDescription());
         dto.setLocation(record.getLocation());
         dto.setName(record.getName());

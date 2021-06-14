@@ -19,5 +19,13 @@ public interface CourseMapper extends MyBaseMapper<Course> {
     @Select("SELECT 1 FROM course WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(@Param("id") long id);
 
+    /**
+     * 通过课程代码获取课程
+     *
+     * @param courseCode 课程代码
+     * @return 课程实体
+     */
+    @Select("SELECT * FROM course WHERE code=#{code}")
+    Course getByCode(@Param("code") String courseCode);
 
 }

@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseDTO {
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "课程id")
+    private Long id;
     @Schema(description = "课程代码")
     private String code;
 
@@ -47,5 +50,5 @@ public class CourseDTO {
     private long schoolMajorID;
     @Schema(description = "学校院系专业名", example = "xx大学-计算机学院-软件工程专业-软工1班")
     private String schoolMajorName;
-    
+
 }

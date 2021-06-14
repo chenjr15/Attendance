@@ -93,4 +93,12 @@ public interface ICourseService extends IService {
      * @return 学生列表
      */
     PageWrapper<UserDTO> getCourseStudentsById(long courseId, PageSort pageSort);
+
+    /**
+     * 修改课程信息
+     *
+     * @param courseDTO 修改的信息
+     * @return 修改后的dto
+     */
+    CourseDTO modifyCourse(CourseDTO courseDTO);
 }

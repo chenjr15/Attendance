@@ -132,13 +132,28 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         Page<UserCourse> userCoursePage = userCourseMapper.selectPage(pageSort.getPage(), qw);
         List<UserDTO> students = userCoursePage.getRecords().stream()
                 .map(UserCourse::getUserId)
-                .map(uid -> {
-                    log.info("uid:{}", uid);
-                    return userService.getUser(uid);
-                })
+                .map(userService::getUser)
                 .collect(Collectors.toList());
         return PageWrapper.fromList(userCoursePage, students);
     }
+
+    /**
+     * 修改课程信息
+     *
+     * @param courseDTO 修改的信息
+     * @return 修改后的dto
+     */
+    @Override
+    public CourseDTO modifyCourse(CourseDTO courseDTO) {
+        Optional<Boolean> exists = courseMapper.exists(courseDTO.getId());
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("课程id不存在！");
+        }
+        Course toModify = dto2Entity(courseDTO);
+        courseMapper.updateById(toModify);
+        return this.getCourseById(courseDTO.getId());
+    }
+
 
     public boolean elected(long uid, long courseId) {
         return userCourseMapper.elected(uid, courseId) != null;
@@ -207,7 +222,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      */
     @Override
     public CourseDTO createCourse(User creator, CourseDTO courseDTO) {
-        Course course = dto2Course(courseDTO);
+        Course course = dto2Entity(courseDTO);
         course.setCode(RandomUtil.randomString(10));
         course.createBy(creator.getId());
         courseMapper.insert(course);
@@ -253,9 +268,19 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         return dto;
     }
 
-    private Course dto2Course(CourseDTO dto) {
-        return new Course("",
-                dto.getName(), dto.getDescription(), dto.getState(), dto.getSchedule(), dto.getSemester(),
-                dto.getStartTime(), dto.getEndTime(), dto.getLocation(), dto.getSchoolMajorID());
+
+    private Course dto2Entity(CourseDTO courseDTO) {
+        Course entity = new Course();
+        entity.setId(courseDTO.getId());
+        entity.setCode(courseDTO.getCode());
+        entity.setLocation(courseDTO.getLocation());
+        entity.setSchedule(courseDTO.getSchedule());
+        entity.setDescription(courseDTO.getDescription());
+        entity.setEndTime(courseDTO.getEndTime());
+        entity.setSchoolMajor(courseDTO.getSchoolMajorID());
+        entity.setStartTime(courseDTO.getStartTime());
+        entity.setState(courseDTO.getState());
+        entity.setSemester(courseDTO.getSemester());
+        return entity;
     }
 }

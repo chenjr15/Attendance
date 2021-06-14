@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -88,9 +89,8 @@ public class CourseController {
 
     @PostMapping("/")
     @Operation(description = "创建课程")
-    public RestResponse<CourseDTO> createCourse(@RequestBody CourseDTO courseDTO) {
+    public RestResponse<CourseDTO> createCourse(@AuthenticationPrincipal User user, @RequestBody CourseDTO courseDTO) {
 
-        User user = accountService.currentUser();
         // TODO 权限校验
         CourseDTO created = courseService.createCourse(user, courseDTO);
         return RestResponse.okWithData(created);
@@ -98,13 +98,18 @@ public class CourseController {
 
     @DeleteMapping("/{courseId}")
     @Operation(description = "删除课程")
-    public RestResponse<?> deleteCourse(@PathVariable Long courseID) {
+    public RestResponse<?> deleteCourse(@AuthenticationPrincipal User user, @PathVariable Long courseId) {
 
-        User user = accountService.currentUser();
-        courseService.deleteCourse(courseID, user);
+        courseService.deleteCourse(courseId, user);
         // TODO 权限校验
         return RestResponse.ok();
     }
 
-
+    @PatchMapping("/{courseId}")
+    @Operation(description = "修改课程信息")
+    public RestResponse<CourseDTO> modifyCourse(@PathVariable long courseId, @RequestBody CourseDTO courseDTO) {
+        courseDTO.setId(courseId);
+        CourseDTO modified = courseService.modifyCourse(courseDTO);
+        return RestResponse.okWithData(modified);
+    }
 }

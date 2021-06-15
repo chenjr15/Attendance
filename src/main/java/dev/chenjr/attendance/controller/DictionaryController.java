@@ -14,13 +14,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dictionaries")
-@Tag(name = "数据字典项", description = "男女未知")
+@Tag(name = "数据字典")
 public class DictionaryController {
     @Autowired
     IDictionaryService dictionaryService;
 
     @PostMapping("")
-    @Operation(description = "添加数据字典，其可以明细一起添加,传入的时候不要传`defaultCode`")
+    @Operation(description = "添加数据字典，其可以明细一起添加 \n" +
+            "- 不传`defaultValue`则默认值为第一个，明细里的 `isDefault` 没用\n" +
+            "- `order`按照顺序自动生成\n")
     public RestResponse<DictionaryDTO> addDictionary(@RequestBody @Validated DictionaryDTO dictionaryDTO) {
         DictionaryDTO created = dictionaryService.addDictionary(dictionaryDTO);
         return RestResponse.okWithData(created);
@@ -51,6 +53,16 @@ public class DictionaryController {
         if (dto == null) {
             throw HttpStatusException.notFound("Can not found dict by id:" + dictId.toString());
         }
+        return RestResponse.okWithData(dto);
+    }
+
+    @GetMapping("/code/{dictCode}")
+    @Operation(description = "通过编码获取数据字典信息\n" +
+            "- `sex` 性别\n" +
+            "- `semester` 学期\n"
+    )
+    public RestResponse<DictionaryDTO> getDictionaryByCode(@PathVariable String dictCode) {
+        DictionaryDTO dto = dictionaryService.getDictionaryByCode(dictCode);
         return RestResponse.okWithData(dto);
     }
 

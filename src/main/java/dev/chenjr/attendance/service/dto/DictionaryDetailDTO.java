@@ -24,10 +24,10 @@ public class DictionaryDetailDTO {
     @Schema(description = "明细项英文名字", example = "male")
     String code;
     @Schema(description = "是否默认", example = "true")
-    Boolean isDefault;
+    boolean isDefault;
     @Schema(description = "显示顺序", example = "0")
-    Integer order;
-    @Schema(description = "是否显示", example = "true")
-    Boolean shouldDisplay;
+    int order;
+    @Schema(description = "是否隐藏(不显示)", example = "false")
+    boolean hidden;
 
 }

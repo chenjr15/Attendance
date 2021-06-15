@@ -96,9 +96,10 @@ public class UserController {
 
     @PatchMapping("/{uid}")
     @Operation(description = "修改用户信息,部分修改")
-    public RestResponse<?> modifyUser(@PathVariable Long uid, @RequestBody ModifyUserDTO modifyUserRequest) {
-//        BeanUtils.copyProperties();
-        return RestResponse.notImplemented();
+    public RestResponse<UserDTO> modifyUser(@PathVariable Long uid, @RequestBody UserDTO desiredDto) {
+        desiredDto.setId(uid);
+        UserDTO modifiedDto = userService.modifyUser(desiredDto);
+        return RestResponse.okWithData(modifiedDto);
     }
 
     @PutMapping(value = "/{uid}/avatar", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

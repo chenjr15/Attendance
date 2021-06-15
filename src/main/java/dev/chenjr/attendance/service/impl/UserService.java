@@ -40,6 +40,8 @@ public class UserService implements IUserService {
     private AccountMapper accountMapper;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    DictionaryService dictionaryService;
 
     @Autowired
     AccountService accountService;
@@ -234,6 +236,28 @@ public class UserService implements IUserService {
         page = userMapper.selectPage(page, qw);
         List<UserDTO> collected = page.getRecords().stream().map(this::userToUserInfo).collect(Collectors.toList());
         return PageWrapper.fromList(page, collected);
+    }
+
+    /**
+     * 修改用户信息
+     *
+     * @param desiredDto 想修改的数据
+     * @return 修改后的数据
+     */
+    @Override
+    public UserDTO modifyUser(UserDTO desiredDto) {
+        if (desiredDto == null) {
+            return null;
+        }
+        User user = userMapper.selectById(desiredDto.getId());
+        if (user == null) {
+            throw HttpStatusException.notFound();
+        }
+        User desiredUser = new User();
+        desiredUser.setId(desiredDto.getId());
+
+        userMapper.updateById(desiredUser);
+        return getUser(desiredUser.getId());
     }
 
 }

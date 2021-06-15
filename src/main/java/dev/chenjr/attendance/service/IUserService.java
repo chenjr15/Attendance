@@ -68,4 +68,12 @@ public interface IUserService extends IService {
      * @return 分页后的数据
      */
     PageWrapper<UserDTO> listUser(PageSort pageSort);
+
+    /**
+     * 修改用户信息
+     *
+     * @param desiredDto 想修改的数据
+     * @return 修改后的数据
+     */
+    UserDTO modifyUser(UserDTO desiredDto);
 }

@@ -56,7 +56,6 @@ public class OrganizationDTO {
   private String parents;
 
   @Schema(description = "子结构数量")
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   private Integer childrenCount;
 
   @Schema(description = "子结构")

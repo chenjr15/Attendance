@@ -38,6 +38,21 @@ public class CourseController {
         return RestResponse.okWithData(course);
     }
 
+    @PutMapping(value = "/{courseId}/state")
+    @Operation(description = "设置课程状态：\n" +
+            "- `0`: 开课中(默认状态)\n" +
+            "- `1`: 设置禁止加入\n" +
+            "- `2`: 课程结束\n")
+    public RestResponse<CourseDTO> setCourseState(
+            @PathVariable long courseId, @RequestBody int state
+    ) {
+        CourseDTO dto = new CourseDTO();
+        dto.setId(courseId);
+        dto.setState(state);
+        CourseDTO course = courseService.modifyCourse(dto);
+        return RestResponse.okWithData(course);
+    }
+
     @GetMapping(value = "/{courseId}/students")
     @Operation(description = "获取课程信息的学生列表(By ID)")
     public RestResponse<PageWrapper<UserDTO>> getCourseStudentsById(
@@ -73,7 +88,6 @@ public class CourseController {
     @Operation(description = "学生加入班课(通过Code，其他都用id)")
     public RestResponse<?> studentElectCourse(@PathVariable long uid, @PathVariable String courseCode) {
 
-//        courseService.joinCourse(uid, courseId);
         // TODO 权限校验 是当前用户或者是该课程的老师或者是管理员
         courseService.joinCourse(uid, courseCode);
         return RestResponse.ok();

@@ -13,14 +13,6 @@ public interface ICourseService extends IService {
 
 
     /**
-     * 学生加入班课(通过课程id)
-     *
-     * @param uid      学生id
-     * @param courseId 课程id
-     */
-    void joinCourse(long uid, long courseId);
-
-    /**
      * 学生加入班课(通过课程代码)
      *
      * @param uid        学生id

@@ -169,7 +169,6 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @param uid      学生id
      * @param courseId 课程id
      */
-    @Override
     @Transactional
     public void joinCourse(long uid, long courseId) {
         Optional<Boolean> exists = courseMapper.exists(courseId);
@@ -208,9 +207,27 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     public void joinCourse(long uid, String courseCode) {
         Course course = courseMapper.getByCode(courseCode);
         if (course == null) {
-            throw HttpStatusException.notFound("课程代码" + courseCode + "不存在！");
+            throw HttpStatusException.notFound("加入失败: 课程代码" + courseCode + "不存在！");
+        }
+        if (!course.canJoin()) {
+            throw HttpStatusException.badRequest("加入失败: " + getStateMessage(course.getState()));
         }
         joinCourse(uid, course.getId());
+    }
+
+    String getStateMessage(Integer state) {
+        String msg;
+        switch (state) {
+            case Course.STATE_FORBIDDEN_JOIN:
+                msg = "禁止加入";
+                break;
+            case Course.STATE_ENDED:
+                msg = "已结课";
+                break;
+            default:
+                msg = "开课中";
+        }
+        return msg;
     }
 
     /**
@@ -265,6 +282,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setSemester(record.getSemester());
         dto.setStartTime(record.getStartTime());
         dto.setState(record.getState());
+        dto.setStateName(getStateMessage(record.getState()));
         return dto;
     }
 

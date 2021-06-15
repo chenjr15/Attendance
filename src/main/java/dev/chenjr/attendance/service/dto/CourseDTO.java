@@ -28,7 +28,8 @@ public class CourseDTO {
 
     @Schema(defaultValue = "0")
     private Integer state;
-
+    private String stateName;
+    
     @Length(max = 256)
     @Schema(description = "上课时间信息，文本描述")
     private String schedule;

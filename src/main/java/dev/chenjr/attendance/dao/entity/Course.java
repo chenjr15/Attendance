@@ -22,6 +22,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Schema(description = "Course对象")
 public class Course extends BaseEntity {
+    /**
+     * 默认状态，可以加入
+     */
+    public static final int STATE_NORMAL = 0;
+    /**
+     * 主动设置禁止加入
+     */
+    public static final int STATE_FORBIDDEN_JOIN = 1;
+    /**
+     * 课程结束，不能加入
+     */
+    public static final int STATE_ENDED = 2;
+
 
     private static final long serialVersionUID = 1L;
 
@@ -48,4 +61,12 @@ public class Course extends BaseEntity {
     @Schema(description = "学校院系专业的ID")
     private Long schoolMajor;
 
+    /**
+     * 默认可以加入，手动禁止或者结课后不能加入
+     *
+     * @return 是否能够加入课程
+     */
+    public boolean canJoin() {
+        return state == null || state == STATE_NORMAL;
+    }
 }

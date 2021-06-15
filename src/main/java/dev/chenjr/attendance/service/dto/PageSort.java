@@ -38,6 +38,13 @@ public class PageSort {
 
     @Schema(hidden = true)
     public <E> Page<E> getPage() {
+
+        if (pageSize == 0) {
+            pageSize = 10;
+        }
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
         return new Page<>(curPage, pageSize);
     }
 

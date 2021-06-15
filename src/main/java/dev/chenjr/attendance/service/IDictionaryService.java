@@ -5,11 +5,39 @@ import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 字典项服务，字典项子项设定、排序、默认项设定等
  */
 public interface IDictionaryService extends IService {
+    /**
+     * 获取缓存数据
+     *
+     * @param key 字典的code
+     * @return 字典map
+     */
+    Map<Integer, String> getCacheDict(String key);
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key       字典的code
+     * @param detailKey 详情的值
+     * @return 详情名字
+     */
+    String getCacheDictDetail(String key, int detailKey);
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key          字典的code
+     * @param detailKey    详情的值
+     * @param defaultValue 默认值
+     * @return 详情名字
+     */
+    String getCacheDictDetail(String key, int detailKey, String defaultValue);
+
     /**
      * 添加新的数据字典和明细项
      *

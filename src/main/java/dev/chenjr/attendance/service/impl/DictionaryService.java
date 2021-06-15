@@ -16,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +27,57 @@ public class DictionaryService implements IDictionaryService {
     DictionaryMapper dictMapper;
     @Autowired
     DictionaryDetailMapper detailMapper;
+    Map<String, Boolean> cacheNeedUpdate = new TreeMap<>();
+    Map<String, Map<Integer, String>> dictCacheMap = new TreeMap<>();
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key 字典的code
+     * @return 字典map
+     */
+    @Override
+    public Map<Integer, String> getCacheDict(String key) {
+        if (cacheNeedUpdate.getOrDefault(key, true)) {
+            // 更新
+            DictionaryDTO dictionaryByCode = this.getDictionaryByCode(key);
+            Map<Integer, String> detailMap = dictCacheMap.computeIfAbsent(key, k -> new TreeMap<>());
+            for (DictionaryDetailDTO detail : dictionaryByCode.getDetails()) {
+                detailMap.put(detail.getValue(), detail.getName());
+            }
+            cacheNeedUpdate.put(key, false);
+        }
+        return dictCacheMap.get(key);
+    }
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key       字典的code
+     * @param detailKey 详情的值
+     * @return 详情名字
+     */
+    @Override
+    public String getCacheDictDetail(String key, int detailKey) {
+        return this.getCacheDict(key).get(detailKey);
+    }
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key          字典的code
+     * @param detailKey    详情的值
+     * @param defaultValue 默认值
+     * @return 详情名字
+     */
+    @Override
+    public String getCacheDictDetail(String key, int detailKey, String defaultValue) {
+        String cacheDictDetail = getCacheDictDetail(key, detailKey);
+        if (cacheDictDetail == null) {
+            cacheDictDetail = defaultValue;
+        }
+        return cacheDictDetail;
+    }
 
     /**
      * 添加新的数据字典和明细项
@@ -178,6 +227,7 @@ public class DictionaryService implements IDictionaryService {
      */
     @Override
     public DictionaryDTO modifyDictionary(DictionaryDTO dictionaryDTO) {
+        this.cacheNeedUpdate.clear();
         Optional<Boolean> exists = dictMapper.exists(dictionaryDTO.getId());
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound("Can not found dict by id:" + dictionaryDTO.getId().toString());
@@ -199,6 +249,8 @@ public class DictionaryService implements IDictionaryService {
     @Override
     @Transactional
     public DictionaryDTO modifyDictionaryDetail(long dictId, DictionaryDetailDTO desiredDTO) {
+        this.cacheNeedUpdate.clear();
+
         DictionaryDetail existingDetail = detailMapper.selectById(desiredDTO.getId());
         if (existingDetail == null) {
             throw HttpStatusException.notFound();
@@ -221,6 +273,8 @@ public class DictionaryService implements IDictionaryService {
      */
     @Override
     public void deleteDictionaryDetail(long detailId) {
+
+        this.cacheNeedUpdate.clear();
         this.detailMapper.deleteByDictId(detailId);
     }
 
@@ -231,6 +285,8 @@ public class DictionaryService implements IDictionaryService {
      */
     @Override
     public void deleteDictionary(long dictId) {
+        this.cacheNeedUpdate.clear();
+
         // 1. 先删掉关联的字典明细
         // 2. 再把本体删掉
         this.detailMapper.deleteByDictId(dictId);

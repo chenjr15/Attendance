@@ -5,11 +5,7 @@ import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 
 public interface IOrganizationService extends IService {
-
-    /**
-     * 手动加载字典项中的数据变化
-     */
-    void loadOrgValueMapping();
+    
 
     /**
      * 返回指定类型的组织结构
@@ -30,7 +26,7 @@ public interface IOrganizationService extends IService {
     OrganizationDTO fetch(long orgId);
 
     /**
-     * 修改某个节点信息，不改变其儿子节点
+     * 修改某个节点信息，不改变其孩子节点
      *
      * @param orgDTO 要修改的信息
      */
@@ -45,11 +41,19 @@ public interface IOrganizationService extends IService {
     OrganizationDTO create(OrganizationDTO organizationDTO);
 
     /**
-     * 删除节点，不会级联删除儿子节点
+     * 删除节点，不会级联删除孩子节点
      *
      * @param orgId 要删除id
      */
     void delete(long orgId);
 
     PageWrapper<OrganizationDTO> listPage(String orgType, PageSort pageSort);
+
+    /**
+     * 不查找其孩子节点的fetch
+     *
+     * @param orgId 节点id
+     * @return 节点信息
+     */
+    OrganizationDTO fetchItSelf(long orgId);
 }

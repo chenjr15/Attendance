@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -121,12 +120,8 @@ public class UserService implements IUserService {
         String avatarUrl = avatarUrlPrefix + avatar;
         dto.setAvatar(avatarUrl);
 
-        // TODO 改到字典类中查询
-        HashMap<Integer, String> genderMap = new HashMap<>();
-        genderMap.put(0, "未知");
-        genderMap.put(1, "男");
-        genderMap.put(2, "女");
-        dto.setGender(genderMap.getOrDefault(user.getGender(), "NOT_FOUND"));
+        String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
+        dto.setGender(sexName);
         return dto;
     }
 

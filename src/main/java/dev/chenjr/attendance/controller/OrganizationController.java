@@ -22,7 +22,7 @@ public class OrganizationController {
     IOrganizationService organizationService;
 
     @GetMapping("/schools")
-    @Operation(description = "返回学校")
+    @Operation(description = "返回学校列表")
     public RestResponse<PageWrapper<OrganizationDTO>> listSchool(
             @ParameterObject PageSort pageSort
     ) {
@@ -51,7 +51,7 @@ public class OrganizationController {
         return RestResponse.okWithData(org);
     }
 
-    @PutMapping("/{orgId}")
+    @PatchMapping("/{orgId}")
     @Operation(description = "修改某个节点信息, 返回修改后的信息" +
             "- body中的 id 可以不填，会被url中的id覆盖" +
             "- 不会修改儿子节点")

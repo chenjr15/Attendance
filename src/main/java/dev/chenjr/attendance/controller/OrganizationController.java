@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/organizations")
-@Tag(name = "组织结构", description = "xx大学-xx学院-xx专业-xx班级")
+@Tag(name = "组织结构", description = "学校和地区等多级嵌套的结构")
 public class OrganizationController {
     @Autowired
     IOrganizationService organizationService;
@@ -72,7 +72,7 @@ public class OrganizationController {
     }
 
     @DeleteMapping("/{orgId}")
-    @Operation(description = "删除指定系统参数")
+    @Operation(description = "删除指定节点")
     public RestResponse<?> delOrg(
             @PathVariable long orgId) {
 

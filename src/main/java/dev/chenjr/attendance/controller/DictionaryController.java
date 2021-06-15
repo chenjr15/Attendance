@@ -21,7 +21,7 @@ public class DictionaryController {
 
     @PostMapping("")
     @Operation(description = "添加数据字典，其可以明细一起添加 \n" +
-            "- 不传`defaultValue`则默认值为第一个，明细里的 `isDefault` 没用\n" +
+            "- 不传`defaultValue`则默认值为第一个，明细里的 `default` 没用\n" +
             "- `order`按照顺序自动生成\n")
     public RestResponse<DictionaryDTO> addDictionary(@RequestBody @Validated DictionaryDTO dictionaryDTO) {
         DictionaryDTO created = dictionaryService.addDictionary(dictionaryDTO);
@@ -79,7 +79,7 @@ public class DictionaryController {
 
     @PatchMapping("/{dictId}/{detailId}")
     @Operation(description = "修改数据字典__明细项__，返回修改后的__整个数据字典__信息,`body`中的明细`id`可以不填\n " +
-            "- 支持修改该项为默认项，传入` {\"isDefault\": true}`")
+            "- 支持修改该项为默认项，传入` {\"default\": true}`")
     public RestResponse<DictionaryDTO> modifyDictionaryDetail(
             @RequestBody @Validated DictionaryDetailDTO detailDTO,
             @PathVariable Long dictId,

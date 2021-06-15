@@ -61,5 +61,5 @@ public class CourseDTO {
 
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     @Schema(description = "教师名字")
-    private Long teacherName;
+    private String teacherName;
 }

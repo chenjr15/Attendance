@@ -286,22 +286,31 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     }
 
 
-    private CourseDTO course2DTO(Course record) {
+    private CourseDTO course2DTO(Course entity) {
         CourseDTO dto = new CourseDTO();
-        dto.setId(record.getId());
-        dto.setCode(record.getCode());
-        dto.setDescription(record.getDescription());
-        dto.setLocation(record.getLocation());
-        dto.setName(record.getName());
+        dto.setId(entity.getId());
+        dto.setCode(entity.getCode());
+        dto.setDescription(entity.getDescription());
+        dto.setLocation(entity.getLocation());
+        dto.setName(entity.getName());
 
-        dto.setSchedule(record.getSchedule());
-        dto.setEndTime(record.getEndTime());
-        dto.setSemester(record.getSemester());
-        dto.setStartTime(record.getStartTime());
-        dto.setState(record.getState());
-        dto.setStateName(getStateMessage(record.getState()));
+        dto.setSchedule(entity.getSchedule());
+        dto.setEndTime(entity.getEndTime());
+        dto.setSemester(entity.getSemester());
+        dto.setStartTime(entity.getStartTime());
+        dto.setState(entity.getState());
+        dto.setStateName(getStateMessage(entity.getState()));
 
-        Long schoolMajorID = record.getSchoolMajor();
+        dto.setTeacherId(entity.getCreator());
+        if (entity.getCreator() != null) {
+            User user = userMapper.selectById(dto.getTeacherId());
+            if (user != null) {
+                dto.setTeacherName(user.getRealName());
+            }
+        }
+
+
+        Long schoolMajorID = entity.getSchoolMajor();
         if (schoolMajorID != null) {
             dto.setSchoolMajorID(schoolMajorID);
             dto.setSchoolMajorName("UNKNOWN");

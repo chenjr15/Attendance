@@ -12,10 +12,7 @@ import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ICourseService;
-import dev.chenjr.attendance.service.dto.CourseDTO;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.utils.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +36,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     UserMapper userMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    OrganizationService organizationService;
 
     /**
      * 获取指定课程的信息
@@ -94,7 +93,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 选课列表
      */
     @Override
-    public PageWrapper<CourseDTO> listStudentElectedCourses(long uid, PageSort pageSort) {
+    public PageWrapper<CourseDTO> listElectedCourses(long uid, PageSort pageSort) {
         // 先获学生选的课的id
         QueryWrapper<UserCourse> userCourseQuery = new QueryWrapper<UserCourse>()
                 .eq("user_id", uid)
@@ -152,6 +151,24 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         Course toModify = dto2Entity(courseDTO);
         courseMapper.updateById(toModify);
         return this.getCourseById(courseDTO.getId());
+    }
+
+    /**
+     * 获取某个老师教的课
+     *
+     * @param uid      老师id
+     * @param pageSort 分页&筛选&排序
+     * @return 课程列表
+     */
+    @Override
+    public PageWrapper<CourseDTO> listTaughtCourse(long uid, PageSort pageSort) {
+
+        // 获取老师创建的课的id
+        QueryWrapper<Course> courseQuery = new QueryWrapper<Course>().eq("creator", uid);
+        Page<Course> coursePage = courseMapper.selectPage(pageSort.getPage(), courseQuery);
+        List<Course> userElectedCourse = coursePage.getRecords();
+        List<CourseDTO> dtoList = userElectedCourse.stream().map(this::course2DTO).collect(Collectors.toList());
+        return PageWrapper.fromList(coursePage, dtoList);
     }
 
 
@@ -276,13 +293,24 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setDescription(record.getDescription());
         dto.setLocation(record.getLocation());
         dto.setName(record.getName());
-        dto.setSchoolMajorID(record.getSchoolMajor());
+
         dto.setSchedule(record.getSchedule());
         dto.setEndTime(record.getEndTime());
         dto.setSemester(record.getSemester());
         dto.setStartTime(record.getStartTime());
         dto.setState(record.getState());
         dto.setStateName(getStateMessage(record.getState()));
+
+        Long schoolMajorID = record.getSchoolMajor();
+        if (schoolMajorID != null) {
+            dto.setSchoolMajorID(schoolMajorID);
+            dto.setSchoolMajorName("UNKNOWN");
+            OrganizationDTO schoolDto = organizationService.fetchItSelf(schoolMajorID);
+            if (schoolDto != null) {
+                dto.setSchoolMajorName(schoolDto.getName());
+            }
+
+        }
         return dto;
     }
 

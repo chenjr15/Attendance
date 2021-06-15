@@ -5,6 +5,7 @@ import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ICourseService;
 import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,7 @@ public class CourseController {
         return RestResponse.okWithData(page);
     }
 
-    @GetMapping("/student/{uid}")
+    @GetMapping("/joined/{uid}")
     @Operation(description = "获取某个学生加入的所有班课")
     public RestResponse<PageWrapper<CourseDTO>> getStudentElectedCourse(
             @PathVariable long uid,
@@ -80,7 +81,19 @@ public class CourseController {
     ) {
 
         // TODO 权限校验
-        PageWrapper<CourseDTO> records = courseService.listStudentElectedCourses(uid, pageSort);
+        PageWrapper<CourseDTO> records = courseService.listElectedCourses(uid, pageSort);
+        return RestResponse.okWithData(records);
+    }
+
+    @GetMapping("/taught/{uid}")
+    @Operation(description = "获取某个老师教的所有班课")
+    public RestResponse<PageWrapper<CourseDTO>> getTeachCourse(
+            @PathVariable long uid,
+            @ParameterObject PageSort pageSort
+    ) {
+
+        // TODO 权限校验
+        PageWrapper<CourseDTO> records = courseService.listTaughtCourse(uid, pageSort);
         return RestResponse.okWithData(records);
     }
 
@@ -103,7 +116,10 @@ public class CourseController {
 
     @PostMapping("/")
     @Operation(description = "创建课程")
-    public RestResponse<CourseDTO> createCourse(@AuthenticationPrincipal User user, @RequestBody CourseDTO courseDTO) {
+    public RestResponse<CourseDTO> createCourse(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            @RequestBody CourseDTO courseDTO
+    ) {
 
         // TODO 权限校验
         CourseDTO created = courseService.createCourse(user, courseDTO);
@@ -112,7 +128,10 @@ public class CourseController {
 
     @DeleteMapping("/{courseId}")
     @Operation(description = "删除课程")
-    public RestResponse<?> deleteCourse(@AuthenticationPrincipal User user, @PathVariable Long courseId) {
+    public RestResponse<?> deleteCourse(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            @PathVariable Long courseId
+    ) {
 
         courseService.deleteCourse(courseId, user);
         // TODO 权限校验

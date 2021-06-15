@@ -75,7 +75,7 @@ public interface ICourseService extends IService {
      * @param pageSort 分页&筛选&排序
      * @return 选课列表
      */
-    PageWrapper<CourseDTO> listStudentElectedCourses(long uid, PageSort pageSort);
+    PageWrapper<CourseDTO> listElectedCourses(long uid, PageSort pageSort);
 
     /**
      * 选择某个课程的所有学生
@@ -93,4 +93,13 @@ public interface ICourseService extends IService {
      * @return 修改后的dto
      */
     CourseDTO modifyCourse(CourseDTO courseDTO);
+
+    /**
+     * 获取某个老师教的课
+     *
+     * @param uid      老师id
+     * @param pageSort 分页&筛选&排序
+     * @return 课程列表
+     */
+    PageWrapper<CourseDTO> listTaughtCourse(long uid, PageSort pageSort);
 }

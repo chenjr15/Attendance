@@ -17,4 +17,7 @@ public interface OrganizationMapper extends MyBaseMapper<Organization> {
     @Override
     @Select("SELECT 1 FROM organization WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(long id);
+
+    @Select("SELECT count(id) FROM organization WHERE parent_id=#{parent_id} limit 1")
+    int childrenCount(long parent_id);
 }

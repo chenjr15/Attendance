@@ -152,6 +152,8 @@ public class OrganizationService implements IOrganizationService {
             List<OrganizationDTO> orgChildren = new ArrayList<>(childrenRecords.size());
             for (Organization child : childrenRecords) {
                 OrganizationDTO childDTO = organization2DTO(child);
+                int childrenCount = organizationMapper.childrenCount(child.getId());
+                childDTO.setChildrenCount(childrenCount);
                 orgChildren.add(childDTO);
             }
             organizationDTO.setChildrenCount(orgChildren.size());
@@ -207,6 +209,10 @@ public class OrganizationService implements IOrganizationService {
         if (children != null) {
             for (OrganizationDTO child : children) {
                 child.setParentId(newOne.getId());
+                child.setParents(newOne.getParents() + "-" + newOne.getName());
+                if (child.getProvinceId() == null) {
+                    child.setProvinceId(newOne.getProvinceId());
+                }
                 createOnly(child, depth + 1);
             }
         }
@@ -252,6 +258,15 @@ public class OrganizationService implements IOrganizationService {
         dto.setComment(record.getComment());
         dto.setParents(record.getParents());
         dto.setOrgType(getOrgType(record.getOrgType()));
+//        if (provinceId != null && provinceId != 0) {
+//            OrganizationDTO province = fetchItSelf(provinceId);
+//            if (province != null) {
+//                dto.setProvince(province.getName());
+//            } else {
+//                dto.setProvince("UNKNOWN");
+//            }
+//        }
+
         return dto;
     }
 }

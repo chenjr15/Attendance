@@ -45,7 +45,10 @@ public class OrganizationService implements IOrganizationService {
     }
 
     String getOrgType(Integer orgValue) {
-        return dictionaryService.getCacheDict(ORG_TYPE).get(orgValue);
+        if (orgValue == null) {
+            orgValue = 0;
+        }
+        return dictionaryService.getCacheDictDetail(ORG_TYPE, orgValue);
     }
 
 
@@ -188,6 +191,10 @@ public class OrganizationService implements IOrganizationService {
      */
     @Override
     public OrganizationDTO create(OrganizationDTO organizationDTO) {
+        Organization parent = organizationMapper.selectById(organizationDTO.getParentId());
+        if (parent != null) {
+            organizationDTO.setParents(parent.getFullName());
+        }
         long id = createOnly(organizationDTO, 0);
         // 可以用层次遍历，每一层一次插入
         return fetch(id);
@@ -209,7 +216,7 @@ public class OrganizationService implements IOrganizationService {
         if (children != null) {
             for (OrganizationDTO child : children) {
                 child.setParentId(newOne.getId());
-                child.setParents(newOne.getParents() + "-" + newOne.getName());
+                child.setParents(newOne.getFullName());
                 if (child.getProvinceId() == null) {
                     child.setProvinceId(newOne.getProvinceId());
                 }

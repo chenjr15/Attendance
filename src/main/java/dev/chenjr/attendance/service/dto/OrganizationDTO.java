@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.sun.istack.NotNull;
 import dev.chenjr.attendance.service.dto.validation.KeyWord;
 import dev.chenjr.attendance.service.dto.validation.KeyWordValidator;
+import dev.chenjr.attendance.utils.StringUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -37,7 +38,6 @@ public class OrganizationDTO {
   private String comment;
 
   @KeyWord
-  @NotBlank
   @Schema(description = "类型", example = "院校", pattern = KeyWordValidator.RE_KEYWORD)
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private String orgType;
@@ -61,4 +61,8 @@ public class OrganizationDTO {
   @Schema(description = "子结构")
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private List<OrganizationDTO> children;
+
+  public String getFullName() {
+    return StringUtil.join(parents, name);
+  }
 }

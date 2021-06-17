@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.dao.entity;
 
+import dev.chenjr.attendance.utils.StringUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,4 +31,8 @@ public class Organization extends BaseEntity {
     private Integer orgType;
     @Schema(description = "所属省份，，0为其他", defaultValue = "0")
     private Long provinceId;
+    
+    public String getFullName() {
+        return StringUtil.join(parents, name);
+    }
 }

@@ -29,25 +29,36 @@ public class CheckInTaskController {
         return RestResponse.notImplemented();
     }
 
-    @GetMapping("/{courseId}")
+    @GetMapping("/courses/{courseId}")
     @Operation(description = "显示某个课程的签到任务信息")
-    public RestResponse<?> getCheckInTask(@PathVariable Long courseId, @PathVariable Long taskId) {
+    public RestResponse<?> getCheckInTaskOfCourse(@PathVariable Long courseId) {
         return RestResponse.notImplemented();
     }
 
 
     @GetMapping("/{taskId}")
-    @Operation(description = "列出班课信息")
-    public RestResponse<?> getCheckInTask(@PathVariable Long courseId) {
+    @Operation(description = "列出班课签到信息")
+    public RestResponse<?> getCheckInTask(@PathVariable Long taskId) {
         return RestResponse.notImplemented();
     }
 
     @PutMapping("/{taskId}")
     @Operation(description = "修改签到任务")
-    public RestResponse<?> modifyCheckInTask(@RequestBody @Validated CheckInTaskDTO checkInTaskDTO, @PathVariable Long taskId) {
+    public RestResponse<?> modifyCheckInTask(
+            @RequestBody @Validated CheckInTaskDTO checkInTaskDTO,
+            @PathVariable Long taskId
+    ) {
         return RestResponse.notImplemented();
     }
 
+    @GetMapping("/{taskId}/logs")
+    @Operation(description = "获取某个签到任务的签到记录")
+    public RestResponse<?> listCheckInLogs(
+            @RequestBody @Validated CheckInTaskLogDTO checkInTaskLogDTO,
+            @PathVariable Long taskId
+    ) {
+        return RestResponse.notImplemented();
+    }
 
     @DeleteMapping("/{taskId}")
     @Operation(description = "删除签到任务")
@@ -56,15 +67,21 @@ public class CheckInTaskController {
     }
 
 
-    @PutMapping("/{taskId}/log")
+    @PatchMapping("/{taskId}/logs")
     @Operation(description = "修改签到任务")
-    public RestResponse<?> modifyCheckInTaskLog(@RequestBody @Validated CheckInTaskDTO checkInTaskDTO, @PathVariable Long taskId) {
+    public RestResponse<?> modifyCheckInTaskLog(
+            @RequestBody @Validated CheckInTaskDTO checkInTaskDTO,
+            @PathVariable Long taskId
+    ) {
         return RestResponse.notImplemented();
     }
 
-    @PostMapping("/{taskId}/log/")
+    @PostMapping("/{taskId}/logs")
     @Operation(description = "签到")
-    public RestResponse<?> checkIn(@RequestBody @Validated CheckInTaskLogDTO checkInTaskLogDTO, @PathVariable Long taskId) {
+    public RestResponse<?> checkIn(
+            @RequestBody @Validated CheckInTaskLogDTO checkInTaskLogDTO,
+            @PathVariable Long taskId
+    ) {
         return RestResponse.notImplemented();
     }
 }

@@ -63,7 +63,7 @@ public class OrganizationController {
         return RestResponse.okWithData(modified);
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     @Operation(description = "添加某个指定类型的节点")
     public RestResponse<OrganizationDTO> createOrg(
             @RequestBody @Validated OrganizationDTO organizationDTO) {

@@ -54,7 +54,7 @@ public class SysParameterController {
         return RestResponse.ok();
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     @Operation(description = "添加系统参数")
     public RestResponse<?> createSysParameter(
             @RequestBody @Validated SysParameterDTO parameterDTO) {

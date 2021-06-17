@@ -97,7 +97,7 @@ public class CourseController {
         return RestResponse.okWithData(records);
     }
 
-    @PostMapping("/student/{uid}/{courseCode}")
+    @PostMapping("/students/{uid}/{courseCode}")
     @Operation(description = "学生加入班课(通过Code，其他都用id)")
     public RestResponse<?> studentElectCourse(@PathVariable long uid, @PathVariable String courseCode) {
 
@@ -106,7 +106,7 @@ public class CourseController {
         return RestResponse.ok();
     }
 
-    @DeleteMapping("/student/{uid}/{courseId}")
+    @DeleteMapping("/students/{uid}/{courseId}")
     @Operation(description = "学生退出班课")
     public RestResponse<?> studentQuitCourse(@PathVariable long uid, @PathVariable long courseId) {
         // TODO 权限校验 是当前用户或者是该课程的老师或者是管理员
@@ -114,7 +114,7 @@ public class CourseController {
         return RestResponse.okWithMsg("Quited");
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     @Operation(description = "创建课程")
     public RestResponse<CourseDTO> createCourse(
             @Parameter(hidden = true) @AuthenticationPrincipal User user,

@@ -42,6 +42,7 @@ public class DictionaryService implements IDictionaryService {
             // 更新
             DictionaryDTO dictionaryByCode = this.getDictionaryByCode(key);
             Map<Integer, String> detailMap = dictCacheMap.computeIfAbsent(key, k -> new TreeMap<>());
+            dictCacheMap.put(key, detailMap);
             for (DictionaryDetailDTO detail : dictionaryByCode.getDetails()) {
                 detailMap.put(detail.getValue(), detail.getName());
             }
@@ -59,7 +60,7 @@ public class DictionaryService implements IDictionaryService {
      */
     @Override
     public String getCacheDictDetail(String key, int detailKey) {
-        return this.getCacheDict(key).get(detailKey);
+        return getCacheDict(key).get(detailKey);
     }
 
     /**

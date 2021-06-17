@@ -12,8 +12,10 @@ import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ICourseService;
+import dev.chenjr.attendance.service.IOrganizationService;
 import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.utils.RandomUtil;
+import dev.chenjr.attendance.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,7 +39,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     @Autowired
     UserService userService;
     @Autowired
-    OrganizationService organizationService;
+    IOrganizationService organizationService;
 
     /**
      * 获取指定课程的信息
@@ -301,9 +303,11 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setState(entity.getState());
         dto.setStateName(getStateMessage(entity.getState()));
 
-        dto.setTeacherId(entity.getCreator());
-        if (entity.getCreator() != null) {
-            User user = userMapper.selectById(dto.getTeacherId());
+        Long teacher = entity.getCreator();
+
+        if (teacher != null) {
+            dto.setTeacherId(teacher);
+            User user = userMapper.selectById(teacher);
             if (user != null) {
                 dto.setTeacherName(user.getRealName());
             }
@@ -316,7 +320,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
             dto.setSchoolMajorName("UNKNOWN");
             OrganizationDTO schoolDto = organizationService.fetchItSelf(schoolMajorID);
             if (schoolDto != null) {
-                dto.setSchoolMajorName(schoolDto.getName());
+                String joined = StringUtil.join(schoolDto.getParents(), schoolDto.getName());
+                dto.setSchoolMajorName(joined);
             }
 
         }

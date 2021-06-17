@@ -273,6 +273,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      */
     @Override
     public void deleteCourse(long courseID, User actor) {
+        userCourseMapper.deleteByCourseId(courseID);
         courseMapper.deleteById(courseID);
     }
 

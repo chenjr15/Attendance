@@ -77,7 +77,7 @@ public class StringUtil {
 
         StringBuilder builder = new StringBuilder();
         for (String s : stringList) {
-            if (s == null) {
+            if (s == null || s.length() == 0) {
                 continue;
             }
             builder.append(s);

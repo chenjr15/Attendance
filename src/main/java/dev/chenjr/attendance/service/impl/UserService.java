@@ -9,6 +9,7 @@ import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
+import dev.chenjr.attendance.service.IStorageService;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
@@ -16,20 +17,14 @@ import dev.chenjr.attendance.service.dto.RegisterRequest;
 import dev.chenjr.attendance.service.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static dev.chenjr.attendance.utils.RandomUtil.randomStringWithDate;
-import static org.springframework.util.StringUtils.getFilenameExtension;
 
 @Service
 @Slf4j
@@ -44,12 +39,11 @@ public class UserService implements IUserService {
     DictionaryService dictionaryService;
 
     @Autowired
-    AccountService accountService;
-    @Value("${avatar.storage-path}")
-    String avatarStoragePath;
+    IStorageService storageService;
 
-    @Value("${avatar.route-prefix}")
-    String avatarUrlPrefix;
+    @Autowired
+    AccountService accountService;
+
 
     @Override
     public User getUserById(long id) {
@@ -119,7 +113,7 @@ public class UserService implements IUserService {
         dto.setRealName(user.getRealName());
         dto.setSchoolMajorID(user.getSchoolMajor());
         String avatar = user.getAvatar();
-        String avatarUrl = avatarUrlPrefix + avatar;
+        String avatarUrl = storageService.getFullUrl(avatar);
         dto.setAvatar(avatarUrl);
 
         String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
@@ -191,22 +185,13 @@ public class UserService implements IUserService {
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound();
         }
-        String storeName = randomStringWithDate(20);
-        String extension = getFilenameExtension(uploaded.getOriginalFilename());
-        storeName = storeName + '.' + extension;
-        File saveFile = new File(avatarStoragePath + storeName);
-        try {
-            uploaded.transferTo(saveFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw HttpStatusException.badRequest("上传失败！");
-        }
+        String storeName = storageService.storeFile(uploaded);
         User user = new User();
         user.setId(uid);
         user.setAvatar(storeName);
         user.updateBy(uid);
         userMapper.updateById(user);
-        return storeName;
+        return storageService.getFullUrl(storeName);
     }
 
     /**

@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import dev.chenjr.attendance.service.impl.FileStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -8,11 +9,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class MvcConfigure implements WebMvcConfigurer {
-    @Value("${avatar.storage-path}")
-    String avatarStoragePath;
 
-    @Value("${avatar.route-prefix}")
-    String avatarUrlPrefix;
+    @Autowired
+    FileStorageService fileStorageService;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -31,7 +30,7 @@ public class MvcConfigure implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置静态资源
-        registry.addResourceHandler(avatarUrlPrefix + "**")
-                .addResourceLocations("file:" + avatarStoragePath, "classpath:/static/avatar/");
+        registry.addResourceHandler(fileStorageService.getUrlPrefix() + "**")
+                .addResourceLocations("file:" + fileStorageService.getStoragePath(), "classpath:/static/avatar/");
     }
 }

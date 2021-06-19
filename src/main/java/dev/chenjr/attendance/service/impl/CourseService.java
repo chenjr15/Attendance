@@ -13,6 +13,7 @@ import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.ICourseService;
 import dev.chenjr.attendance.service.IOrganizationService;
+import dev.chenjr.attendance.service.IStorageService;
 import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.utils.RandomUtil;
 import dev.chenjr.attendance.utils.StringUtil;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +42,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     UserService userService;
     @Autowired
     IOrganizationService organizationService;
+
+    @Autowired
+    IStorageService storageService;
 
     /**
      * 获取指定课程的信息
@@ -153,6 +158,28 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         Course toModify = dto2Entity(courseDTO);
         courseMapper.updateById(toModify);
         return this.getCourseById(courseDTO.getId());
+    }
+
+    /**
+     * 更新课程封面
+     *
+     * @param courseId 课程id
+     * @param uploaded 上传的文件
+     * @return 新头像的url
+     */
+    @Override
+    public String modifyAvatar(Long courseId, MultipartFile uploaded) {
+        Optional<Boolean> exists = courseMapper.exists(courseId);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound();
+        }
+        String filename = storageService.storeFile(uploaded);
+
+        Course course = new Course();
+        course.setId(courseId);
+        course.setAvatar(filename);
+        courseMapper.updateById(course);
+        return storageService.getFullUrl(filename);
     }
 
     /**
@@ -294,7 +321,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setId(entity.getId());
         dto.setCode(entity.getCode());
         dto.setDescription(entity.getDescription());
-        dto.setLocation(entity.getLocation());
+        dto.setCourseClass(entity.getCourseClass());
         dto.setName(entity.getName());
 
         dto.setSchedule(entity.getSchedule());
@@ -303,7 +330,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setStartTime(entity.getStartTime());
         dto.setState(entity.getState());
         dto.setStateName(getStateMessage(entity.getState()));
-
+        dto.setAvatar(storageService.getFullUrl(entity.getAvatar()));
         Long teacher = entity.getCreator();
 
         if (teacher != null) {
@@ -335,7 +362,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         entity.setId(courseDTO.getId());
         entity.setName(courseDTO.getName());
         entity.setCode(courseDTO.getCode());
-        entity.setLocation(courseDTO.getLocation());
+        entity.setCourseClass(courseDTO.getCourseClass());
         entity.setSchedule(courseDTO.getSchedule());
         entity.setDescription(courseDTO.getDescription());
         entity.setEndTime(courseDTO.getEndTime());
@@ -343,6 +370,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         entity.setStartTime(courseDTO.getStartTime());
         entity.setState(courseDTO.getState());
         entity.setSemester(courseDTO.getSemester());
+        entity.setAvatar(courseDTO.getAvatar());
         return entity;
     }
 }

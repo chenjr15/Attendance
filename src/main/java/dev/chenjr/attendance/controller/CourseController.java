@@ -9,8 +9,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/courses")
@@ -144,5 +146,16 @@ public class CourseController {
         courseDTO.setId(courseId);
         CourseDTO modified = courseService.modifyCourse(courseDTO);
         return RestResponse.okWithData(modified);
+    }
+
+    @PutMapping(value = "/{courseId}/avatar", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(description = "修改头像（上传）")
+    public RestResponse<String> modifyAvatar(
+            @PathVariable long courseId,
+            @RequestParam("avatar") MultipartFile uploaded
+    ) {
+
+        String storeName = courseService.modifyAvatar(courseId, uploaded);
+        return RestResponse.okWithData(storeName);
     }
 }

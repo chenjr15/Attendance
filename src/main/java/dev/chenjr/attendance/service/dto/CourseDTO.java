@@ -43,7 +43,7 @@ public class CourseDTO {
     private LocalDateTime endTime;
 
     @Length(max = 256)
-    private String location;
+    private String courseClass;
 
     @Schema(description = "签到次数统计")
     private long checkCount;
@@ -62,4 +62,7 @@ public class CourseDTO {
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     @Schema(description = "教师名字")
     private String teacherName;
+
+    @Schema(description = "课程封面")
+    private String avatar;
 }

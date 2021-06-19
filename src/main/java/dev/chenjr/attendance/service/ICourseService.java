@@ -5,6 +5,7 @@ import dev.chenjr.attendance.service.dto.CourseDTO;
 import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.UserDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 课程相关业务支持服务， 包含开课、选课、签到、签到日志、经验值查询功能等
@@ -93,6 +94,15 @@ public interface ICourseService extends IService {
      * @return 修改后的dto
      */
     CourseDTO modifyCourse(CourseDTO courseDTO);
+
+    /**
+     * 更新课程封面
+     *
+     * @param courseId 课程id
+     * @param uploaded 上传的文件
+     * @return 新头像的url
+     */
+    String modifyAvatar(Long courseId, MultipartFile uploaded);
 
     /**
      * 获取某个老师教的课

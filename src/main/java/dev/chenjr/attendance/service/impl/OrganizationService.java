@@ -52,41 +52,6 @@ public class OrganizationService implements IOrganizationService {
     }
 
 
-    /**
-     * 返回指定类型的组织结构
-     *
-     * @param orgType  类型英文名
-     * @param curPage  当前页面
-     * @param pageSize 页面大小
-     * @return 分页的组织结构数据
-     */
-    @Override
-    public PageWrapper<OrganizationDTO> listPage(String orgType, long curPage, long pageSize) {
-        int orgValue = getOrgValue(orgType);
-        if (orgValue < 0) {
-            throw HttpStatusException.notFound("找不到该类型的组织结构:" + orgType);
-        }
-        Page<Organization> page = new Page<>(curPage, pageSize);
-        QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
-                .eq(ORG_TYPE, orgValue)
-                .eq(StringUtil.toUnderlineCase("parentId"), 0);
-        page = organizationMapper.selectPage(page, wr);
-
-        PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
-        List<Organization> records = page.getRecords();
-
-        if (records != null && records.size() != 0) {
-            List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
-            for (Organization record : records) {
-                OrganizationDTO organizationDTO = organization2DTO(record);
-                orgDtoList.add(organizationDTO);
-            }
-            pageWrapper.setContent(orgDtoList);
-        }
-
-        return pageWrapper;
-    }
-
     @Override
     public PageWrapper<OrganizationDTO> listPage(String orgType, PageSort pageSort) {
 
@@ -163,6 +128,45 @@ public class OrganizationService implements IOrganizationService {
             organizationDTO.setChildren(orgChildren);
         }
 
+        return organizationDTO;
+    }
+
+    /**
+     * 获取某个节点的信息, 并返回一级子节点
+     *
+     * @param orgId    节点id
+     * @param pageSort 子节点的分页排序筛选信息
+     * @return 节点信息和分页后的子节点信息
+     */
+    @Override
+    public OrganizationDTO listChildren(long orgId, PageSort pageSort) {
+        Organization organization = organizationMapper.selectById(orgId);
+        if (organization == null) {
+            throw HttpStatusException.notFound();
+        }
+        OrganizationDTO organizationDTO = organization2DTO(organization);
+
+        QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
+                .eq("parent_id", organization.getId());
+
+        wr = pageSort.buildQueryWrapper(wr, "name");
+
+        Page<Organization> organizationPage = organizationMapper.selectPage(pageSort.getPage(), wr);
+        List<Organization> childrenRecords = organizationPage.getRecords();
+        log.info("childrenRecords:{}", childrenRecords);
+
+        List<OrganizationDTO> orgChildren = new ArrayList<>(childrenRecords.size());
+        if (childrenRecords.size() != 0) {
+            for (Organization child : childrenRecords) {
+                OrganizationDTO childDTO = organization2DTO(child);
+                int childrenCount = organizationMapper.childrenCount(child.getId());
+                childDTO.setChildrenCount(childrenCount);
+                orgChildren.add(childDTO);
+            }
+            organizationDTO.setChildrenCount(organizationPage.getTotal());
+            PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromList(organizationPage, orgChildren);
+            organizationDTO.setChildrenWrapper(pageWrapper);
+        }
         return organizationDTO;
     }
 
@@ -251,7 +255,7 @@ public class OrganizationService implements IOrganizationService {
         newOne.setProvinceId(orgDTO.getProvinceId());
         newOne.setParentId(orgDTO.getParentId());
         newOne.setParents(orgDTO.getParents());
-        newOne.setOrgType(getOrgValue(orgDTO.getOrgType()));
+//        newOne.setOrgType(getOrgValue(orgDTO.getOrgType()));
         return newOne;
     }
 
@@ -264,7 +268,7 @@ public class OrganizationService implements IOrganizationService {
         dto.setName(record.getName());
         dto.setComment(record.getComment());
         dto.setParents(record.getParents());
-        dto.setOrgType(getOrgType(record.getOrgType()));
+//        dto.setOrgType(getOrgType(record.getOrgType()));
 //        if (provinceId != null && provinceId != 0) {
 //            OrganizationDTO province = fetchItSelf(provinceId);
 //            if (province != null) {

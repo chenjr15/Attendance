@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.sun.istack.NotNull;
-import dev.chenjr.attendance.service.dto.validation.KeyWord;
-import dev.chenjr.attendance.service.dto.validation.KeyWordValidator;
 import dev.chenjr.attendance.utils.StringUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -37,10 +35,10 @@ public class OrganizationDTO {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private String comment;
 
-  @KeyWord
-  @Schema(description = "类型", example = "院校", pattern = KeyWordValidator.RE_KEYWORD)
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private String orgType;
+//  @KeyWord
+//  @Schema(description = "类型", example = "院校", pattern = KeyWordValidator.RE_KEYWORD)
+//  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+//  private String orgType;
 
   @Schema(description = "所属省份，", example = "北京")
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -56,11 +54,15 @@ public class OrganizationDTO {
   private String parents;
 
   @Schema(description = "子结构数量")
-  private int childrenCount;
+  private long childrenCount;
 
   @Schema(description = "子结构")
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private List<OrganizationDTO> children;
+
+  @Schema(description = "子结构的分页列表")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private PageWrapper<OrganizationDTO> childrenWrapper;
 
   public String getFullName() {
     return StringUtil.join(parents, name);

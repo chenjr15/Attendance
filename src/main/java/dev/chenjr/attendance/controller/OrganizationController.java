@@ -3,7 +3,6 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.service.IOrganizationService;
 import dev.chenjr.attendance.service.dto.OrganizationDTO;
 import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,29 +22,31 @@ public class OrganizationController {
 
     @GetMapping("/schools")
     @Operation(description = "返回学校列表")
-    public RestResponse<PageWrapper<OrganizationDTO>> listSchool(
+    public RestResponse<OrganizationDTO> listSchool(
             @ParameterObject PageSort pageSort
     ) {
-        PageWrapper<OrganizationDTO> organizationPW = organizationService.listPage("school", pageSort);
+        OrganizationDTO organizationPW = organizationService.listChildren(1, pageSort);
         return RestResponse.okWithData(organizationPW);
     }
 
 
     @GetMapping("/locations")
     @Operation(description = "返回省级行政区划")
-    public RestResponse<PageWrapper<OrganizationDTO>> listLocation(
+    public RestResponse<OrganizationDTO> listLocation(
             @ParameterObject PageSort pageSort
     ) {
         log.info("pageSort：{}", pageSort);
-
-        PageWrapper<OrganizationDTO> organizationPW = organizationService.listPage("location", pageSort);
+        OrganizationDTO organizationPW = organizationService.listChildren(2, pageSort);
 
         return RestResponse.okWithData(organizationPW);
     }
 
 
     @GetMapping("/{orgId}")
-    @Operation(description = "显示某个组织结构信息,包括其儿子节点(仅一级儿子)")
+    @Operation(description = "显示某个组织结构信息,包括其儿子节点(仅一级儿子)\n" +
+            "- `0` 为顶级节点, 全局父节点\n" +
+            "- `1` 为所有院校的父节点\n" +
+            "- `2` 为所有的行政区的父节点\n")
     public RestResponse<OrganizationDTO> getOrg(@PathVariable long orgId) {
         OrganizationDTO org = organizationService.fetch(orgId);
         return RestResponse.okWithData(org);

@@ -230,7 +230,7 @@ public class AccountService extends BaseService implements IAccountService {
 
     @Override
     public boolean accountExists(long accountId) {
-        return this.accountMapper.exists(accountId) != null;
+        return this.accountMapper.exists(accountId).orElse(false);
     }
 
     @Override
@@ -257,10 +257,10 @@ public class AccountService extends BaseService implements IAccountService {
             throw new SuperException("用户已绑定其他账号，请先解绑！");
         }
         Account externalAccount = Account
-            .external(thirdPartyDTO.getUid(),
-                thirdPartyDTO.getType(),
-                thirdPartyDTO.getOpenid(),
-                thirdPartyDTO.getAccessToken());
+                .external(thirdPartyDTO.getUid(),
+                        thirdPartyDTO.getType(),
+                        thirdPartyDTO.getOpenid(),
+                        thirdPartyDTO.getAccessToken());
         accountMapper.insert(externalAccount);
 
     }

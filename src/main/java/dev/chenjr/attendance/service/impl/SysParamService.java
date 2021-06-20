@@ -72,8 +72,12 @@ public class SysParamService implements ISysParamService {
      */
     @Override
     public void updateSystemParams(SysParameterDTO dto) {
+        Long id = systemParamMapper.getIdByParamCode(dto.getCode());
+        if (id == null) {
+            throw HttpStatusException.notFound();
+        }
         SystemParam sysParameter = dtoToSysParam(dto);
-
+        sysParameter.setId(id);
         systemParamMapper.updateById(sysParameter);
     }
 

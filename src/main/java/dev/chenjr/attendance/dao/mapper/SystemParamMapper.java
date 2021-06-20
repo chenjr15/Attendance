@@ -18,4 +18,7 @@ public interface SystemParamMapper extends BaseMapper<SystemParam> {
 
     @Delete("DELETE  FROM system_param WHERE param_code = #{paramCode}")
     int deleteByParamCode(@Param("paramCode") String paramCode);
+
+    @Select("SELECT id FROM system_param WHERE param_code = #{paramCode}")
+    Long getIdByParamCode(String code);
 }

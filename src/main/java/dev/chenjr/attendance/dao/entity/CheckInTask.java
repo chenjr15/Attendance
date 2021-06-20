@@ -23,15 +23,34 @@ public class CheckInTask extends BaseEntity {
 
     private Long courseId;
 
+    /**
+     * 经度
+     */
     private Double longitude;
+    /**
+     * 纬度
+     */
     private Double latitude;
 
+    /**
+     * 截至时间
+     */
     private LocalDateTime deadline;
+    /**
+     * 签到是否结束
+     */
     private Boolean finished;
 
+    /**
+     * 签到类型
+     */
     private Long type;
 
     private String description;
+    /**
+     * 签到参数，如手势签到的手势
+     */
+    private String param;
 
 
 }

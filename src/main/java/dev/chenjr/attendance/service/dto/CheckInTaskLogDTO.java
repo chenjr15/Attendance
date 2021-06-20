@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class CheckInTaskLogDTO {
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
 
     @NotNull
     @Schema(description = "学生id")

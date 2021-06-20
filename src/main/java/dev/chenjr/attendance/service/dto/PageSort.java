@@ -26,14 +26,13 @@ public class PageSort {
     long curPage;
     @Schema(description = "页面大小", defaultValue = "10")
     long pageSize;
-    @Schema(description = "排序，用逗号分割 ", example = "key1:desc")
+    @Schema(description = "排序，用逗号分割, 如：key1:desc ")
     List<String> orderBy;
-    @Schema(description = "返回属性，用逗号分割", example = "key1")
+    @Schema(description = "返回属性，用逗号分割 如：key1,key2")
     List<String> returns;
-    @Schema(description = "筛选器(完全相等)，用逗号分割, 记得转义！key1=kw1,key2=kw2", example = "key1=kw1")
+    @Schema(description = "筛选器(完全相等)，用逗号分割, 记得转义！key1=kw1,key2=kw2")
     List<String> filters;
-
-    @Schema(description = "搜索(部分相等)，记得转义！", example = "keyword")
+    @Schema(description = "搜索(部分相等)，记得转义！")
     String search;
 
     @Schema(hidden = true)

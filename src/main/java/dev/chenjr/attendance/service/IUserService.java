@@ -76,4 +76,12 @@ public interface IUserService extends IService {
      * @return 修改后的数据
      */
     UserDTO modifyUser(UserDTO desiredDto);
+
+    /**
+     * 通过id 查询用户的名字
+     *
+     * @param id 用户id
+     * @return 用户名
+     */
+    String getRealNameById(Long id);
 }

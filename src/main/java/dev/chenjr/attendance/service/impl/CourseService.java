@@ -332,15 +332,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setStateName(getStateMessage(entity.getState()));
         dto.setAvatar(storageService.getFullUrl(entity.getAvatar()));
         Long teacher = entity.getCreator();
-
-        if (teacher != null) {
-            dto.setTeacherId(teacher);
-            User user = userMapper.selectById(teacher);
-            if (user != null) {
-                dto.setTeacherName(user.getRealName());
-            }
-        }
-
+        dto.setTeacherId(teacher);
+        dto.setTeacherName(userService.getRealNameById(teacher));
 
         Long schoolMajorID = entity.getSchoolMajor();
         if (schoolMajorID != null) {

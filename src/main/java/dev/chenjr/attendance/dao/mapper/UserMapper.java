@@ -36,4 +36,7 @@ public interface UserMapper extends MyBaseMapper<User> {
 
     @Select("SELECT 1 FROM user WHERE login_name = #{loginName} limit 1 ")
     Boolean loginNameExists(@Param("loginName") String loginName);
+
+    @Select("SELECT real_name FROM user WHERE id=#{id} limit 1 ")
+    String getRealNameById(Long id);
 }

@@ -245,4 +245,18 @@ public class UserService implements IUserService {
         return getUser(desiredUser.getId());
     }
 
+    /**
+     * 通过id 查询用户的名字
+     *
+     * @param id 用户id
+     * @return 用户名
+     */
+    @Override
+    public String getRealNameById(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return userMapper.getRealNameById(id);
+    }
+
 }

@@ -1,6 +1,9 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.CheckInLog;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.Optional;
 
 /**
  * <p>
@@ -12,4 +15,11 @@ import dev.chenjr.attendance.dao.entity.CheckInLog;
  */
 public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
 
+    /**
+     * @param id 指定的主键
+     * @return !不存在返回 null, 存在返回true,
+     */
+    @Override
+    @Select("SELECT 1 FROM {TABLE} WHERE id=#{id} limit 1 ")
+    Optional<Boolean> exists(long id);
 }

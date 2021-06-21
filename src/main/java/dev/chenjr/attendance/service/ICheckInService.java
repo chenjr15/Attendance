@@ -1,7 +1,8 @@
 package dev.chenjr.attendance.service;
 
+import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.service.dto.CheckInLogDTO;
 import dev.chenjr.attendance.service.dto.CheckInTaskDTO;
-import dev.chenjr.attendance.service.dto.CheckInTaskLogDTO;
 import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 
@@ -31,18 +32,20 @@ public interface ICheckInService {
     /**
      * 修改签到任务
      *
+     * @param updater        更新人
      * @param checkInTaskDTO 要修改的属性
      * @return 修改后的数据
      */
-    CheckInTaskDTO modifyTask(CheckInTaskDTO checkInTaskDTO);
+    CheckInTaskDTO modifyTask(User updater, CheckInTaskDTO checkInTaskDTO);
 
     /**
      * 获取签到记录
      *
-     * @param taskId 签到任务id
+     * @param taskId   签到任务id
+     * @param pageSort 排序
      * @return 签到记录
      */
-    PageWrapper<CheckInTaskLogDTO> listCheckInLogs(long taskId);
+    PageWrapper<CheckInLogDTO> listCheckInLogs(long taskId, PageSort pageSort);
 
     /**
      * 删除签到任务
@@ -57,14 +60,31 @@ public interface ICheckInService {
      * @param logDTO 要修改的任务
      * @return 修改后的结果
      */
-    CheckInTaskLogDTO modifyLog(CheckInTaskLogDTO logDTO);
+    CheckInLogDTO modifyLog(CheckInLogDTO logDTO);
 
     /**
      * 签到
      *
-     * @param taskId 任务id
-     * @param logDTO 签到记录信息
+     * @param operator 操作人
+     * @param taskId   任务id
+     * @param logDTO   签到记录信息
      * @return 创建的签到数据
      */
-    CheckInTaskLogDTO checkIn(Long taskId, CheckInTaskLogDTO logDTO);
+    CheckInLogDTO checkIn(User operator, Long taskId, CheckInLogDTO logDTO);
+
+    /**
+     * 创建签到任务/发起签到
+     *
+     * @param checkInTaskDTO 签到信息
+     * @return 签到成功的信息
+     */
+    CheckInTaskDTO createCheckInTask(CheckInTaskDTO checkInTaskDTO);
+
+    /**
+     * 结束签到
+     *
+     * @param operator 操作人
+     * @param taskId   任务id
+     */
+    void endCheckInTask(User operator, long taskId);
 }

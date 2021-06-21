@@ -15,13 +15,21 @@ public class CheckInTaskDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     @NotNull
+    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "班课号", required = true)
     private Long courseId;
-    @Schema(description = "签到地点")
-    private String location;
+    
+    @NotNull
+    @Schema(description = "经度", required = true)
+    private Double longitude;
+
+    @NotNull
+    @Schema(description = "纬度", required = true)
+    private Double latitude;
+
     @NotNull
     @Schema(description = "签到类型")
-    private Long type;
+    private long type;
     @Schema(description = "签到参数，依type而定，如手势")
     private String param;
     @Schema(description = "签到描述")
@@ -31,4 +39,11 @@ public class CheckInTaskDTO {
     private LocalDateTime deadline;
     @Schema(description = "签到是否结束")
     private Boolean finished;
+
+    @Schema(description = "发起人名称")
+    String operatorName;
+    @Schema(description = "发起人id")
+    @JsonSerialize(using = ToStringSerializer.class)
+    Long operatorId;
+
 }

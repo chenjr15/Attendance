@@ -17,20 +17,36 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "签到记录，记录用户在每门课的签到时间签到地点，对应的签到任务id")
 public class CheckInLog extends BaseEntity {
 
+    public static final int STATUS_NORMAL = 0;
+    public static final int STATUS_LEAVE = 1;
+    public static final int STATUS_LATE = 2;
+    public static final int STATUS_ABSENCE = 2;
+
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 签到状态，
+     * - 0 正常签到
+     * - 1 请假
+     * - 2 迟到
+     * - 3 未签到
+     */
+    private int status;
 
     private Long taskId;
 
-    private Long userId;
-
-    private Long courseId;
+    private Long stuId;
 
     private Double longitude;
     private Double latitude;
 
-    private Long type;
+    /**
+     * 签到距离
+     */
+    private Double distance;
 
-    private String extend;
-
-
+    /**
+     * 获得的经验值
+     */
+    private Integer experience;
 }

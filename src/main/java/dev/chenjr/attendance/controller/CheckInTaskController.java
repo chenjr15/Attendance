@@ -1,11 +1,14 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.ICheckInService;
 import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,13 @@ public class CheckInTaskController {
 
     @PostMapping("")
     @Operation(description = "创建签到任务")
-    public RestResponse<?> createCheckInTask(@RequestBody @Validated CheckInTaskDTO checkInTaskDTO) {
-        return RestResponse.notImplemented();
+    public RestResponse<?> createCheckInTask(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            @RequestBody @Validated CheckInTaskDTO checkInTaskDTO
+    ) {
+        checkInTaskDTO.setOperatorId(user.getId());
+        checkInTaskDTO = checkInService.createCheckInTask(checkInTaskDTO);
+        return RestResponse.okWithData(checkInTaskDTO);
     }
 
     @GetMapping("/courses/{courseId}")
@@ -49,24 +57,26 @@ public class CheckInTaskController {
         return RestResponse.okWithData(task);
     }
 
-    @PutMapping("/{taskId}")
+    @PatchMapping("/{taskId}")
     @Operation(description = "修改签到任务")
     public RestResponse<CheckInTaskDTO> modifyCheckInTask(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
             @RequestBody @Validated CheckInTaskDTO checkInTaskDTO,
             @PathVariable long taskId
     ) {
         checkInTaskDTO.setId(taskId);
-        CheckInTaskDTO task = checkInService.modifyTask(checkInTaskDTO);
+        CheckInTaskDTO task = checkInService.modifyTask(user, checkInTaskDTO);
         return RestResponse.okWithData(task);
     }
 
     @GetMapping("/{taskId}/logs")
     @Operation(description = "获取某个签到任务的签到记录")
-    public RestResponse<PageWrapper<CheckInTaskLogDTO>> listCheckInLogs(
-            @PathVariable Long taskId
+    public RestResponse<PageWrapper<CheckInLogDTO>> listCheckInLogs(
+            @PathVariable Long taskId,
+            @ParameterObject PageSort pageSort
     ) {
-        PageWrapper<CheckInTaskLogDTO> logs;
-        logs = checkInService.listCheckInLogs(taskId);
+        PageWrapper<CheckInLogDTO> logs;
+        logs = checkInService.listCheckInLogs(taskId, pageSort);
         return RestResponse.okWithData(logs);
     }
 
@@ -77,11 +87,21 @@ public class CheckInTaskController {
         return RestResponse.ok();
     }
 
+    @PostMapping("/{taskId}/ended")
+    @Operation(description = "结束签到")
+    public RestResponse<?> endCheckInTask(
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            @PathVariable long taskId
+    ) {
+
+        checkInService.endCheckInTask(user, taskId);
+        return RestResponse.ok();
+    }
 
     @PatchMapping("/{taskId}/logs/{logId}")
     @Operation(description = "修改签到记录")
     public RestResponse<?> modifyCheckInTaskLog(
-            @RequestBody @Validated CheckInTaskLogDTO logDTO,
+            @RequestBody @Validated CheckInLogDTO logDTO,
             @PathVariable long taskId,
             @PathVariable long logId
     ) {
@@ -91,12 +111,13 @@ public class CheckInTaskController {
     }
 
     @PostMapping("/{taskId}/logs")
-    @Operation(description = "签到")
+    @Operation(description = "签到, 需要传入经纬度")
     public RestResponse<?> checkIn(
-            @RequestBody @Validated CheckInTaskLogDTO logDTO,
+            @Parameter(hidden = true) @AuthenticationPrincipal User user,
+            @RequestBody @Validated CheckInLogDTO logDTO,
             @PathVariable Long taskId
     ) {
-        logDTO = checkInService.checkIn(taskId, logDTO);
+        logDTO = checkInService.checkIn(user, taskId, logDTO);
         return RestResponse.okWithData(logDTO);
     }
 }

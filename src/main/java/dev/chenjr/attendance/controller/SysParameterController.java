@@ -72,7 +72,7 @@ public class SysParameterController {
         return RestResponse.okWithMsg("Deleted");
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("")
     @Operation(description = "!清空!系统参数")
     public RestResponse<?> deleteAllSysParameter(@RequestParam(defaultValue = "false") Boolean confirm) {
         if (confirm) {

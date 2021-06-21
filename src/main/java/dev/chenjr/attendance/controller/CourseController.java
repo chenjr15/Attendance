@@ -66,7 +66,7 @@ public class CourseController {
         return RestResponse.okWithData(pageWrapper);
     }
 
-    @GetMapping(value = "/")
+    @GetMapping(value = "")
     @Operation(description = "获取所有的班课")
     public RestResponse<PageWrapper<CourseDTO>> getAllCourse(
             @ParameterObject PageSort pageSort

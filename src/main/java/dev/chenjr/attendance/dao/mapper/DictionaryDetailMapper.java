@@ -22,7 +22,7 @@ public interface DictionaryDetailMapper extends MyBaseMapper<DictionaryDetail> {
     @Select("SELECT 1 FROM dictionary_detail WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(@Param("id") long id);
 
-    @Select("SELECT * FROM dictionary_detail where dictionary_id=#{dictId}")
+    @Select("SELECT * FROM dictionary_detail where dictionary_id=#{dictId}  ORDER BY order_value")
     List<DictionaryDetail> getByDictId(@Param("dictId") Long dictId);
 
     @Delete("DELETE FROM dictionary_detail where dictionary_id=#{dictId}")
@@ -33,4 +33,18 @@ public interface DictionaryDetailMapper extends MyBaseMapper<DictionaryDetail> {
 
     @Update("UPDATE dictionary_detail SET default_item=1 WHERE id=#{id} ")
     void setDefault(@Param("id") long id);
+
+    @Select("SELECT id FROM dictionary_detail where dictionary_id=#{dictId} ORDER BY order_value")
+    List<Long> selectIdByOrder(long dictId);
+
+    @Update("<script> UPDATE dictionary_detail " +
+            "SET order_value =   " +
+            "<foreach item=\"item\" index=\"index\" collection=\"list\" open=\"CASE\" separator=\" \" close=\"END\"> " +
+            "   WHEN id = #{item.id} THEN #{item.orderValue}" +
+            "</foreach>  " +
+            "WHERE id IN  <foreach item=\"item\" index=\"index\" collection=\"list\" open=\"(\" separator=\",\" close=\")\">" +
+            "#{item.id} </foreach>" +
+            "</script> " +
+            "")
+    void updateOrderBatch(List<DictionaryDetail> toUpdate);
 }

@@ -1,5 +1,7 @@
 package dev.chenjr.attendance.controller;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.dto.*;
@@ -9,6 +11,8 @@ import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/dictionaries")
@@ -90,8 +94,18 @@ public class DictionaryController {
 
     @DeleteMapping("/{dictId}")
     @Operation(description = "删除字典类型")
-    public RestResponse<?> deleteDictionary(@PathVariable Long dictId) {
+    public RestResponse<?> deleteDictionary(@PathVariable long dictId) {
         dictionaryService.deleteDictionary(dictId);
         return RestResponse.okWithMsg("Deleted!");
+    }
+
+    @PostMapping("/{dictId}/orders")
+    @Operation(description = "排序字典明细")
+    public RestResponse<List<String>> reorderDictionary(
+            @PathVariable long dictId,
+            @RequestBody @JsonSerialize(using = ToStringSerializer.class) List<Long> idList
+    ) {
+        List<String> ordered = dictionaryService.reorder(dictId, idList);
+        return RestResponse.okWithData(ordered);
     }
 }

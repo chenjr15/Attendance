@@ -280,6 +280,37 @@ public class DictionaryService implements IDictionaryService {
     }
 
     /**
+     * 对字典明细进行重排
+     *
+     * @param dictId 字典id
+     * @param idList 排序的id
+     * @return 排序后的顺序
+     */
+    @Override
+    public List<String> reorder(long dictId, List<Long> idList) {
+        // 1. 取出原有的列表
+//        QueryWrapper<DictionaryDetail> qw = new QueryWrapper<>();
+//        qw = qw.select("id", "order_value");
+//        qw = qw.eq("dictionary_id", dictId);
+        List<Long> oldOrders = detailMapper.selectIdByOrder(dictId);
+        SortedSet<Long> oldOrderSet = new TreeSet<>(oldOrders);
+        SortedSet<Long> newOrderSet = new TreeSet<>(idList);
+        if (!oldOrderSet.equals(newOrderSet)) {
+            throw HttpStatusException.badRequest("id列表有误!");
+        }
+        List<DictionaryDetail> toUpdate = new ArrayList<>(newOrderSet.size());
+        for (int i = 0, idListSize = idList.size(); i < idListSize; i++) {
+            Long id = idList.get(i);
+            DictionaryDetail dictionaryDetail = new DictionaryDetail();
+            dictionaryDetail.setId(id);
+            dictionaryDetail.setOrderValue(i);
+            toUpdate.add(dictionaryDetail);
+        }
+        detailMapper.updateOrderBatch(toUpdate);
+        return null;
+    }
+
+    /**
      * 删除指定的数据字典
      *
      * @param dictId 要删除的数据字典id

@@ -118,4 +118,13 @@ public interface IDictionaryService extends IService {
      * @param detailId 要删除的明细id
      */
     void deleteDictionaryDetail(long detailId);
+
+    /**
+     * 对字典明细进行重排
+     *
+     * @param dictId 字典id
+     * @param idList 排序的id
+     * @return 排序后的顺序
+     */
+    List<String> reorder(long dictId, List<Long> idList);
 }

@@ -194,7 +194,7 @@ public class CheckInService implements ICheckInService {
             throw HttpStatusException.badRequest("签到失败: 签到已结束！");
         }
         /* 3. 检查是否选课 */
-        Boolean elected = userCourseMapper.elected(logDTO.getStuId(), task.getId());
+        Boolean elected = userCourseMapper.elected(logDTO.getStuId(), task.getCourseId());
         if (elected == null) {
             throw HttpStatusException.badRequest("未加入该班课！");
         }

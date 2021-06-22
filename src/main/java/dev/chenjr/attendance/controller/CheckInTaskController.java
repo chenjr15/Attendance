@@ -29,7 +29,7 @@ public class CheckInTaskController {
     }
 
     @PostMapping("")
-    @Operation(description = "创建签到任务, 类型(`type`):\n" +
+    @Operation(description = "发起签到/创建签到任务, 类型(`type`):\n" +
             "- `0` 一键签到\n" +
             "- `1` 限时签到\n" +
             "- `2` 手势签到\n")

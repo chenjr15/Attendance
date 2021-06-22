@@ -10,6 +10,7 @@ import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.dto.DictionaryDTO;
 import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
+import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,14 +164,13 @@ public class DictionaryService implements IDictionaryService {
     /**
      * 分页获取数据字典
      *
-     * @param curPage  当前页,1开始
-     * @param pageSize 页面大小
-     * @return 数据和分页信息
+     * @param pageSort@return 数据和分页信息
      */
     @Override
-    public PageWrapper<DictionaryDTO> listDictionary(long curPage, long pageSize) {
-        Page<Dictionary> page = new Page<>(curPage, pageSize);
+    public PageWrapper<DictionaryDTO> listDictionary(PageSort pageSort) {
+        Page<Dictionary> page = pageSort.getPage();
         QueryWrapper<Dictionary> wr = new QueryWrapper<Dictionary>().select("id");
+        wr = pageSort.buildQueryWrapper(wr, "name");
         dictMapper.selectPage(page, wr);
         PageWrapper<DictionaryDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Dictionary> records = page.getRecords();

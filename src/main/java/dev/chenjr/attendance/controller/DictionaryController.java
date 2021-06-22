@@ -2,12 +2,10 @@ package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IDictionaryService;
-import dev.chenjr.attendance.service.dto.DictionaryDTO;
-import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.RestResponse;
+import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,9 +38,9 @@ public class DictionaryController {
     @GetMapping("")
     @Operation(description = "列出所有数据字典")
     public RestResponse<PageWrapper<DictionaryDTO>> listDictionary(
-            @RequestParam(defaultValue = "1") long curPage, @RequestParam(defaultValue = "10") long pageSize
+            @ParameterObject PageSort pageSort
     ) {
-        PageWrapper<DictionaryDTO> dictionaryPage = dictionaryService.listDictionary(curPage, pageSize);
+        PageWrapper<DictionaryDTO> dictionaryPage = dictionaryService.listDictionary(pageSort);
         return RestResponse.okWithData(dictionaryPage);
     }
 

@@ -2,6 +2,7 @@ package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.service.dto.DictionaryDTO;
 import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
+import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 
 import java.util.List;
@@ -49,11 +50,10 @@ public interface IDictionaryService extends IService {
     /**
      * 分页获取数据字典
      *
-     * @param curPage  当前页,1开始
-     * @param pageSize 页面大小
+     * @param pageSort 分页参数
      * @return 数据和分页信息
      */
-    PageWrapper<DictionaryDTO> listDictionary(long curPage, long pageSize);
+    PageWrapper<DictionaryDTO> listDictionary(PageSort pageSort);
 
     /**
      * 获取某个数据字典的详细信息，包括字典明细项

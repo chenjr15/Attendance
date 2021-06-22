@@ -34,13 +34,15 @@ public class CheckInTaskDTO {
     private String param;
     @Schema(description = "签到描述")
     private String description;
-    
+
 
     @Schema(description = "截止时间")
     private LocalDateTime deadline;
 
     @Schema(description = "签到是否结束")
-    private Boolean finished;
+    public boolean isFinished() {
+        return deadline != null && deadline.isBefore(LocalDateTime.now());
+    }
 
     @Schema(description = "发起人名称")
     String operatorName;

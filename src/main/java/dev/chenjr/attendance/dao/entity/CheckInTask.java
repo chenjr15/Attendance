@@ -33,13 +33,14 @@ public class CheckInTask extends BaseEntity {
     private Double latitude;
 
     /**
-     * 截至时间
+     * 截止时间
      */
     private LocalDateTime deadline;
-    /**
-     * 签到是否结束
-     */
-    private Boolean finished;
+
+    //    private boolean finished;
+    public boolean isFinished() {
+        return deadline != null && deadline.isBefore(LocalDateTime.now());
+    }
 
     /**
      * 签到类型

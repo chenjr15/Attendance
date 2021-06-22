@@ -136,7 +136,7 @@ public class CheckInService implements ICheckInService {
      */
     @Override
     public void deleteTask(long taskId) {
-        if (taskMapper.exists(taskId).orElse(false)) {
+        if (!taskMapper.exists(taskId).orElse(false)) {
             throw HttpStatusException.notFound();
         }
         taskMapper.deleteById(taskId);
@@ -151,7 +151,7 @@ public class CheckInService implements ICheckInService {
     @Override
     public CheckInLogDTO modifyLog(CheckInLogDTO logDTO) {
         Optional<Boolean> exists = logMapper.exists(logDTO.getId());
-        if (exists.orElse(false)) {
+        if (!exists.orElse(false)) {
             throw HttpStatusException.notFound();
         }
         CheckInLog checkInLog = dto2log(logDTO);
@@ -190,7 +190,7 @@ public class CheckInService implements ICheckInService {
             throw HttpStatusException.notFound("签到任务不存在!");
         }
         /* 2. 检查签到是否结束 */
-        if (task.getFinished() || task.getDeadline().isBefore(LocalDateTime.now())) {
+        if (task.isFinished()) {
             throw HttpStatusException.badRequest("签到失败: 签到已结束！");
         }
         /* 3. 检查是否选课 */
@@ -244,8 +244,13 @@ public class CheckInService implements ICheckInService {
     @Override
     public CheckInTaskDTO createCheckInTask(CheckInTaskDTO checkInTaskDTO) {
         Long courseId = checkInTaskDTO.getCourseId();
-        if (courseMapper.exists(courseId).orElse(false)) {
+        Optional<Boolean> exists = courseMapper.exists(courseId);
+        if (!exists.orElse(false)) {
             throw HttpStatusException.notFound("找不到班课！");
+        }
+        CheckInTask current = taskMapper.current(courseId, LocalDateTime.now());
+        if (current != null) {
+            throw HttpStatusException.conflict("当前有正在进行的签到！");
         }
         CheckInTask checkInTask = dto2task(checkInTaskDTO);
         checkInTask.createBy(checkInTaskDTO.getOperatorId());
@@ -261,16 +266,20 @@ public class CheckInService implements ICheckInService {
      */
     @Override
     public void endCheckInTask(User operator, long taskId) {
-        Optional<Boolean> exists = logMapper.exists(taskId);
-        if (exists.orElse(false)) {
+        Optional<Boolean> exists = taskMapper.exists(taskId);
+        if (!exists.orElse(false)) {
             throw HttpStatusException.notFound();
         }
         CheckInTask task = new CheckInTask();
         task.setId(taskId);
-        task.setFinished(true);
-        task.updateBy(operator.getId());
-        taskMapper.updateById(task);
-        // TODO 将未签到的入库
+        LocalDateTime deadline = task.getDeadline();
+        LocalDateTime now = LocalDateTime.now();
+        // 如果结束时间在当前时间之前则不对其进行操作
+        if (deadline == null || deadline.isAfter(now)) {
+            task.setDeadline(now);
+            task.updateBy(operator.getId());
+            taskMapper.updateById(task);
+        }
     }
 
     /**
@@ -322,14 +331,12 @@ public class CheckInService implements ICheckInService {
      */
     @Override
     public CheckInTaskDTO getCurrentCheckInTask(long courseId) {
-        QueryWrapper<CheckInTask> qw = new QueryWrapper<>();
-        qw = qw.eq("course_id", courseId);
-        qw = qw.eq("finished", false);
-        qw = qw.ge("deadline", LocalDateTime.now());
-        CheckInTask task = taskMapper.selectOne(qw);
+
+        CheckInTask task = taskMapper.current(courseId, LocalDateTime.now());
         if (task == null) {
-            throw HttpStatusException.notFound("当前未发起签到或已经截至！");
+            throw HttpStatusException.notFound("当前未发起签到或已经截止！");
         }
+
         return task2dto(task);
     }
 
@@ -379,10 +386,10 @@ public class CheckInService implements ICheckInService {
         checkInTaskDTO = new CheckInTaskDTO();
         checkInTaskDTO.setId(record.getId());
         checkInTaskDTO.setType(record.getType());
-        checkInTaskDTO.setDeadline(record.getDeadline());
+        LocalDateTime deadline = record.getDeadline();
+        checkInTaskDTO.setDeadline(deadline);
         checkInTaskDTO.setCourseId(record.getCourseId());
         checkInTaskDTO.setDescription(record.getDescription());
-        checkInTaskDTO.setFinished(record.getFinished());
         checkInTaskDTO.setLongitude(record.getLongitude());
         checkInTaskDTO.setLatitude(record.getLatitude());
         checkInTaskDTO.setParam(record.getParam());
@@ -397,10 +404,12 @@ public class CheckInService implements ICheckInService {
         entity = new CheckInTask();
         entity.setId(dto.getId());
         entity.setType(dto.getType());
+
         entity.setDeadline(dto.getDeadline());
+
         entity.setCourseId(dto.getCourseId());
         entity.setDescription(dto.getDescription());
-        entity.setFinished(dto.getFinished());
+
         entity.setLongitude(dto.getLongitude());
         entity.setLatitude(dto.getLatitude());
         entity.setParam(dto.getParam());

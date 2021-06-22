@@ -20,6 +20,16 @@ public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
      * @return !不存在返回 null, 存在返回true,
      */
     @Override
-    @Select("SELECT 1 FROM {TABLE} WHERE id=#{id} limit 1 ")
+    @Select("SELECT 1 FROM check_in_log WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(long id);
+
+    /**
+     * 根据任务id 和学生id 查找签到记录
+     *
+     * @param taskId 任务id
+     * @param stuId  学生id
+     * @return 签到记录
+     */
+    @Select("SELECT * FROM check_in_log WHERE task_id=#{task_id} and stu_id=#{stu_id} limit 1 ")
+    CheckInLog selectByTaskAndStu(long taskId, long stuId);
 }

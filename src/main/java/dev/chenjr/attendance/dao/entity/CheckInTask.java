@@ -43,6 +43,9 @@ public class CheckInTask extends BaseEntity {
 
     /**
      * 签到类型
+     * - 0 一键签到
+     * - 1 限时签到
+     * - 2 手势签到
      */
     private Long type;
 

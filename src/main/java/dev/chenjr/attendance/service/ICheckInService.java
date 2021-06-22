@@ -87,4 +87,23 @@ public interface ICheckInService {
      * @param taskId   任务id
      */
     void endCheckInTask(User operator, long taskId);
+
+    /**
+     * 修改某个任务下某个学生的签到情况
+     *
+     * @param modifier 修改人
+     * @param taskId   签到任务id
+     * @param stuId    学生id
+     * @param status   签到状态
+     * @return 修改后的记录dto
+     */
+    CheckInLogDTO modifyCheckInStatus(User modifier, long taskId, long stuId, int status);
+
+    /**
+     * 获取某个课程当前的签到任务，如果没有签到任务会返回404
+     *
+     * @param courseId 课程id
+     * @return 当前的签到任务
+     */
+    CheckInTaskDTO getCurrentCheckInTask(long courseId);
 }

@@ -11,11 +11,9 @@ import dev.chenjr.attendance.dao.mapper.CourseMapper;
 import dev.chenjr.attendance.dao.mapper.UserCourseMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.ICheckInService;
+import dev.chenjr.attendance.service.ISysParamService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.CheckInLogDTO;
-import dev.chenjr.attendance.service.dto.CheckInTaskDTO;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
+import dev.chenjr.attendance.service.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +37,9 @@ public class CheckInService implements ICheckInService {
     CourseMapper courseMapper;
     @Autowired
     UserCourseMapper userCourseMapper;
+
+    @Autowired
+    ISysParamService sysParamService;
 
     /**
      * @param pageSort 分页排序筛选
@@ -270,6 +271,82 @@ public class CheckInService implements ICheckInService {
         task.updateBy(operator.getId());
         taskMapper.updateById(task);
         // TODO 将未签到的入库
+    }
+
+    /**
+     * 修改某个任务下某个学生的签到情况
+     *
+     * @param modifier 修改人
+     * @param taskId   签到任务id
+     * @param stuId    学生id
+     * @param status   签到状态
+     * @return 修改后的记录dto
+     */
+    @Override
+    public CheckInLogDTO modifyCheckInStatus(User modifier, long taskId, long stuId, int status) {
+        // 1. 检查班任务是否存在
+        CheckInTask task = taskMapper.selectById(taskId);
+        if (task == null) {
+            throw HttpStatusException.notFound("签到任务不存在!");
+        }
+        // 2. 检查是否加入班课
+        Boolean elected = userCourseMapper.elected(stuId, task.getCourseId());
+        if (elected == null) {
+            throw HttpStatusException.badRequest("未加入该班课！");
+        }
+        // 3. 检查是否存在记录
+        CheckInLog checkInLog = logMapper.selectByTaskAndStu(taskId, stuId);
+        int experience = getExperience(status);
+        if (checkInLog == null) {
+            checkInLog = new CheckInLog();
+            checkInLog.setStuId(stuId);
+            checkInLog.setTaskId(taskId);
+            checkInLog.setCourseId(task.getCourseId());
+            checkInLog.setDistance(-1.0);
+            checkInLog.setStatus(status);
+            checkInLog.setExperience(experience);
+            logMapper.insert(checkInLog);
+        } else {
+            checkInLog.setStatus(status);
+            checkInLog.setExperience(experience);
+            logMapper.updateById(checkInLog);
+        }
+        return getLog(checkInLog.getId());
+    }
+
+    /**
+     * 获取某个课程当前的签到任务，如果没有签到任务会返回404
+     *
+     * @param courseId 课程id
+     * @return 当前的签到任务
+     */
+    @Override
+    public CheckInTaskDTO getCurrentCheckInTask(long courseId) {
+        QueryWrapper<CheckInTask> qw = new QueryWrapper<>();
+        qw = qw.eq("course_id", courseId);
+        qw = qw.eq("finished", false);
+        qw = qw.ge("deadline", LocalDateTime.now());
+        CheckInTask task = taskMapper.selectOne(qw);
+        if (task == null) {
+            throw HttpStatusException.notFound("当前未发起签到或已经截至！");
+        }
+        return task2dto(task);
+    }
+
+    private int getExperience(int status) {
+        SysParameterDTO expDto = sysParamService.getSystemParam("sys_check_in_exp");
+        int exp = Integer.parseInt(expDto.getValue());
+        switch (status) {
+            case STATUS_NORMAL:
+                break;
+            case STATUS_LEAVE:
+            case STATUS_LATE:
+                exp /= 2;
+                break;
+            default:
+                exp = 0;
+        }
+        return exp;
     }
 
     private CheckInLog dto2log(CheckInLogDTO logDTO) {

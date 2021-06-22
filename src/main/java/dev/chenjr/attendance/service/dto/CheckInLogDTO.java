@@ -28,6 +28,10 @@ public class CheckInLogDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long taskId;
 
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "班课id")
+    private Long courseId;
+
     @Schema(description = "经度", required = true)
     private Double longitude;
 

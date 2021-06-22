@@ -16,9 +16,9 @@ public class CheckInTaskDTO {
     private Long id;
     @NotNull
     @JsonSerialize(using = ToStringSerializer.class)
-    @Schema(description = "班课号", required = true)
+    @Schema(description = "班课id", required = true)
     private Long courseId;
-    
+
     @NotNull
     @Schema(description = "经度", required = true)
     private Double longitude;
@@ -34,9 +34,11 @@ public class CheckInTaskDTO {
     private String param;
     @Schema(description = "签到描述")
     private String description;
-    @NotNull
+    
+
     @Schema(description = "截止时间")
     private LocalDateTime deadline;
+
     @Schema(description = "签到是否结束")
     private Boolean finished;
 

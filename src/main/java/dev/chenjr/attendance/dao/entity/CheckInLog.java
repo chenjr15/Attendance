@@ -33,9 +33,11 @@ public class CheckInLog extends BaseEntity {
      */
     private int status;
 
-    private Long taskId;
+    private long taskId;
 
-    private Long stuId;
+    private long stuId;
+
+    private long courseId;
 
     private Double longitude;
     private Double latitude;

@@ -29,7 +29,10 @@ public class CheckInTaskController {
     }
 
     @PostMapping("")
-    @Operation(description = "创建签到任务")
+    @Operation(description = "创建签到任务, 类型(`type`):\n" +
+            "- `0` 一键签到\n" +
+            "- `1` 限时签到\n" +
+            "- `2` 手势签到\n")
     public RestResponse<?> createCheckInTask(
             @Parameter(hidden = true) @AuthenticationPrincipal User user,
             @RequestBody @Validated CheckInTaskDTO checkInTaskDTO
@@ -49,6 +52,14 @@ public class CheckInTaskController {
         return RestResponse.okWithData(pageWrapper);
     }
 
+    @GetMapping("/courses/{courseId}/current")
+    @Operation(description = "获取某个课程当前的签到任务，如果没有签到任务会返回404")
+    public RestResponse<CheckInTaskDTO> getCurrentCheckInTaskOfCourse(
+            @PathVariable long courseId
+    ) {
+        CheckInTaskDTO task = checkInService.getCurrentCheckInTask(courseId);
+        return RestResponse.okWithData(task);
+    }
 
     @GetMapping("/{taskId}")
     @Operation(description = "列出某次签到的信息,具体签到信息比较长，请单独获取")
@@ -93,16 +104,30 @@ public class CheckInTaskController {
             @Parameter(hidden = true) @AuthenticationPrincipal User user,
             @PathVariable long taskId
     ) {
-
         checkInService.endCheckInTask(user, taskId);
         return RestResponse.ok();
     }
 
-    @PatchMapping("/{taskId}/logs/{logId}")
+    @PutMapping("/{taskId}/logs/{stuId}/status")
+    @Operation(description = "修改某个学生的签到状态status:\n" +
+            " - `0` 正常签到\n" +
+            " - `1` 请假\n" +
+            " - `2` 迟到\n" +
+            " - `3` 未签到\n")
+    public RestResponse<CheckInLogDTO> modifyCheckInLogStatus(
+            @Parameter(hidden = true) @AuthenticationPrincipal User modifier,
+            @RequestBody int status,
+            @PathVariable long taskId,
+            @PathVariable long stuId
+    ) {
+        CheckInLogDTO logDTO = checkInService.modifyCheckInStatus(modifier, taskId, stuId, status);
+        return RestResponse.okWithData(logDTO);
+    }
+
+    @PatchMapping("/logs/{logId}")
     @Operation(description = "修改签到记录")
     public RestResponse<?> modifyCheckInTaskLog(
             @RequestBody @Validated CheckInLogDTO logDTO,
-            @PathVariable long taskId,
             @PathVariable long logId
     ) {
         logDTO.setId(logId);

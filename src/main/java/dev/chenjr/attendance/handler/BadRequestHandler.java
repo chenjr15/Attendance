@@ -29,7 +29,7 @@ import java.util.TreeMap;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestHandler {
-    private static final String BAD_ARGUMENT_MESSAGE = "BAD_ARGUMENT";
+    private static final String BAD_ARGUMENT_MESSAGE = "参数有误！";
 
     /**
      * TODO extends  ResponseEntityExceptionHandler
@@ -41,7 +41,7 @@ public class BadRequestHandler {
         TreeMap<String, String> errorMap = new TreeMap<>();
         fieldErrors.forEach(fieldError -> errorMap.put(fieldError.getField(), fieldError.getDefaultMessage()));
 
-        return RestResponse.error(HttpStatus.BAD_REQUEST, BAD_ARGUMENT_MESSAGE, request.getRequestURI(), errorMap);
+        return RestResponse.errorWithData(HttpStatus.BAD_REQUEST, request, BAD_ARGUMENT_MESSAGE, errorMap);
     }
 
     /**
@@ -53,7 +53,7 @@ public class BadRequestHandler {
      */
     @ExceptionHandler(HttpStatusException.class)
     public ResponseEntity<RestResponse<?>> handleHttpStatusException(HttpStatusException ex, HttpServletRequest request) {
-        RestResponse<?> error = RestResponse.error(ex.getStatus(), ex.getMessage(), request.getRequestURI());
+        RestResponse<?> error = RestResponse.error(ex.getStatus(), request, ex.getMessage());
         return new ResponseEntity<>(error, ex.getStatus());
 
     }
@@ -69,7 +69,7 @@ public class BadRequestHandler {
     public RestResponse<?> handleManyException(Exception ex, HttpServletRequest request) {
 
         log.error("handleManyException:{},{}", request.toString(), ex.getMessage());
-        RestResponse<?> error = RestResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+        RestResponse<?> error = RestResponse.error(HttpStatus.BAD_REQUEST, request, ex.getMessage());
         if (ex instanceof JsonParseException) {
             error.message = "Json 格式化错误";
         }

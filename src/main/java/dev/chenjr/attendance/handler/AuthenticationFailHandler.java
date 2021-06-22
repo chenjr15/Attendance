@@ -43,7 +43,7 @@ public class AuthenticationFailHandler implements AuthenticationEntryPoint {
 
             TokenException tokenException = (TokenException) exception;
             HttpStatus status = tokenException.getStatus();
-            RestResponse<?> restResponse = RestResponse.error(status, tokenException.getMessage(), request.getRequestURI());
+            RestResponse<?> restResponse = RestResponse.error(status, request, tokenException.getMessage());
             String s = mapper.writeValueAsString(restResponse);
 //            response.getWriter().write(s);
             response.sendError(status.value(), s);

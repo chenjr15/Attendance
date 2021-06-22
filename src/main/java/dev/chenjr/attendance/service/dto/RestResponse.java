@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -19,6 +20,8 @@ public class RestResponse<T> implements Serializable {
     @Schema(description = "附加信息")
     public String message;
     // JsonInclude.Include.NON_NULL : 仅在非空的时候才输出这个字段
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String method;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String path;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -82,6 +85,21 @@ public class RestResponse<T> implements Serializable {
     // 错误返回
     public static RestResponse<?> error(HttpStatus status, String msg, String path) {
         return new RestResponse<>(status.value(), msg, path, status.name());
+    }
+
+    public static RestResponse<?> error(HttpStatus status, HttpServletRequest request, String msg) {
+        RestResponse<?> objectRestResponse = new RestResponse<>(
+                status.value(), msg, request.getRequestURI(), status.name());
+        objectRestResponse.method = request.getMethod();
+        return objectRestResponse;
+    }
+
+    public static <X> RestResponse<X> errorWithData(HttpStatus status, HttpServletRequest request, String msg, X data) {
+        RestResponse<X> objectRestResponse = new RestResponse<>(
+                status.value(), msg, request.getRequestURI(), status.name());
+        objectRestResponse.method = request.getMethod();
+        objectRestResponse.data = data;
+        return objectRestResponse;
     }
 
     public static <X> RestResponse<X> error(HttpStatus status, String msg, String path, X data) {

@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.CheckInTask;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
@@ -24,8 +25,7 @@ public interface CheckInTaskMapper extends MyBaseMapper<CheckInTask> {
     Optional<Boolean> exists(long id);
 
     @Select("SELECT * FROM check_in_task " +
-            "WHERE course_id = #{cid} " +
-            "AND  ( deadline=NULL OR  deadline >= #{dateNow}) " +
+            "WHERE course_id=#{cid} AND (deadline is NULL OR deadline>#{dateNow}) " +
             "LIMIT 1")
-    CheckInTask current(long cid, LocalDateTime dateNow);
+    CheckInTask current(@Param("cid") long cid, @Param("dateNow") LocalDateTime dateNow);
 }

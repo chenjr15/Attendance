@@ -198,9 +198,15 @@ public class CheckInService implements ICheckInService {
         if (elected == null) {
             throw HttpStatusException.badRequest("未加入该班课！");
         }
+        /* 4. 检查是否已经签到 */
+        Boolean checked = logMapper.checked(logDTO.getUid(), task.getId());
+        if (checked != null) {
+            throw HttpStatusException.conflict("请勿重复签到！");
+        }
         logDTO.setDistance(-1.0);
+        logDTO.setCourseId(task.getCourseId());
 
-        /* 4. 计算经验值 */
+        /* 5. 计算经验值 */
         switch (logDTO.getStatus()) {
             case STATUS_NORMAL:
                 /* 如果是教师操作应该不限制操作,所以可以传空的经纬度，但是学生的话必须传 */
@@ -212,7 +218,7 @@ public class CheckInService implements ICheckInService {
                     logDTO.setDistance(distance);
 
                     if (distance > 1000) {
-                        throw HttpStatusException.badRequest("签到失败：你太远了！");
+                        throw HttpStatusException.badRequest("签到失败：你太远了！" + distance + "m");
                     }
                     logDTO.setDistance(distance);
                 }

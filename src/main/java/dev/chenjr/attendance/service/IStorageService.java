@@ -21,6 +21,15 @@ public interface IStorageService extends IService {
     String getFullUrl(String storeName);
 
     /**
+     * 返回访问静态资源的URL前缀
+     *
+     * @param storeName   文件存储的文件名
+     * @param defaultName 默认文件名
+     * @return URL前缀
+     */
+    String getFullUrl(String storeName, String defaultName);
+
+    /**
      * 返回完整的存储的路径
      *
      * @param storeName 文件存储的文件名

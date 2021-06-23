@@ -52,7 +52,22 @@ public class FileStorageService implements IStorageService {
     @Override
     public String getFullUrl(String storeName) {
         if (storeName == null || storeName.trim().length() == 0) {
-            storeName = "default.png";
+            return null;
+        }
+        return urlPrefix + storeName;
+    }
+
+    /**
+     * 返回访问静态资源的URL前缀
+     *
+     * @param storeName   文件存储的文件名
+     * @param defaultName 默认文件名
+     * @return URL前缀
+     */
+    @Override
+    public String getFullUrl(String storeName, String defaultName) {
+        if (storeName == null || storeName.trim().length() == 0) {
+            return urlPrefix + defaultName;
         }
         return urlPrefix + storeName;
     }

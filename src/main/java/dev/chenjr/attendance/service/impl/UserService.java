@@ -96,31 +96,6 @@ public class UserService implements IUserService {
     }
 
 
-    /**
-     * 将用户实体对象转成DTO，尽可能补全数据
-     *
-     * @param user 实体对象
-     * @return DTO对象
-     */
-    @Override
-    public UserDTO userToUserInfo(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setAcademicId(user.getAcademicId());
-        dto.setLoginName(user.getLoginName());
-        dto.setRealName(user.getRealName());
-        dto.setSchoolMajorID(user.getSchoolMajor());
-        String avatar = user.getAvatar();
-        String avatarUrl = storageService.getFullUrl(avatar);
-        dto.setAvatar(avatarUrl);
-
-        String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
-        dto.setGender(sexName);
-        return dto;
-    }
-
     @Override
     @Transactional
     public User register(RegisterRequest request) {
@@ -204,7 +179,7 @@ public class UserService implements IUserService {
         if (user == null) {
             throw HttpStatusException.notFound("用户id不存在！");
         }
-        return userToUserInfo(user);
+        return user2dto(user);
     }
 
     /**
@@ -219,7 +194,7 @@ public class UserService implements IUserService {
         QueryWrapper<User> qw = new QueryWrapper<>();
         qw = pageSort.buildQueryWrapper(qw);
         page = userMapper.selectPage(page, qw);
-        List<UserDTO> collected = page.getRecords().stream().map(this::userToUserInfo).collect(Collectors.toList());
+        List<UserDTO> collected = page.getRecords().stream().map(this::user2dto).collect(Collectors.toList());
         return PageWrapper.fromList(page, collected);
     }
 
@@ -240,6 +215,13 @@ public class UserService implements IUserService {
         }
         User desiredUser = new User();
         desiredUser.setId(desiredDto.getId());
+        desiredUser.setPhone(desiredDto.getPhone());
+        desiredUser.setRealName(desiredDto.getRealName());
+        // TODO 性别类型
+//        desiredUser.setGender(desiredDto.getGender());
+        desiredUser.setSchoolMajor(desiredDto.getSchoolMajorID());
+        desiredUser.setAcademicId(desiredDto.getAcademicId());
+
 
         userMapper.updateById(desiredUser);
         return getUser(desiredUser.getId());
@@ -259,4 +241,28 @@ public class UserService implements IUserService {
         return userMapper.getRealNameById(id);
     }
 
+    /**
+     * 将用户实体对象转成DTO，尽可能补全数据
+     *
+     * @param user 实体对象
+     * @return DTO对象
+     */
+    @Override
+    public UserDTO user2dto(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setAcademicId(user.getAcademicId());
+        dto.setLoginName(user.getLoginName());
+        dto.setRealName(user.getRealName());
+        dto.setSchoolMajorID(user.getSchoolMajor());
+        String avatar = user.getAvatar();
+        String avatarUrl = storageService.getFullUrl(avatar);
+        dto.setAvatar(avatarUrl);
+
+        String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
+        dto.setGender(sexName);
+        return dto;
+    }
 }

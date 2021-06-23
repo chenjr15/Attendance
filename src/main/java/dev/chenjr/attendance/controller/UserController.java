@@ -66,7 +66,7 @@ public class UserController {
     @GetMapping("/me")
     @Operation(description = "获取指定用户的信息")
     public RestResponse<?> getCurrentUser(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
-        return RestResponse.okWithData(userService.userToUserInfo(user));
+        return RestResponse.okWithData(userService.user2dto(user));
     }
 
     @GetMapping("/{uid}")
@@ -124,7 +124,7 @@ public class UserController {
             @Parameter(hidden = true) @AuthenticationPrincipal User user,
             HttpServletResponse response
     ) throws IOException {
-        UserDTO userDTO = userService.userToUserInfo(user);
+        UserDTO userDTO = userService.user2dto(user);
         // 重定向到当前用户的文件
         response.sendRedirect(userDTO.getAvatar());
     }

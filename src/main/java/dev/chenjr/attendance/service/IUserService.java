@@ -37,7 +37,7 @@ public interface IUserService extends IService {
      * @param user 实体对象
      * @return DTO对象
      */
-    UserDTO userToUserInfo(User user);
+    UserDTO user2dto(User user);
 
     @Transactional
     User register(RegisterRequest request);

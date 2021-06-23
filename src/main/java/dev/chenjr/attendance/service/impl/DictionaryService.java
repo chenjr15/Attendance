@@ -169,21 +169,19 @@ public class DictionaryService implements IDictionaryService {
     @Override
     public PageWrapper<DictionaryDTO> listDictionary(PageSort pageSort) {
         Page<Dictionary> page = pageSort.getPage();
-        QueryWrapper<Dictionary> wr = new QueryWrapper<Dictionary>().select("id");
+        QueryWrapper<Dictionary> wr = new QueryWrapper<>();
         wr = pageSort.buildQueryWrapper(wr, "name");
         dictMapper.selectPage(page, wr);
-        PageWrapper<DictionaryDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Dictionary> records = page.getRecords();
-        if (records != null && records.size() != 0) {
-            List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
-            for (Dictionary dict : records) {
-                DictionaryDTO dto = getDictionary(dict.getId());
-                dictDtoList.add(dto);
-            }
-            pageWrapper.setContent(dictDtoList);
+        List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
+
+        for (Dictionary dict : records) {
+            DictionaryDTO dto = dict2dto(dict);
+            fillDetails(dto);
+            dictDtoList.add(dto);
         }
 
-        return pageWrapper;
+        return PageWrapper.fromList(page, dictDtoList);
     }
 
     /**
@@ -193,6 +191,7 @@ public class DictionaryService implements IDictionaryService {
      * @return 数据字典详细信息
      */
     @Override
+    @Transactional
     public DictionaryDTO getDictionary(long dictId) {
         Dictionary dictionary = dictMapper.selectById(dictId);
         if (dictionary == null) {
@@ -227,6 +226,7 @@ public class DictionaryService implements IDictionaryService {
      * @return 修改后的数据
      */
     @Override
+    @Transactional
     public DictionaryDTO modifyDictionary(DictionaryDTO dictionaryDTO) {
         this.cacheNeedUpdate.clear();
         Optional<Boolean> exists = dictMapper.exists(dictionaryDTO.getId());
@@ -273,6 +273,7 @@ public class DictionaryService implements IDictionaryService {
      * @param detailId 要删除的明细id
      */
     @Override
+    @Transactional
     public void deleteDictionaryDetail(long detailId) {
 
         this.cacheNeedUpdate.clear();
@@ -316,6 +317,7 @@ public class DictionaryService implements IDictionaryService {
      * @param dictId 要删除的数据字典id
      */
     @Override
+    @Transactional
     public void deleteDictionary(long dictId) {
         this.cacheNeedUpdate.clear();
 

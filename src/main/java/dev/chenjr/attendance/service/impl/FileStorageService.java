@@ -51,6 +51,9 @@ public class FileStorageService implements IStorageService {
      */
     @Override
     public String getFullUrl(String storeName) {
+        if (storeName == null || storeName.trim().length() == 0) {
+            storeName = "default.png";
+        }
         return urlPrefix + storeName;
     }
 

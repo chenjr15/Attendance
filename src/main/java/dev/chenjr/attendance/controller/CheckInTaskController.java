@@ -136,7 +136,12 @@ public class CheckInTaskController {
     }
 
     @PostMapping("/{taskId}/logs")
-    @Operation(description = "签到, 需要传入经纬度")
+    @Operation(description = "签到, 需要传入经纬度。\n" +
+            "签到状态`status`:\n " +
+            " - `0` 正常签到\n" +
+            " - `1` 请假\n" +
+            " - `2` 迟到\n" +
+            " - `3` 未签到\n")
     public RestResponse<?> checkIn(
             @Parameter(hidden = true) @AuthenticationPrincipal User user,
             @RequestBody @Validated CheckInLogDTO logDTO,

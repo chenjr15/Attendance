@@ -92,6 +92,17 @@ public class DictionaryController {
         return RestResponse.okWithData(dto);
     }
 
+    @DeleteMapping("/{dictId}/{detailId}")
+    @Operation(description = "删除字典明细")
+    public RestResponse<?> deleteDetail(
+            @PathVariable Long dictId,
+            @PathVariable Long detailId
+    ) {
+
+        dictionaryService.deleteDictionaryDetail(detailId);
+        return RestResponse.ok();
+    }
+
     @DeleteMapping("/{dictId}")
     @Operation(description = "删除字典类型")
     public RestResponse<?> deleteDictionary(@PathVariable long dictId) {

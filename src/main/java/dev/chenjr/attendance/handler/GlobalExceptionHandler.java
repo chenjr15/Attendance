@@ -24,22 +24,29 @@ public class GlobalExceptionHandler {
     @Operation(hidden = true)
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<RestResponse<?>> handleDAOException(DataAccessException daoEx, HttpServletRequest request) {
-        RestResponse<?> error = new RestResponse<>();
-        error.status = 400;
+        RestResponse<?> error;
         Throwable rootCause = daoEx.getRootCause();
         String message = rootCause.getMessage();
+
         if (message == null) {
             message = "";
         }
-        if (daoEx instanceof DuplicateKeyException) {
 
+        if (daoEx instanceof DuplicateKeyException) {
+            /* Unique 约束不满足  */
             String[] split = message.split("'");
             if (split.length > 1) {
                 message = split[1];
             }
             error = RestResponse.error(HttpStatus.BAD_REQUEST, request, "关键字重复: " + message);
         } else if (daoEx instanceof TypeMismatchDataAccessException) {
+            /* 类型不匹配  */
             error = RestResponse.error(HttpStatus.BAD_REQUEST, request, "类型不匹配:" + message);
+        } else {
+            // 未知问题
+            rootCause.printStackTrace();
+            error = RestResponse.error(HttpStatus.BAD_REQUEST, request,
+                    "DAO Error @ " + daoEx.getClass().getTypeName());
         }
 
         HttpStatus httpStatus = HttpStatus.resolve(error.status);

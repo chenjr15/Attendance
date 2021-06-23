@@ -194,7 +194,7 @@ public class CheckInService implements ICheckInService {
             throw HttpStatusException.badRequest("签到失败: 签到已结束！");
         }
         /* 3. 检查是否选课 */
-        Boolean elected = userCourseMapper.elected(logDTO.getStuId(), task.getCourseId());
+        Boolean elected = userCourseMapper.elected(logDTO.getUid(), task.getCourseId());
         if (elected == null) {
             throw HttpStatusException.badRequest("未加入该班课！");
         }
@@ -287,28 +287,28 @@ public class CheckInService implements ICheckInService {
      *
      * @param modifier 修改人
      * @param taskId   签到任务id
-     * @param stuId    学生id
+     * @param uid      学生id
      * @param status   签到状态
      * @return 修改后的记录dto
      */
     @Override
-    public CheckInLogDTO modifyCheckInStatus(User modifier, long taskId, long stuId, int status) {
+    public CheckInLogDTO modifyCheckInStatus(User modifier, long taskId, long uid, int status) {
         // 1. 检查班任务是否存在
         CheckInTask task = taskMapper.selectById(taskId);
         if (task == null) {
             throw HttpStatusException.notFound("签到任务不存在!");
         }
         // 2. 检查是否加入班课
-        Boolean elected = userCourseMapper.elected(stuId, task.getCourseId());
+        Boolean elected = userCourseMapper.elected(uid, task.getCourseId());
         if (elected == null) {
             throw HttpStatusException.badRequest("未加入该班课！");
         }
         // 3. 检查是否存在记录
-        CheckInLog checkInLog = logMapper.selectByTaskAndStu(taskId, stuId);
+        CheckInLog checkInLog = logMapper.selectByTaskAndStu(taskId, uid);
         int experience = getExperience(status);
         if (checkInLog == null) {
             checkInLog = new CheckInLog();
-            checkInLog.setStuId(stuId);
+            checkInLog.setUid(uid);
             checkInLog.setTaskId(taskId);
             checkInLog.setCourseId(task.getCourseId());
             checkInLog.setDistance(-1.0);
@@ -361,9 +361,11 @@ public class CheckInService implements ICheckInService {
         checkInLog.setLatitude(logDTO.getLatitude());
         checkInLog.setLongitude(logDTO.getLongitude());
         checkInLog.setTaskId(logDTO.getTaskId());
-        checkInLog.setStuId(logDTO.getStuId());
+        checkInLog.setUid(logDTO.getUid());
         checkInLog.setDistance(logDTO.getDistance());
         checkInLog.setId(logDTO.getId());
+        checkInLog.setExperience(logDTO.getExperience());
+        checkInLog.setCourseId(logDTO.getCourseId());
 
         return checkInLog;
     }
@@ -371,13 +373,16 @@ public class CheckInService implements ICheckInService {
     private CheckInLogDTO log2dto(CheckInLog checkInLog) {
         CheckInLogDTO logDTO = new CheckInLogDTO();
         logDTO.setId(checkInLog.getId());
+        logDTO.setTaskId(checkInLog.getTaskId());
         logDTO.setLongitude(checkInLog.getLongitude());
         logDTO.setLatitude(checkInLog.getLatitude());
         logDTO.setDistance(checkInLog.getDistance());
-        Long stuId = checkInLog.getStuId();
-        logDTO.setStuId(stuId);
-        logDTO.setStuName(userService.getRealNameById(stuId));
-        logDTO.setTaskId(checkInLog.getTaskId());
+        // 查找学号和姓名
+        long uid = checkInLog.getUid();
+        logDTO.setUid(uid);
+        User userById = userService.getUserById(uid);
+        logDTO.setStuId(userById.getAcademicId());
+        logDTO.setStuName(userById.getRealName());
         return logDTO;
     }
 

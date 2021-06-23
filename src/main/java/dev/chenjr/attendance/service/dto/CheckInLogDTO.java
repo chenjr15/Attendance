@@ -18,7 +18,11 @@ public class CheckInLogDTO {
     @NotNull
     @Schema(description = "学生id")
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long stuId;
+    private Long uid;
+    
+    @Schema(description = "学工号")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private String stuId;
 
     @Schema(description = "学生姓名")
     private String stuName;

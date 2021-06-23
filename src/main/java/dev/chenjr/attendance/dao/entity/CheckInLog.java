@@ -35,7 +35,7 @@ public class CheckInLog extends BaseEntity {
 
     private long taskId;
 
-    private long stuId;
+    private long uid;
 
     private long courseId;
 

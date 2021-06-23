@@ -27,9 +27,12 @@ public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
      * 根据任务id 和学生id 查找签到记录
      *
      * @param taskId 任务id
-     * @param stuId  学生id
+     * @param uid    学生id
      * @return 签到记录
      */
-    @Select("SELECT * FROM check_in_log WHERE task_id=#{task_id} and stu_id=#{stu_id} limit 1 ")
-    CheckInLog selectByTaskAndStu(long taskId, long stuId);
+    @Select("SELECT * FROM check_in_log WHERE task_id=#{taskId} and uid=#{uid} limit 1 ")
+    CheckInLog selectByTaskAndStu(long taskId, long uid);
+
+    @Select("SELECT 1 FROM check_in_log WHERE task_id=#{taskId} and uid=#{uid} limit 1")
+    Boolean checked(long uid, long taskId);
 }

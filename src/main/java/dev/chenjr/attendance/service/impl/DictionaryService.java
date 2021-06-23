@@ -276,7 +276,7 @@ public class DictionaryService implements IDictionaryService {
     public void deleteDictionaryDetail(long detailId) {
 
         this.cacheNeedUpdate.clear();
-        this.detailMapper.deleteByDictId(detailId);
+        this.detailMapper.deleteById(detailId);
     }
 
     /**

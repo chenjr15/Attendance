@@ -1,10 +1,7 @@
 package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.dto.CheckInLogDTO;
-import dev.chenjr.attendance.service.dto.CheckInTaskDTO;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
+import dev.chenjr.attendance.service.dto.*;
 
 public interface ICheckInService {
     /**
@@ -45,7 +42,7 @@ public interface ICheckInService {
      * @param pageSort 排序
      * @return 签到记录
      */
-    PageWrapper<CheckInLogDTO> listCheckInLogs(long taskId, PageSort pageSort);
+    PageWrapper<CheckInResultDTO> listCheckInLogs(long taskId, PageSort pageSort);
 
     /**
      * 删除签到任务
@@ -106,4 +103,12 @@ public interface ICheckInService {
      * @return 当前的签到任务
      */
     CheckInTaskDTO getCurrentCheckInTask(long courseId);
+
+    /**
+     * 获取未签到的学生信息
+     *
+     * @param taskId 任务 id
+     * @return 未签到的信息
+     */
+    PageWrapper<CheckInResultDTO> unchecked(long taskId);
 }

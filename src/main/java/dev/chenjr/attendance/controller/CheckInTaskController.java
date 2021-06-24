@@ -82,13 +82,23 @@ public class CheckInTaskController {
 
     @GetMapping("/{taskId}/logs")
     @Operation(description = "获取某个签到任务的签到记录")
-    public RestResponse<PageWrapper<CheckInLogDTO>> listCheckInLogs(
+    public RestResponse<PageWrapper<CheckInResultDTO>> listCheckInLogs(
             @PathVariable Long taskId,
             @ParameterObject PageSort pageSort
     ) {
-        PageWrapper<CheckInLogDTO> logs;
-        logs = checkInService.listCheckInLogs(taskId, pageSort);
-        return RestResponse.okWithData(logs);
+        PageWrapper<CheckInResultDTO> results;
+        results = checkInService.listCheckInLogs(taskId, pageSort);
+        return RestResponse.okWithData(results);
+    }
+
+    @GetMapping("/{taskId}/unchecked")
+    @Operation(description = "获取某个签到任务的未签到记录")
+    public RestResponse<PageWrapper<CheckInResultDTO>> statistics(
+            @PathVariable Long taskId
+    ) {
+        PageWrapper<CheckInResultDTO> results;
+        results = checkInService.unchecked(taskId);
+        return RestResponse.okWithData(results);
     }
 
     @DeleteMapping("/{taskId}")

@@ -118,13 +118,13 @@ public class CheckInService implements ICheckInService {
      * @return 签到记录
      */
     @Override
-    public PageWrapper<CheckInLogDTO> listCheckInLogs(long taskId, PageSort pageSort) {
+    public PageWrapper<CheckInResultDTO> listCheckInLogs(long taskId, PageSort pageSort) {
         Page<CheckInLog> page = pageSort.getPage();
         QueryWrapper<CheckInLog> qw = new QueryWrapper<>();
         qw = qw.eq("task_id", taskId);
         qw = pageSort.buildQueryWrapper(qw);
         page = logMapper.selectPage(page, qw);
-        List<CheckInLogDTO> collect = page.getRecords().stream().map(this::log2dto).collect(Collectors.toList());
+        List<CheckInResultDTO> collect = page.getRecords().stream().map(this::log2result).collect(Collectors.toList());
         return PageWrapper.fromList(page, collect);
     }
 
@@ -194,12 +194,12 @@ public class CheckInService implements ICheckInService {
             throw HttpStatusException.badRequest("签到失败: 签到已结束！");
         }
         /* 3. 检查是否选课 */
-        Boolean elected = userCourseMapper.elected(logDTO.getUid(), task.getCourseId());
+        Boolean elected = userCourseMapper.isElected(logDTO.getUid(), task.getCourseId());
         if (elected == null) {
             throw HttpStatusException.badRequest("未加入该班课！");
         }
         /* 4. 检查是否已经签到 */
-        Boolean checked = logMapper.checked(logDTO.getUid(), task.getId());
+        Boolean checked = logMapper.isChecked(logDTO.getUid(), task.getId());
         if (checked != null) {
             throw HttpStatusException.conflict("请勿重复签到！");
         }
@@ -305,7 +305,7 @@ public class CheckInService implements ICheckInService {
             throw HttpStatusException.notFound("签到任务不存在!");
         }
         // 2. 检查是否加入班课
-        Boolean elected = userCourseMapper.elected(uid, task.getCourseId());
+        Boolean elected = userCourseMapper.isElected(uid, task.getCourseId());
         if (elected == null) {
             throw HttpStatusException.badRequest("未加入该班课！");
         }
@@ -344,6 +344,55 @@ public class CheckInService implements ICheckInService {
         }
 
         return task2dto(task);
+    }
+
+    /**
+     * 获取未签到的学生信息
+     *
+     * @param taskId 任务 id
+     * @return 未签到的信息
+     */
+    @Override
+    public PageWrapper<CheckInResultDTO> unchecked(long taskId) {
+        // 1. 获取已签到的信息
+        List<Long> checkedStu = logMapper.listChecked(taskId);
+        List<Long> allStu = userCourseMapper.listElected(taskId);
+        // 2. 计算未签到成员
+
+
+        List<CheckInResultDTO> uncheckStuDTO = allStu.stream()
+                .filter(id -> !checkedStu.contains(id))
+                .map(this::getUncheckResult)
+                .collect(Collectors.toList());
+
+        return PageWrapper.singlePage(uncheckStuDTO);
+    }
+
+    private CheckInResultDTO getUncheckResult(Long uid) {
+        CheckInResultDTO resultDTO = new CheckInResultDTO();
+        resultDTO.setUid(uid);
+        User userById = userService.getUserById(uid);
+        resultDTO.setStuId(userById.getAcademicId());
+        resultDTO.setStuName(userById.getRealName());
+        resultDTO.setStatus(STATUS_ABSENCE);
+        resultDTO.setStatusName(getStatusName(STATUS_ABSENCE));
+        resultDTO.setDistance(-1.0);
+        return resultDTO;
+    }
+
+    private String getStatusName(int status) {
+
+        switch (status) {
+            case STATUS_NORMAL:
+                return "已签到";
+            case STATUS_LEAVE:
+                return "请假";
+            case STATUS_LATE:
+                return "迟到";
+            case STATUS_ABSENCE:
+                return "缺勤";
+        }
+        return "未知";
     }
 
     private int getExperience(int status) {
@@ -390,6 +439,27 @@ public class CheckInService implements ICheckInService {
         logDTO.setStuId(userById.getAcademicId());
         logDTO.setStuName(userById.getRealName());
         return logDTO;
+    }
+
+    private CheckInResultDTO log2result(CheckInLog checkInLog) {
+        CheckInResultDTO resultDTO = new CheckInResultDTO();
+        resultDTO.setUid(checkInLog.getUid());
+        int status = checkInLog.getStatus();
+        resultDTO.setStatus(status);
+        resultDTO.setStatusName(getStatusName(status));
+        resultDTO.setExperience(checkInLog.getExperience());
+        resultDTO.setLongitude(checkInLog.getLongitude());
+        resultDTO.setLatitude(checkInLog.getLatitude());
+        resultDTO.setDistance(checkInLog.getDistance());
+        resultDTO.setCheckTime(checkInLog.getCreateTime());
+        // 查找学号和姓名
+        long uid = checkInLog.getUid();
+        resultDTO.setUid(uid);
+        User userById = userService.getUserById(uid);
+        resultDTO.setStuId(userById.getAcademicId());
+        resultDTO.setStuName(userById.getRealName());
+
+        return resultDTO;
     }
 
     private CheckInTaskDTO task2dto(CheckInTask record) {

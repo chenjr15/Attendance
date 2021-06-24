@@ -20,7 +20,7 @@ public class CheckInLog extends BaseEntity {
     public static final int STATUS_NORMAL = 0;
     public static final int STATUS_LEAVE = 1;
     public static final int STATUS_LATE = 2;
-    public static final int STATUS_ABSENCE = 2;
+    public static final int STATUS_ABSENCE = 3;
 
     private static final long serialVersionUID = 1L;
 
@@ -45,10 +45,10 @@ public class CheckInLog extends BaseEntity {
     /**
      * 签到距离
      */
-    private Double distance;
+    private double distance;
 
     /**
      * 获得的经验值
      */
-    private Integer experience;
+    private int experience;
 }

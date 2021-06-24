@@ -3,6 +3,7 @@ package dev.chenjr.attendance.dao.mapper;
 import dev.chenjr.attendance.dao.entity.CheckInLog;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,5 +35,11 @@ public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
     CheckInLog selectByTaskAndStu(long taskId, long uid);
 
     @Select("SELECT 1 FROM check_in_log WHERE task_id=#{taskId} and uid=#{uid} limit 1")
-    Boolean checked(long uid, long taskId);
+    Boolean isChecked(long uid, long taskId);
+
+    @Select("SELECT COALESCE(SUM(experience),0) FROM check_in_log WHERE course_id=#{courseId} and uid=#{uid} ")
+    int totalExpInCourse(long courseId, long uid);
+
+    @Select("SELECT uid FROM check_in_log WHERE task_id=#{taskId}")
+    List<Long> listChecked(long taskId);
 }

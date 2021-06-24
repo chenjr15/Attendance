@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 public class RestResponse<T> implements Serializable {
     public static final int CODE_OK = 200;
     public static final int CODE_WRONG_ARGUMENT = 400;
-    @Schema(description = "时间戳", example = "2021-04-13T16:09:30.8111435")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "时间戳", example = "2021-04-13 16:09:30")
     public LocalDateTime timestamp;
     @Schema(description = "状态码")
     public Integer status;

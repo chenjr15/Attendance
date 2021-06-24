@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -28,7 +29,7 @@ public class CourseDTO {
     private String description;
 
     @Schema(defaultValue = "0")
-    private Integer state;
+    private int state;
     private String stateName;
 
     @Length(max = 256)
@@ -38,8 +39,9 @@ public class CourseDTO {
     @Length(max = 256)
     @Schema(description = "学期")
     private String semester;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
     @Length(max = 256)

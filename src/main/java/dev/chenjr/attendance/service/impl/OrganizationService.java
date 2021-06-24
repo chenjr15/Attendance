@@ -242,6 +242,10 @@ public class OrganizationService implements IOrganizationService {
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound();
         }
+        int i = organizationMapper.childrenCount(orgId);
+        if (i != 0) {
+            throw HttpStatusException.conflict("删除失败，请先删除子节点！");
+        }
         organizationMapper.deleteById(orgId);
     }
 

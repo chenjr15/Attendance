@@ -2,10 +2,7 @@ package dev.chenjr.attendance.service;
 
 
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,4 +81,12 @@ public interface IUserService extends IService {
      * @return 用户名
      */
     String getRealNameById(Long id);
+
+    /**
+     * 获取学生简介信息
+     *
+     * @param uid uid
+     * @return 学生简介信息
+     */
+    CourseStudentDTO getStudent(Long uid);
 }

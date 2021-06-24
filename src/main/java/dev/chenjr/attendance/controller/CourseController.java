@@ -58,11 +58,11 @@ public class CourseController {
 
     @GetMapping(value = "/{courseId}/students")
     @Operation(description = "获取课程信息的学生列表(By ID)")
-    public RestResponse<PageWrapper<UserDTO>> getCourseStudentsById(
+    public RestResponse<PageWrapper<CourseStudentDTO>> getCourseStudentsById(
             @PathVariable long courseId,
             @ParameterObject PageSort pageSort
     ) {
-        PageWrapper<UserDTO> pageWrapper = courseService.getCourseStudentsById(courseId, pageSort);
+        PageWrapper<CourseStudentDTO> pageWrapper = courseService.getCourseStudentsById(courseId, pageSort);
         return RestResponse.okWithData(pageWrapper);
     }
 

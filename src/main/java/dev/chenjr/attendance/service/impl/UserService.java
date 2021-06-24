@@ -11,10 +11,7 @@ import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IStorageService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.RegisterRequest;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -239,6 +236,21 @@ public class UserService implements IUserService {
             return null;
         }
         return userMapper.getRealNameById(id);
+    }
+
+    /**
+     * 获取学生简介信息
+     *
+     * @param uid uid
+     * @return 学生简介信息
+     */
+    @Override
+    public CourseStudentDTO getStudent(Long uid) {
+        User stu = userMapper.getStudent(uid);
+        if (stu == null) {
+            return null;
+        }
+        return new CourseStudentDTO(stu.getId(), stu.getRealName(), stu.getAcademicId(), 0);
     }
 
     /**

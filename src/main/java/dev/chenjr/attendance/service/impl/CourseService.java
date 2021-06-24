@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.chenjr.attendance.dao.entity.Course;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.entity.UserCourse;
+import dev.chenjr.attendance.dao.mapper.CheckInLogMapper;
 import dev.chenjr.attendance.dao.mapper.CourseMapper;
 import dev.chenjr.attendance.dao.mapper.UserCourseMapper;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +48,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
 
     @Autowired
     IStorageService storageService;
+
+    @Autowired
+    CheckInLogMapper checkInLogMapper;
 
     /**
      * 获取指定课程的信息
@@ -133,15 +138,18 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 学生列表
      */
     @Override
-    public PageWrapper<UserDTO> getCourseStudentsById(long courseId, PageSort pageSort) {
-        QueryWrapper<UserCourse> qw = new QueryWrapper<>();
-        qw = pageSort.buildQueryWrapper(qw);
-        Page<UserCourse> userCoursePage = userCourseMapper.selectPage(pageSort.getPage(), qw);
-        List<UserDTO> students = userCoursePage.getRecords().stream()
-                .map(UserCourse::getUserId)
-                .map(userService::getUser)
-                .collect(Collectors.toList());
-        return PageWrapper.fromList(userCoursePage, students);
+    public PageWrapper<CourseStudentDTO> getCourseStudentsById(long courseId, PageSort pageSort) {
+
+        Page<Long> idPage = userCourseMapper.listElected(courseId, pageSort.getPage());
+        List<CourseStudentDTO> students = new ArrayList<>(idPage.getRecords().size());
+        for (Long userId : idPage.getRecords()) {
+            CourseStudentDTO student = userService.getStudent(userId);
+            // 计算经验值
+            int exp = checkInLogMapper.totalExpInCourse(courseId, userId);
+            student.setExperience(exp);
+            students.add(student);
+        }
+        return PageWrapper.fromList(idPage, students);
     }
 
     /**
@@ -207,7 +215,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
 
 
     public boolean elected(long uid, long courseId) {
-        return userCourseMapper.elected(uid, courseId) != null;
+        return userCourseMapper.isElected(uid, courseId) != null;
     }
 
     public boolean courseExists(long courseId) {

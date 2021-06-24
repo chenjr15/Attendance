@@ -39,4 +39,7 @@ public interface UserMapper extends MyBaseMapper<User> {
 
     @Select("SELECT real_name FROM user WHERE id=#{id} limit 1 ")
     String getRealNameById(Long id);
+
+    @Select("SELECT id,real_name,academic_id FROM user WHERE id=#{uid} limit 1")
+    User getStudent(Long uid);
 }

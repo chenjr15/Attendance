@@ -1,10 +1,7 @@
 package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.dto.CourseDTO;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -85,7 +82,7 @@ public interface ICourseService extends IService {
      * @param pageSort 分页&筛选&排序
      * @return 学生列表
      */
-    PageWrapper<UserDTO> getCourseStudentsById(long courseId, PageSort pageSort);
+    PageWrapper<CourseStudentDTO> getCourseStudentsById(long courseId, PageSort pageSort);
 
     /**
      * 修改课程信息

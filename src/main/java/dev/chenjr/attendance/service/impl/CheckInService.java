@@ -399,6 +399,7 @@ public class CheckInService implements ICheckInService {
         checkInTaskDTO.setType(record.getType());
         LocalDateTime deadline = record.getDeadline();
         checkInTaskDTO.setDeadline(deadline);
+        checkInTaskDTO.setStartTime(record.getCreateTime());
         checkInTaskDTO.setCourseId(record.getCourseId());
         checkInTaskDTO.setDescription(record.getDescription());
         checkInTaskDTO.setLongitude(record.getLongitude());

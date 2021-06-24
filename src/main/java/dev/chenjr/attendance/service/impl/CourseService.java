@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -155,6 +156,10 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound("课程id不存在！");
         }
+        // 如果设置结课，则同时设置结课时间
+        if (courseDTO.getState() == Course.STATE_ENDED) {
+            courseDTO.setEndTime(LocalDateTime.now());
+        }
         Course toModify = dto2Entity(courseDTO);
         courseMapper.updateById(toModify);
         return this.getCourseById(courseDTO.getId());
@@ -285,6 +290,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      */
     @Override
     public CourseDTO createCourse(User creator, CourseDTO courseDTO) {
+        if (courseDTO.getStartTime() == null) {
+            courseDTO.setStartTime(LocalDateTime.now());
+        }
         Course course = dto2Entity(courseDTO);
         course.setCode(RandomUtil.randomString(10));
         course.createBy(creator.getId());
@@ -328,6 +336,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setEndTime(entity.getEndTime());
         dto.setSemester(entity.getSemester());
         dto.setStartTime(entity.getStartTime());
+        if (dto.getStartTime() == null) {
+            dto.setStartTime(entity.getCreateTime());
+        }
         dto.setState(entity.getState());
         dto.setStateName(getStateMessage(entity.getState()));
         dto.setAvatar(storageService.getFullUrl(entity.getAvatar()));

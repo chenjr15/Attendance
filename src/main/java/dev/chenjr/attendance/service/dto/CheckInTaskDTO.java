@@ -51,4 +51,8 @@ public class CheckInTaskDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     Long operatorId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "开始时间")
+    LocalDateTime startTime;
+
 }

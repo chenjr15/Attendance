@@ -31,7 +31,7 @@ public class OrganizationService implements IOrganizationService {
     IDictionaryService dictionaryService;
     @Autowired
     OrganizationMapper organizationMapper;
-
+    
     int getOrgValue(String orgCode) {
         Map<Integer, String> cacheDict = dictionaryService.getCacheDict(ORG_TYPE);
         for (Map.Entry<Integer, String> valName : cacheDict.entrySet()) {
@@ -39,38 +39,38 @@ public class OrganizationService implements IOrganizationService {
                 return valName.getKey();
             }
         }
-
+        
         return 0;
-
+        
     }
-
+    
     String getOrgType(Integer orgValue) {
         if (orgValue == null) {
             orgValue = 0;
         }
         return dictionaryService.getCacheDictDetail(ORG_TYPE, orgValue);
     }
-
-
+    
+    
     @Override
     public PageWrapper<OrganizationDTO> listPage(String orgType, PageSort pageSort) {
-
+        
         int orgValue = getOrgValue(orgType);
         if (orgValue < 0) {
             throw HttpStatusException.notFound("找不到该类型的组织结构:" + orgType);
         }
         Page<Organization> page = pageSort.getPage();
-
+        
         QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
                 .eq(ORG_TYPE, orgValue)
                 .eq(StringUtil.toUnderlineCase("parentId"), 0);
-
+        
         wr = pageSort.buildQueryWrapper(wr, "name");
         page = organizationMapper.selectPage(page, wr);
-
+        
         PageWrapper<OrganizationDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Organization> records = page.getRecords();
-
+        
         if (records != null && records.size() != 0) {
             List<OrganizationDTO> orgDtoList = new ArrayList<>(records.size());
             for (Organization record : records) {
@@ -79,10 +79,10 @@ public class OrganizationService implements IOrganizationService {
             }
             pageWrapper.setContent(orgDtoList);
         }
-
+        
         return pageWrapper;
     }
-
+    
     /**
      * 不查找其孩子节点的fetch，!会返回null！
      *
@@ -97,8 +97,8 @@ public class OrganizationService implements IOrganizationService {
         }
         return organization2DTO(organization);
     }
-
-
+    
+    
     /**
      * 获取某个节点的信息, 返回一级子节点
      *
@@ -127,10 +127,10 @@ public class OrganizationService implements IOrganizationService {
             organizationDTO.setChildrenCount(orgChildren.size());
             organizationDTO.setChildren(orgChildren);
         }
-
+        
         return organizationDTO;
     }
-
+    
     /**
      * 获取某个节点的信息, 并返回一级子节点
      *
@@ -145,16 +145,16 @@ public class OrganizationService implements IOrganizationService {
             throw HttpStatusException.notFound();
         }
         OrganizationDTO organizationDTO = organization2DTO(organization);
-
+        
         QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
                 .eq("parent_id", organization.getId());
-
+        
         wr = pageSort.buildQueryWrapper(wr, "name");
-
+        
         Page<Organization> organizationPage = organizationMapper.selectPage(pageSort.getPage(), wr);
         List<Organization> childrenRecords = organizationPage.getRecords();
-        log.info("childrenRecords:{}", childrenRecords);
-
+        //log.info("childrenRecords:{}", childrenRecords);
+        
         List<OrganizationDTO> orgChildren = new ArrayList<>(childrenRecords.size());
         if (childrenRecords.size() != 0) {
             for (Organization child : childrenRecords) {
@@ -169,7 +169,7 @@ public class OrganizationService implements IOrganizationService {
         }
         return organizationDTO;
     }
-
+    
     /**
      * 修改某个节点信息，不改变其儿子节点
      *
@@ -185,8 +185,8 @@ public class OrganizationService implements IOrganizationService {
         organizationMapper.updateById(newOne);
         return fetch(orgDTO.getId());
     }
-
-
+    
+    
     /**
      * 创建节点，会递归创建子类
      *
@@ -203,7 +203,7 @@ public class OrganizationService implements IOrganizationService {
         // 可以用层次遍历，每一层一次插入
         return fetch(id);
     }
-
+    
     public long createOnly(OrganizationDTO organizationDTO, int depth) {
         if (depth > 4) {
             // 限制四层递归
@@ -215,7 +215,7 @@ public class OrganizationService implements IOrganizationService {
         if (insert != 1) {
             throw new SuperException("Failed to create.");
         }
-
+        
         List<OrganizationDTO> children = organizationDTO.getChildren();
         if (children != null) {
             for (OrganizationDTO child : children) {
@@ -229,8 +229,8 @@ public class OrganizationService implements IOrganizationService {
         }
         return newOne.getId();
     }
-
-
+    
+    
     /**
      * 删除节点，不会级联删除儿子节点
      *
@@ -248,8 +248,8 @@ public class OrganizationService implements IOrganizationService {
         }
         organizationMapper.deleteById(orgId);
     }
-
-
+    
+    
     private Organization dto2Organization(OrganizationDTO orgDTO) {
         Organization newOne = new Organization();
         newOne.setId(orgDTO.getId());
@@ -262,7 +262,7 @@ public class OrganizationService implements IOrganizationService {
 //        newOne.setOrgType(getOrgValue(orgDTO.getOrgType()));
         return newOne;
     }
-
+    
     private OrganizationDTO organization2DTO(Organization record) {
         OrganizationDTO dto = new OrganizationDTO();
         dto.setId(record.getId());
@@ -281,7 +281,7 @@ public class OrganizationService implements IOrganizationService {
 //                dto.setProvince("UNKNOWN");
 //            }
 //        }
-
+        
         return dto;
     }
 }

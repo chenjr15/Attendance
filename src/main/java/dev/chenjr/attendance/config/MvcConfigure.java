@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class MvcConfigure implements WebMvcConfigurer {
-
+    
     @Autowired
     FileStorageService fileStorageService;
-
+    
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         // 配置跨域
@@ -22,11 +22,11 @@ public class MvcConfigure implements WebMvcConfigurer {
                 // 通配所有Origin
                 .allowedOriginPatterns("*")
                 // preflight 会过来问能不能用下面的头
-                .allowedHeaders("Authorization", "Origin", "content-type")
+                .allowedHeaders("Authorization", "Origin", "content-type", "X-HTTP-Method-Override")
                 // preflight 会过来问能不能用下面的方法
                 .allowedMethods("GET", "POST", "HEAD", "DELETE", "PUT", "PATCH");
     }
-
+    
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置静态资源

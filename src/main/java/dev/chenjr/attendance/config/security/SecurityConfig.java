@@ -14,15 +14,15 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-
+    
+    
     @Autowired
     AuthenticationFailHandler authenticationFailHandler;
     @Autowired
     private JwtAuthTokenFilter jwtAuthTokenFilter;
-
+    
     public static final String HeaderString = "Authorization";
-
+    
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -65,19 +65,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    public AuthenticationFailureHandler authenticationFailureHandler() {
 //        return this.authenticationFailHandler;
 //    }
-
+    
     // 在通过数据库验证登录的方式中不需要配置此种密码加密方式, 因为已经在JWT配置中指定
     @Bean
     public BCryptPasswordEncoder getBCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
+    
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
+    
     // Swagger WHITELIST
     public static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui.html",
@@ -88,7 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v3/api-docs",
             "/webjars/**"
     };
-
+    
     // System WHITELIST
     public static final String[] SYSTEM_WHITELIST = {
             "/favicon.ico",
@@ -102,9 +102,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/randomNumberString",
             "/sms/**",
             "/",
+            "/echo",
             "/version",
             "/account/unique/**"
     };
-
-
+    
+    
 }

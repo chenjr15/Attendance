@@ -1,7 +1,5 @@
 package dev.chenjr.attendance.utils;
 
-import java.util.Arrays;
-
 public class StringUtil {
 
     /**
@@ -73,7 +71,6 @@ public class StringUtil {
     }
 
     public static String join(String... stringList) {
-        System.out.println(Arrays.toString(stringList));
 
         StringBuilder builder = new StringBuilder();
         for (String s : stringList) {
@@ -83,7 +80,6 @@ public class StringUtil {
             builder.append(s);
             builder.append('-');
         }
-        System.out.println(builder.toString());
         if (builder.length() != 0) {
             builder.deleteCharAt(builder.length() - 1);
         }

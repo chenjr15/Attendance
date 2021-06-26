@@ -1,4 +1,4 @@
-package dev.chenjr.attendance.config.security.filter;
+package dev.chenjr.attendance.filter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
@@ -6,7 +6,7 @@ import java.io.IOException;
 
 //@Component
 public class CorsFilter implements Filter {
-
+    
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -14,5 +14,5 @@ public class CorsFilter implements Filter {
         response.setHeader("Access-Control-Allow-Headers", "*");
         filterChain.doFilter(servletRequest, servletResponse);
     }
-
+    
 }

@@ -1,4 +1,4 @@
-package dev.chenjr.attendance.config;
+package dev.chenjr.attendance.filter;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package dev.chenjr.attendance.config.security.filter;
+package dev.chenjr.attendance.filter;
 
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.TokenException;
@@ -24,20 +24,20 @@ import java.io.IOException;
 public class JwtAuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
+    
     @Autowired
     private UserService userService;
-
+    
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //http  请求头中的token
         String token = request.getHeader(jwtTokenUtil.getHeader());
-
+        
         if (token == null || token.length() <= jwtTokenUtil.headerPrefix.length()) {
             filterChain.doFilter(request, response);
             return;
         }
-
+        
         token = token.substring(jwtTokenUtil.headerPrefix.length());
         if (jwtTokenUtil.isTokenExpired(token)) {
             throw new TokenException(HttpStatus.UNAUTHORIZED, "token已过期");
@@ -51,6 +51,6 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
-
+        
     }
 }

@@ -18,10 +18,10 @@ public interface MenuMapper extends MyBaseMapper<Menu> {
   @Override
   @Select("SELECT 1 FROM menu WHERE id=#{id} limit 1 ")
   Optional<Boolean> exists(long id);
-
-  @Select("SELECT * FROM menu WHERE parent_id=#{menuId}")
+  
+  @Select("SELECT * FROM menu WHERE parent_id=#{menuId} AND id!=#{parent_id} ORDER BY order_value")
   List<Menu> getChildren(long menuId);
-
-  @Select("SELECT count(id) FROM menu WHERE parent_id=#{parent_id} limit 1")
+  
+  @Select("SELECT count(id) FROM menu WHERE parent_id=#{parent_id} AND id!=#{parent_id} limit 1")
   int childrenCount(long parent_id);
 }

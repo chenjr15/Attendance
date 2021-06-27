@@ -3,6 +3,7 @@ package dev.chenjr.attendance.controller;
 import dev.chenjr.attendance.service.IRoleService;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import dev.chenjr.attendance.service.dto.RoleDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,16 @@ public class RoleController {
         return RestResponse.okWithData(role);
     }
     
+    @Operation(description = "给某个用户设置某个单一的角色，设置后仅有一种角色")
+    @PostMapping("/users/{userId}/{roleId}")
+    public RestResponse<List<RoleDTO>> setSingleRole(
+            @PathVariable long userId,
+            @PathVariable long roleId
+    
+    ) {
+        List<RoleDTO> roleLIst = roleService.setUserSingleRole(userId, roleId);
+        return RestResponse.okWithData(roleLIst);
+    }
     
     @PostMapping("/users/{userId}/{roleId}")
     public RestResponse<List<RoleDTO>> getUserRole(
@@ -86,7 +97,7 @@ public class RoleController {
             @PathVariable long roleId
     
     ) {
-        List<RoleDTO> roleLIst = roleService.removeRoleToUser(userId, roleId);
+        List<RoleDTO> roleLIst = roleService.removeRoleOfUser(userId, roleId);
         return RestResponse.okWithData(roleLIst);
     }
     

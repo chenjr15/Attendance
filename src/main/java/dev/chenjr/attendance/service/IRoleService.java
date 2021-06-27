@@ -71,5 +71,14 @@ public interface IRoleService extends IService {
      * @param roleId 要去掉的角色id
      * @return 用户所有的角色列表
      */
-    List<RoleDTO> removeRoleToUser(long userId, long roleId);
+    List<RoleDTO> removeRoleOfUser(long userId, long roleId);
+    
+    /**
+     * 给用户设置单一角色，会替换原有的角色
+     *
+     * @param userId 用户id
+     * @param roleId 角色id
+     * @return 用户角色列表
+     */
+    List<RoleDTO> setUserSingleRole(long userId, long roleId);
 }

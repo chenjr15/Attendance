@@ -34,4 +34,6 @@ public interface UserRoleMapper extends MyBaseMapper<UserRole> {
     @Select("SELECT * FROM user_role WHERE user_id=#{userId}")
     List<Role> getUserRole(long userId);
     
+    @Delete("DELETE  FROM user_role WHERE user_id=#{userId}")
+    void removeAllRole(long userId);
 }

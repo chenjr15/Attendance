@@ -9,11 +9,14 @@ import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IRoleService;
 import dev.chenjr.attendance.service.dto.RoleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class RoleService implements IRoleService {
     @Autowired
     RoleMapper roleMapper;
@@ -143,6 +146,24 @@ public class RoleService implements IRoleService {
     }
     
     /**
+     * 给用户设置单一角色，会替换原有的角色
+     *
+     * @param userId 用户id
+     * @param roleId 角色id
+     * @return 用户角色列表
+     */
+    @Override
+    @Transactional
+    public List<RoleDTO> setUserSingleRole(long userId, long roleId) {
+        userRoleMapper.removeAllRole(userId);
+        UserRole userRole = new UserRole();
+        userRole.setUserId(userId);
+        userRole.setRoleId(roleId);
+        userRoleMapper.insert(userRole);
+        return getUserRole(userId);
+    }
+    
+    /**
      * 给用户去掉角色
      *
      * @param userId 用户id
@@ -150,7 +171,7 @@ public class RoleService implements IRoleService {
      * @return 用户所有的角色列表
      */
     @Override
-    public List<RoleDTO> removeRoleToUser(long userId, long roleId) {
+    public List<RoleDTO> removeRoleOfUser(long userId, long roleId) {
         Optional<Boolean> exists = userRoleMapper.existsRelation(roleId, userId);
         if (exists.orElse(false)) {
             throw HttpStatusException.notFound("该用户没有该角色！");

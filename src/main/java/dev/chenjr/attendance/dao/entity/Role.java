@@ -23,5 +23,7 @@ public class Role extends BaseEntity {
     
     private String code;
     
+    private Integer orderValue;
+    
     
 }

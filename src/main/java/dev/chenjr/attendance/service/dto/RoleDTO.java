@@ -17,4 +17,6 @@ public class RoleDTO {
     private String name;
     @Schema(description = "英文名")
     private String code;
+    @Schema(description = "顺序")
+    private Integer orderValue;
 }

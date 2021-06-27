@@ -215,7 +215,7 @@ public class UserService implements IUserService {
         //desiredUser.setPhone(desiredDto.getPhone());
         desiredUser.setRealName(desiredDto.getRealName());
         // TODO 性别类型
-//        desiredUser.setGender(desiredDto.getGender());
+        desiredUser.setGender(desiredDto.getGenderValue());
         desiredUser.setSchoolMajor(desiredDto.getSchoolMajorID());
         desiredUser.setAcademicId(desiredDto.getAcademicId());
         
@@ -274,6 +274,7 @@ public class UserService implements IUserService {
         
         String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
         dto.setGender(sexName);
+        dto.setGenderValue(user.getGender());
         return dto;
     }
 }

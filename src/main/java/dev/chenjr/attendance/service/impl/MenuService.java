@@ -1,10 +1,12 @@
 package dev.chenjr.attendance.service.impl;
 
 import dev.chenjr.attendance.dao.entity.Menu;
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.MenuMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IMenuService;
 import dev.chenjr.attendance.service.dto.MenuDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,9 +15,10 @@ import java.util.Optional;
 
 @Service
 public class MenuService implements IMenuService {
-
+  
+  @Autowired
   MenuMapper menuMapper;
-
+  
   /**
    * 返回整个目录树
    *
@@ -23,27 +26,43 @@ public class MenuService implements IMenuService {
    */
   @Override
   public List<MenuDTO> listMenu() {
-
+    
     return getSubMenus(0);
   }
-
+  
+  /**
+   * 返回某个用户的菜单树
+   *
+   * @param user 用户
+   * @return 菜单树
+   */
+  @Override
+  public List<MenuDTO> listUserMenu(User user) {
+    return getSubMenus(0);
+  }
+  
   private List<MenuDTO> getSubMenus(long id) {
     List<Menu> children = menuMapper.getChildren(id);
     List<MenuDTO> menuList = new ArrayList<>(children.size());
+    
     for (Menu child : children) {
+      if (child.getId() == id) {
+        continue;
+      }
       MenuDTO childDTO = menu2dto(child);
+      
       /* 递归 */
       List<MenuDTO> subMenus = getSubMenus(child.getId());
-
+      
       childDTO.setSubs(subMenus);
       childDTO.setChildrenCount(subMenus.size());
       menuList.add(childDTO);
     }
-
+    
     return menuList;
   }
-
-
+  
+  
   /**
    * 创建菜单
    *
@@ -56,8 +75,8 @@ public class MenuService implements IMenuService {
     menuMapper.insert(toCreate);
     return getMenu(toCreate.getId());
   }
-
-
+  
+  
   /**
    * 删除菜单项
    *
@@ -75,7 +94,7 @@ public class MenuService implements IMenuService {
     }
     menuMapper.deleteById(menuId);
   }
-
+  
   /**
    * 修改菜单 （无法修改子项）
    *
@@ -90,10 +109,10 @@ public class MenuService implements IMenuService {
     }
     Menu newOne = dto2menu(menuDTO);
     menuMapper.updateById(newOne);
-
+    
     return getMenu(newOne.getId());
   }
-
+  
   /**
    * 按id获取菜单，不返回子节点
    *
@@ -110,7 +129,8 @@ public class MenuService implements IMenuService {
     menuDTO.setChildrenCount(menuMapper.childrenCount(menuId));
     return menuDTO;
   }
-
+  
+  
   private Menu dto2menu(MenuDTO dto) {
     Menu menu = new Menu();
     menu.setId(dto.getId());
@@ -120,10 +140,10 @@ public class MenuService implements IMenuService {
     menu.setOrderValue(dto.getOrderValue());
     menu.setPath(dto.getIndex());
     menu.setType(dto.getType());
-
+    
     return menu;
   }
-
+  
   private MenuDTO menu2dto(Menu menu) {
     MenuDTO menuDTO = new MenuDTO();
     menuDTO.setId(menu.getId());
@@ -133,7 +153,7 @@ public class MenuService implements IMenuService {
     menuDTO.setOrderValue(menu.getOrderValue());
     menuDTO.setIndex(menu.getPath());
     menuDTO.setType(menu.getType());
-
+    
     return menuDTO;
   }
 }

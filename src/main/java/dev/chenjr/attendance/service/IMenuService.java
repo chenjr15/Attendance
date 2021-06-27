@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.service;
 
+import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.dto.MenuDTO;
 
 import java.util.List;
@@ -44,4 +45,12 @@ public interface IMenuService {
    * @return 菜单dto
    */
   MenuDTO getMenu(long menuId);
+
+  /**
+   * 返回某个用户的菜单树
+   *
+   * @param user 用户
+   * @return 菜单树
+   */
+  List<MenuDTO> listUserMenu(User user);
 }

@@ -7,7 +7,6 @@ import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
 import dev.chenjr.attendance.dao.mapper.UserMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
-import dev.chenjr.attendance.exception.RegisterException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IStorageService;
 import dev.chenjr.attendance.service.IUserService;
@@ -40,6 +39,8 @@ public class UserService implements IUserService {
     
     @Autowired
     AccountService accountService;
+    @Autowired
+    RoleService roleService;
     
     
     @Override
@@ -95,37 +96,36 @@ public class UserService implements IUserService {
     
     @Override
     @Transactional
-    public User register(RegisterRequest request) {
+    public User createUser(RegisterRequest request) {
         
         User user = new User();
         user.setEmail(request.getEmail());
         user.setRealName(request.getRealName());
         user.setLoginName(request.getLoginName());
         user.setPhone(request.getPhone());
-        user.setGender(0);
-//        if (user.getLoginName() == null || "".equals(user.getLoginName())) {
-//            return null;
-//        }
-        // TODO 设置role
-        int inserted = userMapper.insert(user);
-        if (inserted != 1) {
-            log.error("Fail to insert user!" + inserted);
-            throw new RegisterException("db fail!");
-        }
-        accountService.setUserPassword(user, request.getPassword());
+        user.setGender(request.getGender());
+        
+        this.createUser(user);
+        
         return user;
     }
     
     @Override
-    public User register(User user) {
+    public User createUser(User user) {
         userMapper.insert(user);
+        
         return user;
     }
     
     @Override
     @Transactional
-    public void updateUser(User user) {
-        userMapper.updateById(user);
+    public UserDTO createAndInitUser(UserDTO dto) {
+        User user = dto2user(dto);
+        this.createUser(user);
+        dto.setId(user.getId());
+        accountService.initUser(dto.getId());
+        roleService.initUser(dto.getId());
+        return getUser(user.getId());
     }
     
     
@@ -237,6 +237,7 @@ public class UserService implements IUserService {
         return userMapper.getRealNameById(id);
     }
     
+    
     /**
      * 获取学生简介信息
      *
@@ -276,5 +277,17 @@ public class UserService implements IUserService {
         dto.setGender(sexName);
         dto.setGenderValue(user.getGender());
         return dto;
+    }
+    
+    private User dto2user(UserDTO dto) {
+        User user = new User();
+        user.setId(dto.getId());
+        user.setAcademicId(dto.getAcademicId());
+        user.setSchoolMajor(dto.getSchoolMajorID());
+        user.setPhone(dto.getPhone());
+        user.setEmail(dto.getEmail());
+        user.setRealName(dto.getRealName());
+        user.setLoginName(dto.getLoginName());
+        return user;
     }
 }

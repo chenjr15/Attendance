@@ -62,7 +62,15 @@ public interface IRoleService extends IService {
      * @param roleId 要添加的角色id
      * @return 用户所有的角色列表
      */
-    List<RoleDTO> addRoleToUser(long userId, long roleId);
+    List<RoleDTO> addRoleByCodeToUser(long userId, long roleId);
+    
+    /**
+     * 给用户添加角色
+     *
+     * @param userId   用户id
+     * @param roleCode 要添加的角色编码
+     */
+    void addRoleByCodeToUser(long userId, String roleCode);
     
     /**
      * 给用户去掉角色
@@ -81,4 +89,11 @@ public interface IRoleService extends IService {
      * @return 用户角色列表
      */
     List<RoleDTO> setUserSingleRole(long userId, long roleId);
+    
+    /**
+     * 初始化用户信息(设置默认角色)
+     *
+     * @param id 用户id
+     */
+    void initUser(Long id);
 }

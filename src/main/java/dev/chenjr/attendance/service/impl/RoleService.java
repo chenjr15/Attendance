@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class RoleService implements IRoleService {
+    public static final String DEFAULT_ROLE = "STUDENT";
     @Autowired
     RoleMapper roleMapper;
     @Autowired
@@ -125,7 +126,7 @@ public class RoleService implements IRoleService {
      * @return 用户所有的角色列表
      */
     @Override
-    public List<RoleDTO> addRoleToUser(long userId, long roleId) {
+    public List<RoleDTO> addRoleByCodeToUser(long userId, long roleId) {
         Optional<Boolean> exists = roleMapper.exists(roleId);
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound("找不到角色！");
@@ -143,6 +144,44 @@ public class RoleService implements IRoleService {
         userRole.setRoleId(roleId);
         userRoleMapper.insert(userRole);
         return getUserRole(userId);
+    }
+    
+    /**
+     * 给用户添加角色
+     *
+     * @param userId   用户id
+     * @param roleCode 要添加的角色编码
+     */
+    @Override
+    public void addRoleByCodeToUser(long userId, String roleCode) {
+        
+        Role role = roleMapper.getRole(roleCode);
+        if (role == null) {
+            throw HttpStatusException.notFound("找不到角色！");
+        }
+        Optional<Boolean> exists = userMapper.exists(userId);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("找不到用户！");
+        }
+        exists = userRoleMapper.existsRelation(role.getId(), userId);
+        if (exists.orElse(false)) {
+            throw HttpStatusException.conflict("重复添加！");
+        }
+        UserRole userRole = new UserRole();
+        userRole.setUserId(userId);
+        userRole.setRoleId(role.getId());
+        userRoleMapper.insert(userRole);
+        
+    }
+    
+    /**
+     * 初始化用户信息(设置默认角色)
+     *
+     * @param id 用户id
+     */
+    @Override
+    public void initUser(Long id) {
+        this.addRoleByCodeToUser(id, DEFAULT_ROLE);
     }
     
     /**
@@ -186,6 +225,7 @@ public class RoleService implements IRoleService {
         dto.setId(role.getId());
         dto.setCode(role.getCode());
         dto.setName(role.getName());
+        dto.setOrderValue(role.getOrderValue());
         return dto;
     }
     
@@ -194,6 +234,8 @@ public class RoleService implements IRoleService {
         role.setCode(dto.getCode());
         role.setId(dto.getId());
         role.setName(dto.getName());
+        role.setOrderValue(dto.getOrderValue());
+        
         return role;
     }
 }

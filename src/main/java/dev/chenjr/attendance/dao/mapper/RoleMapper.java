@@ -26,4 +26,7 @@ public interface RoleMapper extends MyBaseMapper<Role> {
     @Override
     @Select("SELECT 1 FROM role WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(long id);
+    
+    @Select("SELECT * FROM role WHERE code=#{roleCode} limit 1 ")
+    Role getRole(String roleCode);
 }

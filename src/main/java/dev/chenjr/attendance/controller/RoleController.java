@@ -87,7 +87,7 @@ public class RoleController {
             @PathVariable long roleId
     
     ) {
-        List<RoleDTO> roleLIst = roleService.addRoleToUser(userId, roleId);
+        List<RoleDTO> roleLIst = roleService.addRoleByCodeToUser(userId, roleId);
         return RestResponse.okWithData(roleLIst);
     }
     

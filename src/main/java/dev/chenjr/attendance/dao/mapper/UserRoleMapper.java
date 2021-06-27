@@ -36,4 +36,5 @@ public interface UserRoleMapper extends MyBaseMapper<UserRole> {
     
     @Delete("DELETE  FROM user_role WHERE user_id=#{userId}")
     void removeAllRole(long userId);
+    
 }

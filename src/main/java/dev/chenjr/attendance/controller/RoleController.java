@@ -71,7 +71,7 @@ public class RoleController {
     }
     
     @Operation(description = "给某个用户设置某个单一的角色，设置后仅有一种角色")
-    @PostMapping("/users/{userId}/{roleId}")
+    @PutMapping("/users/{userId}/{roleId}")
     public RestResponse<List<RoleDTO>> setSingleRole(
             @PathVariable long userId,
             @PathVariable long roleId

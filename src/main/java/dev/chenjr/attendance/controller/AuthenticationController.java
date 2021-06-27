@@ -48,6 +48,7 @@ public class AuthenticationController {
     }
     
     @PostMapping("/register")
+    @SecurityRequirements
     @Operation(description = "注册")
     public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
         smsService.codeValidAndThrow(request.getPhone(), smsService.TYPE_REGISTER, request.getSmsCode());
@@ -61,11 +62,11 @@ public class AuthenticationController {
             @AuthenticationPrincipal @Parameter(hidden = true) User user,
             @RequestParam(defaultValue = "false") Boolean longTerm
     ) {
-        // 尝试登录
+        
         TokenUidDTO tokenUidDTO = new TokenUidDTO();
         tokenUidDTO.setToken(authenticationService.createToken(user, longTerm));
         tokenUidDTO.setUid(user.getId());
-        log.info("refresh, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
+        log.debug("refresh, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
         return RestResponse.okWithData(tokenUidDTO);
     }
     

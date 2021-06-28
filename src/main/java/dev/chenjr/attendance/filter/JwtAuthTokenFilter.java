@@ -53,16 +53,18 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
             throw new TokenException(HttpStatus.UNAUTHORIZED, "无效的token");
         }
         User user = userService.getUserById(uid);
+        
+        List<GrantedAuthority> authorityList = AuthorityUtils.NO_AUTHORITIES;
         List<RoleDTO> userRole = roleService.getUserRole(uid);
-        String[] roles = new String[userRole.size()];
-        for (int i = 0, userRoleSize = userRole.size(); i < userRoleSize; i++) {
-            RoleDTO roleDTO = userRole.get(i);
-            roles[i] = roleDTO.getCode();
-        }
-        log.info("角色：{}", (Object[]) roles);
-        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(roles);
-        if (userRole.size() == 0) {
-            authorityList = AuthorityUtils.NO_AUTHORITIES;
+        if (userRole.size() != 0) {
+            String[] roles = new String[userRole.size()];
+            
+            for (int i = 0, userRoleSize = userRole.size(); i < userRoleSize; i++) {
+                RoleDTO roleDTO = userRole.get(i);
+                roles[i] = roleDTO.getCode();
+            }
+            //log.info("角色：{},roles:{}", userRole, roles);
+            authorityList = AuthorityUtils.createAuthorityList(roles);
         }
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(user, null, authorityList);

@@ -11,6 +11,7 @@ import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RoleDTO;
 import dev.chenjr.attendance.service.dto.UserDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class RoleService implements IRoleService {
     public static final String DEFAULT_ROLE = "STUDENT";
@@ -125,7 +127,8 @@ public class RoleService implements IRoleService {
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound("找不到用户!");
         }
-        List<Role> roles = userRoleMapper.getUserRole(userId);
+        List<Long> roleIds = userRoleMapper.getUserRole(userId);
+        List<Role> roles = roleMapper.selectBatchIds(roleIds);
         return roles.stream().map(this::role2dto).collect(Collectors.toList());
     }
     

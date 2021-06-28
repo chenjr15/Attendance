@@ -62,7 +62,7 @@ public class RoleController {
     
     @PostMapping("/{roleId}/menus/{menuId}")
     @Operation(description = "增加某个角色可以访问的菜单项")
-    public RestResponse<?> getRoleMenus(
+    public RestResponse<?> addRoleMenus(
             @PathVariable long roleId,
             @PathVariable long menuId
     
@@ -74,13 +74,25 @@ public class RoleController {
     
     @PostMapping("/{roleId}/menus")
     @Operation(description = "批量增加某个角色可以访问的菜单项")
-    public RestResponse<?> getRoleMenus(
+    public RestResponse<?> addRoleMenus(
             @PathVariable long roleId,
             @RequestBody List<Long> menuList
     
     ) {
         
         roleService.addMenuToRole(roleId, menuList);
+        return RestResponse.ok();
+    }
+    
+    @PutMapping("/{roleId}/menus")
+    @Operation(description = "设置某个角色可以访问的菜单项，输入什么菜单该角色就只能访问这些菜单，不多不少")
+    public RestResponse<?> getRoleMenus(
+            @PathVariable long roleId,
+            @RequestBody List<Long> menuList
+    
+    ) {
+        
+        roleService.setRoleMenus(roleId, menuList);
         return RestResponse.ok();
     }
     

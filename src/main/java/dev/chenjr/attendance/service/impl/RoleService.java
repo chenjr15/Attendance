@@ -38,6 +38,7 @@ public class RoleService implements IRoleService {
     @Autowired
     MenuService menuService;
     
+    
     @Override
     public Collection<Long> getUserMenuId(Long uid) {
         List<Long> userRole = userRoleMapper.getUserRole(uid);
@@ -333,6 +334,32 @@ public class RoleService implements IRoleService {
     @Override
     public void removeMenuToRole(long roleId, long menuId) {
         roleMenuMapper.delete(roleId, menuId);
+    }
+    
+    /**
+     * 完全修改某个角色的菜单权限
+     * (所给即所得)
+     *
+     * @param roleId   角色id
+     * @param newMenus 菜单id列表
+     */
+    @Override
+    @Transactional
+    public void setRoleMenus(long roleId, List<Long> newMenus) {
+        List<Long> oldMenus = roleMenuMapper.getRoleMenus(roleId);
+        Set<Long> oldSet = new HashSet<>(oldMenus);
+        Set<Long> newSet = new HashSet<>(newMenus);
+        for (Long oldMenuId : oldMenus) {
+            if (!newSet.contains(oldMenuId)) {
+                this.removeMenuToRole(roleId, oldMenuId);
+            }
+        }
+        for (Long newMenuId : newMenus) {
+            if (!oldSet.contains(newMenuId)) {
+                this.addMenuToRole(roleId, newMenuId);
+            }
+        }
+        
     }
     
     private RoleDTO role2dto(Role role) {

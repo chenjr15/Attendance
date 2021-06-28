@@ -148,4 +148,12 @@ public interface IRoleService extends IService {
     void removeMenuToRole(long roleId, long menuId);
     
     Collection<Long> getUserMenuId(Long id);
+    
+    /**
+     * 完全修改某个角色的菜单权限(所给即所得)
+     *
+     * @param roleId   角色id
+     * @param menuList 菜单id列表
+     */
+    void setRoleMenus(long roleId, List<Long> menuList);
 }

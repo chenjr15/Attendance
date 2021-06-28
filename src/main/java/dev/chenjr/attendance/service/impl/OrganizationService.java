@@ -284,4 +284,11 @@ public class OrganizationService implements IOrganizationService {
         
         return dto;
     }
+    
+    public String getOrgName(long schoolMajor) {
+        
+        Organization organization = this.organizationMapper.selectById(schoolMajor);
+        
+        return organization.getFullName();
+    }
 }

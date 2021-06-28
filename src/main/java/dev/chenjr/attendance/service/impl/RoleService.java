@@ -142,6 +142,9 @@ public class RoleService implements IRoleService {
             throw HttpStatusException.notFound("找不到用户!");
         }
         List<Long> roleIds = userRoleMapper.getUserRole(userId);
+        if (roleIds.size() == 0) {
+            return new ArrayList<>();
+        }
         List<Role> roles = roleMapper.selectBatchIds(roleIds);
         return roles.stream().map(this::role2dto).collect(Collectors.toList());
     }

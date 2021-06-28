@@ -283,6 +283,9 @@ public class UserService implements IUserService {
         String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
         dto.setGender(sexName);
         dto.setGenderValue(user.getGender());
+        List<RoleDTO> userRole = roleService.getUserRole(user.getId());
+        dto.setRoles(userRole);
+        
         return dto;
     }
     

@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -47,4 +48,7 @@ public class UserDTO {
     
     @Schema(description = "头像链接")
     private String avatar;
+    
+    @Schema(description = "权限列表")
+    private List<RoleDTO> roles;
 }

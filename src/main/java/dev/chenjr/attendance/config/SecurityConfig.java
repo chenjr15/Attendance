@@ -105,7 +105,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/",
             "/echo",
             "/version",
-            "/account/unique/**"
+            "/account/unique/**",
+            "/roles"
     };
     
     

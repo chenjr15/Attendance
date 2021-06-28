@@ -23,4 +23,7 @@ public interface RoleMenuMapper extends MyBaseMapper<RoleMenu> {
     
     @Delete("DELETE  FROM role_menu WHERE role_id=#{roleId} AND menu_id=#{menuId}")
     void delete(long roleId, long menuId);
+    
+    @Delete("DELETE  FROM role_menu WHERE role_id=#{roleId} ")
+    void deleteByRoleId(long roleId);
 }

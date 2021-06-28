@@ -96,7 +96,7 @@ public class RoleController {
     }
     
     @DeleteMapping("/{roleId}/menus/{menuId}")
-    @Operation(description = "增加某个角色可以访问的菜单项")
+    @Operation(description = "删除某个角色可以访问的菜单项")
     public RestResponse<?> deleteRoleMenus(
             @PathVariable long roleId,
             @PathVariable long menuId

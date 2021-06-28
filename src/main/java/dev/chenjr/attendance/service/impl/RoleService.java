@@ -100,11 +100,16 @@ public class RoleService implements IRoleService {
      * @param roleId role id
      */
     @Override
+    @Transactional
     public void deleteRole(long roleId) {
         Optional<Boolean> exists = this.roleMapper.exists(roleId);
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound();
         }
+        // 删除相关的用户关系
+        userRoleMapper.deleteByRoleId(roleId);
+        //删除相关的角色关系
+        roleMenuMapper.deleteByRoleId(roleId);
         roleMapper.deleteById(roleId);
     }
     

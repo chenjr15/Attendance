@@ -1,7 +1,7 @@
 package dev.chenjr.attendance.utils;
 
 public class StringUtil {
-
+    
     /**
      * 下划线转驼峰
      * user_name  ---->  userName
@@ -34,7 +34,7 @@ public class StringUtil {
         }
         return builder.toString();
     }
-
+    
     /**
      * 驼峰转 下划线
      * userName  ---->  user_name
@@ -65,8 +65,28 @@ public class StringUtil {
         }
         return buf.toString();
     }
-
+    
     public static boolean notEmpty(String search) {
         return search != null && search.length() != 0;
+    }
+    
+    public static boolean empty(String search) {
+        return search == null || search.length() == 0;
+    }
+    
+    public static String join(String... stringList) {
+        
+        StringBuilder builder = new StringBuilder();
+        for (String s : stringList) {
+            if (s == null || s.length() == 0) {
+                continue;
+            }
+            builder.append(s);
+            builder.append('-');
+        }
+        if (builder.length() != 0) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        return builder.toString();
     }
 }

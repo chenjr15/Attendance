@@ -16,12 +16,14 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "角色表")
 public class Role extends BaseEntity {
-
+    
     private static final long serialVersionUID = 1L;
-
+    
     private String name;
-
-    private String description;
-
-
+    
+    private String code;
+    
+    private Integer orderValue;
+    
+    
 }

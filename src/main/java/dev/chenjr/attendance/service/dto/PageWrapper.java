@@ -55,4 +55,15 @@ public class PageWrapper<T> {
         wrapper.setContent(list);
         return wrapper;
     }
+
+    public static <E> PageWrapper<E> singlePage(List<E> list) {
+        PageWrapper<E> pageWrapper = new PageWrapper<>();
+        pageWrapper.setCurItemCount(list.size());
+        pageWrapper.setTotal(list.size());
+        pageWrapper.setSize(list.size());
+        pageWrapper.setPageCount(1);
+        pageWrapper.setCurrent(1);
+        pageWrapper.setContent(list);
+        return pageWrapper;
+    }
 }

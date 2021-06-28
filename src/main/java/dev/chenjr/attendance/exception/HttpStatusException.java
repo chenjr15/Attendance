@@ -26,7 +26,10 @@ public class HttpStatusException extends SuperException {
     }
 
     public static HttpStatusException badRequest(String msg) {
-        return new HttpStatusException(HttpStatus.BAD_REQUEST);
+        return new HttpStatusException(HttpStatus.BAD_REQUEST, msg);
     }
 
+    public static HttpStatusException conflict(String msg) {
+        return new HttpStatusException(HttpStatus.CONFLICT, msg);
+    }
 }

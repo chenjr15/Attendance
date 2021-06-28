@@ -3,7 +3,8 @@ package dev.chenjr.attendance.service.impl;
 import dev.chenjr.attendance.dao.entity.Account;
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.dao.mapper.AccountMapper;
-import dev.chenjr.attendance.exception.SetPasswordFailException;
+import dev.chenjr.attendance.dao.mapper.RoleMapper;
+import dev.chenjr.attendance.dao.mapper.UserRoleMapper;
 import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IAccountService;
@@ -11,8 +12,10 @@ import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
 import dev.chenjr.attendance.service.dto.BindThirdPartyDTO;
 import dev.chenjr.attendance.service.dto.LoginDTO;
+import dev.chenjr.attendance.service.dto.RegisterRequest;
 import dev.chenjr.attendance.service.dto.TokenUidDTO;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
+import dev.chenjr.attendance.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -21,10 +24,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -33,11 +36,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class AccountService extends BaseService implements IAccountService {
-
-
+    
+    
+    public static final String DEFAULT_PASSWORD = "123456";
     @Autowired
     IUserService userService;
-
+    
     @Autowired
     ISmsService smsService;
     @Autowired
@@ -46,7 +50,60 @@ public class AccountService extends BaseService implements IAccountService {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
+    @Autowired
+    UserRoleMapper userRoleMapper;
+    @Autowired
+    RoleMapper roleMapper;
+    @Autowired
+    RoleService roleService;
+    
+    
+    /**
+     * 初始化用户，创建account
+     */
+    @Override
+    public void initUser(long uid) {
+        // 4. 创建Account
+        this.setUserPassword(uid, DEFAULT_PASSWORD);
+    }
+    
+    /**
+     * 注册
+     * 1. 检查验证码
+     * 2. 密码设置
+     * 3. 创建用户
+     * 4. 创建Account
+     * 5. 创建角色关系
+     *
+     * @param request 注册信息
+     * @return token和uid
+     */
+    @Override
+    public TokenUidDTO register(RegisterRequest request) {
+        // 1. 检查验证码 前置到controller中
+        
+        // 2. 设置默认密码
+        if (StringUtil.empty(request.getPassword())) {
+            request.setPassword(DEFAULT_PASSWORD);
+        }
+        
+        // 3. 创建用户
+        User user = userService.createUser(request);
+        
+        // 4. 创建Account
+        this.setUserPassword(user, request.getPassword());
+        
+        // 5. 创建角色关系
+        List<String> roles = request.getRoles();
+        for (String roleCode : roles) {
+            roleService.addRoleByCodeToUser(user.getId(), roleCode);
+        }
+        
+        String token = this.createToken(user);
+        return new TokenUidDTO(token, user.getId());
+        
+    }
+    
     /**
      * 检验账号和密码是否匹配
      *
@@ -66,69 +123,87 @@ public class AccountService extends BaseService implements IAccountService {
         accountInfo = accountMapper.getByUid(user.getId());
         if (accountInfo == null) {
             log.info("localAuth not found!");
-
+            
             return false;
         }
         String encoded = accountInfo.getToken();
         return checkPasswordHash(encoded, rawPassword);
     }
-
-    @Override
-    public boolean registerAccount(User user, String rawPassword) {
-        return false;
-    }
-
-
+    
+    
     private String encodeHash(String password) {
-
+        
         return passwordEncoder.encode(password);
     }
-
+    
     @Override
     public Account getOneAccountInfo(long uid) {
         return this.accountMapper.getByUid(uid);
     }
-
+    
     @Override
     public List<Account> getAllAccountInfo(long uid) {
         return accountMapper.getAllByUid(uid);
     }
-
-
+    
+    /**
+     * 设置(修改)用户密码
+     * 注册的时候用这个方法会新建所有的Account
+     *
+     * @param uid      user id
+     * @param password 明文密码
+     */
     @Override
-    public boolean setUserPassword(long uid, String password) {
-
+    public void setUserPassword(long uid, String password) {
+        
         boolean exists = userService.userExists(uid);
         if (!exists) {
             throw new UserNotFoundException();
         }
-
+        
         dev.chenjr.attendance.dao.entity.User user = userService.getUserById(uid);
-        return this.setUserPassword(user, password);
+        this.setUserPassword(user, password);
     }
-
+    
     @Override
     public void setUserPasswordWithSmsCode(@NotNull User user, String password, String code) {
         if (user == null) {
             throw new UserNotFoundException("got empty user!");
         }
         smsService.codeValidAndThrow(user.getPhone(), smsService.TYPE_RESET_PASSWORD, code);
-        if (!setUserPassword(user, password)) {
-            throw new SetPasswordFailException();
-        }
-
+        setUserPassword(user, password);
+        
     }
-
+    
+    /**
+     * 创建用户的Account
+     * 注册的时候用这个方法会新建的Account
+     *
+     * @param user user 实体
+     */
     @Override
-    public boolean setUserPassword(User user, String password) {
+    public void setUserPassword(User user) {
+        this.setUserPassword(user, DEFAULT_PASSWORD);
+    }
+    
+    /**
+     * 设置(修改)用户密码
+     * 注册的时候用这个方法会新建所有的Account
+     *
+     * @param user     user 实体
+     * @param password 明文密码
+     */
+    @Override
+    @Transactional
+    public void setUserPassword(User user, String password) {
         if (user == null) {
             throw new UserNotFoundException("got empty user!");
         }
         long uid = user.getId();
-
+        
         // 未设置密码的将其密码设置为空
         String passwordHash;
-        if (password == null || "".equals(password)) {
+        if (StringUtil.empty(password)) {
             passwordHash = null;
         } else {
             passwordHash = encodeHash(password);
@@ -143,7 +218,8 @@ public class AccountService extends BaseService implements IAccountService {
                     Account.fromEmail(uid, user.getEmail(), passwordHash)
             );
             accounts.stream()
-                    .filter(account -> account.getAccount() != null && !"".equals(account.getAccount()))
+                    //过滤空的账号(未设置的)
+                    .filter(account -> StringUtil.notEmpty(account.getAccount()))
                     .forEach(account -> {
                         log.info("changing: {}", account);
                         account.createBy(uid);
@@ -156,14 +232,13 @@ public class AccountService extends BaseService implements IAccountService {
                 account.setToken(passwordHash);
                 account.updateBy(uid);
                 accountMapper.updateToken(account);
-//                accountMapper.update(account, new QueryWrapper<Account>().eq("account", account.getAccount()));
+                //accountMapper.update(account, new QueryWrapper<Account>().eq("account", account.getAccount()));
             });
-
+            
         }
-        return true;
     }
-
-
+    
+    
     /**
      * 登录并创建Token
      *
@@ -192,15 +267,15 @@ public class AccountService extends BaseService implements IAccountService {
         }
         String token = createToken(user);
         return new TokenUidDTO(token, user.getId());
-
+        
     }
-
+    
     @Override
     public String createToken(User user) {
         // TODO 获取用户角色信息
         return jwtTokenUtil.generateToken(user);
     }
-
+    
     /**
      * 创建Token
      *
@@ -215,29 +290,29 @@ public class AccountService extends BaseService implements IAccountService {
         }
         return jwtTokenUtil.generateLongTermToken(user);
     }
-
+    
     @Override
     public boolean checkPasswordHash(String encodedPassword, String rawPassword) {
-
+        
         log.info("encoded: " + encodedPassword + " raw: " + rawPassword);
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
-
+    
     @Override
     public Account getAccountInfo(long uid, String type) {
         return null;
     }
-
+    
     @Override
     public boolean accountExists(long accountId) {
-        return this.accountMapper.exists(accountId) != null;
+        return this.accountMapper.exists(accountId).orElse(false);
     }
-
+    
     @Override
     public boolean accountExists(String account) {
         return this.accountMapper.existsByAccount(account) != null;
     }
-
+    
     @Override
     public User currentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -246,9 +321,9 @@ public class AccountService extends BaseService implements IAccountService {
             return (User) principal;
         }
         throw new AuthenticationCredentialsNotFoundException("Cannot found current user!");
-
+        
     }
-
+    
     @Override
     public void bindThirdParty(BindThirdPartyDTO thirdPartyDTO) {
         log.info("{}", thirdPartyDTO);
@@ -257,30 +332,13 @@ public class AccountService extends BaseService implements IAccountService {
             throw new SuperException("用户已绑定其他账号，请先解绑！");
         }
         Account externalAccount = Account
-            .external(thirdPartyDTO.getUid(),
-                thirdPartyDTO.getType(),
-                thirdPartyDTO.getOpenid(),
-                thirdPartyDTO.getAccessToken());
+                .external(thirdPartyDTO.getUid(),
+                        thirdPartyDTO.getType(),
+                        thirdPartyDTO.getOpenid(),
+                        thirdPartyDTO.getAccessToken());
         accountMapper.insert(externalAccount);
-
+        
     }
-
-    public static final class Roles {
-        public static final String ROLE_ADMIN = "ROLE_ADMIN";
-        public static final String ROLE_TEACHER = "ROLE_TEACHER";
-        public static final String ROLE_STUDENT = "ROLE_STUDENT";
-        public static final HashSet<String> allRoles = new HashSet<>(Arrays.asList(ROLE_STUDENT, ROLE_TEACHER, ROLE_ADMIN));
-
-        public static boolean isValidRole(String role) {
-            return allRoles.contains(role);
-        }
-
-        public static boolean isValidRoles(String roles) {
-            if (roles != null) {
-                return allRoles.containsAll(Arrays.asList(roles.split(",")));
-            } else {
-                return false;
-            }
-        }
-    }
+    
+    
 }

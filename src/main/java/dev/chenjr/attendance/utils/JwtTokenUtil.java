@@ -23,18 +23,18 @@ import java.util.Map;
 @Data
 @Slf4j
 public class JwtTokenUtil {
-
+    
     private static Key KEY = null;
     @Value("${token.secret}")
     private String secret;
     @Value("${token.expireTime}")
     private Long expiration;
-
+    
     @Value("${token.header}")
     private String header;
-
+    
     public String headerPrefix = "Bearer ";
-
+    
     /**
      * 生成token令牌
      *
@@ -47,10 +47,10 @@ public class JwtTokenUtil {
         claims.put("sub", user.getLoginName());
         claims.put("uid", user.getId().toString());
         claims.put("created", new Date());
-
+        
         return generateToken(claims);
     }
-
+    
     /**
      * 生成长期token令牌，100倍过期时间
      *
@@ -69,8 +69,8 @@ public class JwtTokenUtil {
                 .signWith(getKeyInstance(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
-
+    
+    
     /**
      * 从令牌中获取用户名
      *
@@ -88,7 +88,7 @@ public class JwtTokenUtil {
         }
         return username;
     }
-
+    
     /**
      * 从令牌中获取UID
      *
@@ -101,13 +101,13 @@ public class JwtTokenUtil {
             Claims claims = getClaimsFromToken(token);
             String uidString = claims.get("uid", String.class);
             uid = Long.valueOf(uidString);
-            log.info("get uid from:" + uid);
+            log.debug("get uid from:" + uid);
         } catch (Exception e) {
             uid = null;
         }
         return uid;
     }
-
+    
     /**
      * 判断令牌是否过期
      *
@@ -123,7 +123,7 @@ public class JwtTokenUtil {
             return false;
         }
     }
-
+    
     /**
      * 刷新令牌
      *
@@ -141,7 +141,7 @@ public class JwtTokenUtil {
         }
         return refreshedToken;
     }
-
+    
     /**
      * 验证令牌
      *
@@ -150,13 +150,13 @@ public class JwtTokenUtil {
      * @return 是否有效
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-
+        
         String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) &&
                 !isTokenExpired(token));
     }
-
-
+    
+    
     /**
      * 从claims生成令牌,如果看不懂就看谁调用它
      *
@@ -170,7 +170,7 @@ public class JwtTokenUtil {
                 .signWith(getKeyInstance(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
+    
     /**
      * 从令牌中获取数据声明,如果看不懂就看谁调用它
      *
@@ -179,9 +179,9 @@ public class JwtTokenUtil {
      */
     private Claims getClaimsFromToken(String token) {
         Claims claims = null;
-
+        
         try {
-
+            
             claims = Jwts.parserBuilder()
                     .setSigningKey(getKeyInstance())
                     .build()
@@ -191,8 +191,8 @@ public class JwtTokenUtil {
         }
         return claims;
     }
-
-
+    
+    
     private Key getKeyInstance() {
         if (KEY == null) {
             synchronized (JwtTokenUtil.class) {

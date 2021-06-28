@@ -54,7 +54,7 @@ public class SysParameterController {
         return RestResponse.ok();
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     @Operation(description = "添加系统参数")
     public RestResponse<?> createSysParameter(
             @RequestBody @Validated SysParameterDTO parameterDTO) {
@@ -72,7 +72,7 @@ public class SysParameterController {
         return RestResponse.okWithMsg("Deleted");
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("")
     @Operation(description = "!清空!系统参数")
     public RestResponse<?> deleteAllSysParameter(@RequestParam(defaultValue = "false") Boolean confirm) {
         if (confirm) {

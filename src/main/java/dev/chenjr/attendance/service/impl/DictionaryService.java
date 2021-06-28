@@ -10,15 +10,14 @@ import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IDictionaryService;
 import dev.chenjr.attendance.service.dto.DictionaryDTO;
 import dev.chenjr.attendance.service.dto.DictionaryDetailDTO;
+import dev.chenjr.attendance.service.dto.PageSort;
 import dev.chenjr.attendance.service.dto.PageWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +28,58 @@ public class DictionaryService implements IDictionaryService {
     DictionaryMapper dictMapper;
     @Autowired
     DictionaryDetailMapper detailMapper;
+    Map<String, Boolean> cacheNeedUpdate = new TreeMap<>();
+    Map<String, Map<Integer, String>> dictCacheMap = new TreeMap<>();
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key 字典的code
+     * @return 字典map
+     */
+    @Override
+    public Map<Integer, String> getCacheDict(String key) {
+        if (cacheNeedUpdate.getOrDefault(key, true)) {
+            // 更新
+            DictionaryDTO dictionaryByCode = this.getDictionaryByCode(key);
+            Map<Integer, String> detailMap = dictCacheMap.computeIfAbsent(key, k -> new TreeMap<>());
+            dictCacheMap.put(key, detailMap);
+            for (DictionaryDetailDTO detail : dictionaryByCode.getDetails()) {
+                detailMap.put(detail.getValue(), detail.getName());
+            }
+            cacheNeedUpdate.put(key, false);
+        }
+        return dictCacheMap.get(key);
+    }
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key       字典的code
+     * @param detailKey 详情的值
+     * @return 详情名字
+     */
+    @Override
+    public String getCacheDictDetail(String key, int detailKey) {
+        return getCacheDict(key).get(detailKey);
+    }
+
+    /**
+     * 获取缓存数据
+     *
+     * @param key          字典的code
+     * @param detailKey    详情的值
+     * @param defaultValue 默认值
+     * @return 详情名字
+     */
+    @Override
+    public String getCacheDictDetail(String key, int detailKey, String defaultValue) {
+        String cacheDictDetail = getCacheDictDetail(key, detailKey);
+        if (cacheDictDetail == null) {
+            cacheDictDetail = defaultValue;
+        }
+        return cacheDictDetail;
+    }
 
     /**
      * 添加新的数据字典和明细项
@@ -48,17 +99,32 @@ public class DictionaryService implements IDictionaryService {
         // 获取创建后的数据
         final DictionaryDTO createdDTO = this.getDictionaryByCode(dictionaryDTO.getCode());
         createdDTO.setDetails(new ArrayList<>());
+        int defaultValue = createdDTO.getDefaultValue();
+
         boolean gotDefault = false;
         // 逐条创建明细
-        for (DictionaryDetailDTO detailDTO : dictionaryDTO.getDetails()) {
-            // 只有第一个default有效，后面的都设成False
-            if (!gotDefault && detailDTO.getIsDefault()) {
+        List<DictionaryDetailDTO> details = dictionaryDTO.getDetails();
+        for (int i = 0, detailsSize = details.size(); i < detailsSize; i++) {
+            DictionaryDetailDTO detailDTO = details.get(i);
+            detailDTO.setId(null);
+            // 设置order
+            detailDTO.setOrder(i);
+            // 寻找default的detail
+            if (defaultValue == detailDTO.getValue()) {
+                detailDTO.setDefault(true);
                 gotDefault = true;
             } else {
-                detailDTO.setIsDefault(false);
+                detailDTO.setDefault(false);
             }
             final DictionaryDetailDTO createdDetailDTO = this.addDictionaryDetailNoCheck(createdDTO.getId(), detailDTO);
             createdDTO.getDetails().add(createdDetailDTO);
+        }
+        // 如果都没设置默认项(或者设置的值不在给定的选项中)的话就设置第一个为默认项
+        if (!gotDefault && createdDTO.getDetails().size() != 0) {
+            DictionaryDetailDTO detailDTO = createdDTO.getDetails().get(0);
+            detailDTO.setDefault(true);
+            detailMapper.setDefault(detailDTO.getId());
+            createdDTO.setDefaultValue(defaultValue);
         }
         return createdDTO;
 
@@ -98,27 +164,24 @@ public class DictionaryService implements IDictionaryService {
     /**
      * 分页获取数据字典
      *
-     * @param curPage  当前页,1开始
-     * @param pageSize 页面大小
-     * @return 数据和分页信息
+     * @param pageSort@return 数据和分页信息
      */
     @Override
-    public PageWrapper<DictionaryDTO> listDictionary(long curPage, long pageSize) {
-        Page<Dictionary> page = new Page<>(curPage, pageSize);
-        QueryWrapper<Dictionary> wr = new QueryWrapper<Dictionary>().select("id");
+    public PageWrapper<DictionaryDTO> listDictionary(PageSort pageSort) {
+        Page<Dictionary> page = pageSort.getPage();
+        QueryWrapper<Dictionary> wr = new QueryWrapper<>();
+        wr = pageSort.buildQueryWrapper(wr, "name");
         dictMapper.selectPage(page, wr);
-        PageWrapper<DictionaryDTO> pageWrapper = PageWrapper.fromIPage(page);
         List<Dictionary> records = page.getRecords();
-        if (records != null && records.size() != 0) {
-            List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
-            for (Dictionary dict : records) {
-                DictionaryDTO dto = getDictionary(dict.getId());
-                dictDtoList.add(dto);
-            }
-            pageWrapper.setContent(dictDtoList);
+        List<DictionaryDTO> dictDtoList = new ArrayList<>(records.size());
+
+        for (Dictionary dict : records) {
+            DictionaryDTO dto = dict2dto(dict);
+            fillDetails(dto);
+            dictDtoList.add(dto);
         }
 
-        return pageWrapper;
+        return PageWrapper.fromList(page, dictDtoList);
     }
 
     /**
@@ -128,14 +191,24 @@ public class DictionaryService implements IDictionaryService {
      * @return 数据字典详细信息
      */
     @Override
+    @Transactional
     public DictionaryDTO getDictionary(long dictId) {
         Dictionary dictionary = dictMapper.selectById(dictId);
         if (dictionary == null) {
             throw HttpStatusException.notFound("Can't find Dictionary by id:" + dictId);
         }
         DictionaryDTO dto = dict2dto(dictionary);
+        fillDetails(dto);
+        return dto;
+    }
 
-        Stream<DictionaryDetailDTO> detailStream = getDictionaryDetailStream(dictId);
+    /**
+     * 填充一个数据字典的详情项,和默认项
+     *
+     * @param dto 需要填充的数据字典
+     */
+    private void fillDetails(DictionaryDTO dto) {
+        Stream<DictionaryDetailDTO> detailStream = getDictionaryDetailStream(dto.getId());
         List<DictionaryDetailDTO> detailDTOS = detailStream.collect(Collectors.toList());
         DictionaryDetailDTO defaultDetail = getDefaultDetail(detailDTOS.stream());
         if (defaultDetail != null) {
@@ -143,7 +216,6 @@ public class DictionaryService implements IDictionaryService {
             dto.setDefaultName(defaultDetail.getName());
         }
         dto.setDetails(detailDTOS);
-        return dto;
     }
 
 
@@ -154,7 +226,9 @@ public class DictionaryService implements IDictionaryService {
      * @return 修改后的数据
      */
     @Override
+    @Transactional
     public DictionaryDTO modifyDictionary(DictionaryDTO dictionaryDTO) {
+        this.cacheNeedUpdate.clear();
         Optional<Boolean> exists = dictMapper.exists(dictionaryDTO.getId());
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound("Can not found dict by id:" + dictionaryDTO.getId().toString());
@@ -176,16 +250,17 @@ public class DictionaryService implements IDictionaryService {
     @Override
     @Transactional
     public DictionaryDTO modifyDictionaryDetail(long dictId, DictionaryDetailDTO desiredDTO) {
+        this.cacheNeedUpdate.clear();
+
         DictionaryDetail existingDetail = detailMapper.selectById(desiredDTO.getId());
         if (existingDetail == null) {
             throw HttpStatusException.notFound();
         }
-        if (desiredDTO.getIsDefault() != null && !existingDetail.getDefaultItem() && desiredDTO.getIsDefault()) {
+        if (!existingDetail.getDefaultItem() && desiredDTO.isDefault()) {
             // 将原来的非默认属性改成默认属性，将原来的default设为False
             detailMapper.unSetDefault(dictId);
             detailMapper.setDefault(existingDetail.getId());
         }
-        desiredDTO.setIsDefault(null);
         DictionaryDetail dictionaryDetail = dto2Detail(dictId, desiredDTO);
         dictionaryDetail.updateBy(0L);
         detailMapper.updateById(dictionaryDetail);
@@ -198,8 +273,42 @@ public class DictionaryService implements IDictionaryService {
      * @param detailId 要删除的明细id
      */
     @Override
+    @Transactional
     public void deleteDictionaryDetail(long detailId) {
-        this.detailMapper.deleteByDictId(detailId);
+
+        this.cacheNeedUpdate.clear();
+        this.detailMapper.deleteById(detailId);
+    }
+
+    /**
+     * 对字典明细进行重排
+     *
+     * @param dictId 字典id
+     * @param idList 排序的id
+     * @return 排序后的顺序
+     */
+    @Override
+    public List<String> reorder(long dictId, List<Long> idList) {
+        // 1. 取出原有的列表
+//        QueryWrapper<DictionaryDetail> qw = new QueryWrapper<>();
+//        qw = qw.select("id", "order_value");
+//        qw = qw.eq("dictionary_id", dictId);
+        List<Long> oldOrders = detailMapper.selectIdByOrder(dictId);
+        SortedSet<Long> oldOrderSet = new TreeSet<>(oldOrders);
+        SortedSet<Long> newOrderSet = new TreeSet<>(idList);
+        if (!oldOrderSet.equals(newOrderSet)) {
+            throw HttpStatusException.badRequest("id列表有误!");
+        }
+        List<DictionaryDetail> toUpdate = new ArrayList<>(newOrderSet.size());
+        for (int i = 0, idListSize = idList.size(); i < idListSize; i++) {
+            Long id = idList.get(i);
+            DictionaryDetail dictionaryDetail = new DictionaryDetail();
+            dictionaryDetail.setId(id);
+            dictionaryDetail.setOrderValue(i);
+            toUpdate.add(dictionaryDetail);
+        }
+        detailMapper.updateOrderBatch(toUpdate);
+        return null;
     }
 
     /**
@@ -208,7 +317,10 @@ public class DictionaryService implements IDictionaryService {
      * @param dictId 要删除的数据字典id
      */
     @Override
+    @Transactional
     public void deleteDictionary(long dictId) {
+        this.cacheNeedUpdate.clear();
+
         // 1. 先删掉关联的字典明细
         // 2. 再把本体删掉
         this.detailMapper.deleteByDictId(dictId);
@@ -228,8 +340,7 @@ public class DictionaryService implements IDictionaryService {
             throw HttpStatusException.notFound();
         }
         DictionaryDTO dto = dict2dto(dictionary);
-        List<DictionaryDetailDTO> dictionaryDetails = this.getDictionaryDetails(dictionary.getId());
-        dto.setDetails(dictionaryDetails);
+        fillDetails(dto);
         return dto;
     }
 
@@ -250,7 +361,7 @@ public class DictionaryService implements IDictionaryService {
     }
 
     public DictionaryDetailDTO getDefaultDetail(Stream<DictionaryDetailDTO> stream) {
-        Optional<DictionaryDetailDTO> defaultOpt = stream.filter(DictionaryDetailDTO::getIsDefault).findFirst();
+        Optional<DictionaryDetailDTO> defaultOpt = stream.filter(DictionaryDetailDTO::isDefault).findFirst();
         return defaultOpt.orElse(null);
     }
 
@@ -279,8 +390,8 @@ public class DictionaryService implements IDictionaryService {
         detailDTO.setId(detail.getId());
         detailDTO.setValue(detail.getItemValue());
         detailDTO.setName(detail.getItemName());
-        detailDTO.setIsDefault(detail.getDefaultItem());
-        detailDTO.setShouldDisplay(detail.getDisplay());
+        detailDTO.setDefault(detail.getDefaultItem());
+        detailDTO.setHidden(detail.getHidden());
         detailDTO.setOrder(detail.getOrderValue());
         detailDTO.setCode(detail.getItemCode());
         return detailDTO;
@@ -289,8 +400,8 @@ public class DictionaryService implements IDictionaryService {
     private DictionaryDetail dto2Detail(Long dictId, DictionaryDetailDTO detailDTO) {
         DictionaryDetail dictionaryDetail = new DictionaryDetail();
         dictionaryDetail.setDictionaryId(dictId);
-        dictionaryDetail.setDisplay(detailDTO.getShouldDisplay());
-        dictionaryDetail.setDefaultItem(detailDTO.getIsDefault());
+        dictionaryDetail.setHidden(detailDTO.isHidden());
+        dictionaryDetail.setDefaultItem(detailDTO.isDefault());
         dictionaryDetail.setItemName(detailDTO.getName());
         dictionaryDetail.setItemValue(detailDTO.getValue());
         dictionaryDetail.setOrderValue(detailDTO.getOrder());

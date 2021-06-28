@@ -4,10 +4,7 @@ import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.LoginDTO;
-import dev.chenjr.attendance.service.dto.ResetPasswordDTO;
-import dev.chenjr.attendance.service.dto.RestResponse;
-import dev.chenjr.attendance.service.dto.TokenUidDTO;
+import dev.chenjr.attendance.service.dto.*;
 import dev.chenjr.attendance.service.dto.group.ForgetPasswordGroup;
 import dev.chenjr.attendance.service.dto.group.ResetPasswordGroup;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,16 +26,16 @@ import javax.validation.groups.Default;
 public class AuthenticationController {
     @Autowired
     IAccountService authenticationService;
-
+    
     @Autowired
     IAccountService accountService;
-
+    
     @Autowired
     ISmsService smsService;
-
+    
     @Autowired
     IUserService userService;
-
+    
     // @SecurityRequirements() 传入空数组清空全局的认证设定
     @PostMapping("/login")
     @SecurityRequirements
@@ -46,31 +43,40 @@ public class AuthenticationController {
     public RestResponse<TokenUidDTO> login(@RequestBody @Validated LoginDTO request) {
         // 尝试登录
         TokenUidDTO tokenUidDTO = authenticationService.loginAndCreateToken(request);
-        log.info("Login, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
+        log.debug("Login, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
         return RestResponse.okWithData(tokenUidDTO);
     }
-
+    
+    @PostMapping("/register")
+    @SecurityRequirements
+    @Operation(description = "注册")
+    public RestResponse<TokenUidDTO> register(@RequestBody @Validated RegisterRequest request) {
+        smsService.codeValidAndThrow(request.getPhone(), smsService.TYPE_REGISTER, request.getSmsCode());
+        TokenUidDTO token = accountService.register(request);
+        return RestResponse.okWithData(token);
+    }
+    
     @GetMapping("/token")
     @Operation(description = "获取新的token")
     public RestResponse<TokenUidDTO> refreshToken(
             @AuthenticationPrincipal @Parameter(hidden = true) User user,
             @RequestParam(defaultValue = "false") Boolean longTerm
     ) {
-        // 尝试登录
+        
         TokenUidDTO tokenUidDTO = new TokenUidDTO();
         tokenUidDTO.setToken(authenticationService.createToken(user, longTerm));
         tokenUidDTO.setUid(user.getId());
-        log.info("refresh, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
+        log.debug("refresh, return uid:" + tokenUidDTO.getUid() + tokenUidDTO.toString());
         return RestResponse.okWithData(tokenUidDTO);
     }
-
-
+    
+    
     // 暂时不需要logout, 客户端直接将token销毁即可
     @PostMapping("/logout")
     public RestResponse<?> logout(@RequestBody @Validated LoginDTO request) {
         return RestResponse.notImplemented();
     }
-
+    
     /**
      * 修改密码，放到这里，因为这个是对用户的层面的，要对多个account进行修改
      *
@@ -88,7 +94,7 @@ public class AuthenticationController {
         accountService.setUserPasswordWithSmsCode(user, resetPasswordDTO.getPassword(), resetPasswordDTO.getSmsCode());
         return RestResponse.ok();
     }
-
+    
     @PostMapping("/password")
     @SecurityRequirements
     @Operation(description = "修改**指定**用户密码/忘记密码，_要求先获取短信验证码_，type:`reset_password`")
@@ -96,9 +102,9 @@ public class AuthenticationController {
             @RequestBody @Validated({ForgetPasswordGroup.class, Default.class}) ResetPasswordDTO resetPasswordDTO
     ) {
         User user = userService.getUserByAccount(resetPasswordDTO.getPhone());
-
+        
         accountService.setUserPasswordWithSmsCode(user, resetPasswordDTO.getPassword(), resetPasswordDTO.getSmsCode());
-
+        
         return RestResponse.ok();
     }
 }

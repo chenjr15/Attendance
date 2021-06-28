@@ -1,24 +1,14 @@
 package dev.chenjr.attendance.service;
 
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.service.dto.CourseDTO;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 课程相关业务支持服务， 包含开课、选课、签到、签到日志、经验值查询功能等
  */
 public interface ICourseService extends IService {
 
-
-    /**
-     * 学生加入班课(通过课程id)
-     *
-     * @param uid      学生id
-     * @param courseId 课程id
-     */
-    void joinCourse(long uid, long courseId);
 
     /**
      * 学生加入班课(通过课程代码)
@@ -83,7 +73,7 @@ public interface ICourseService extends IService {
      * @param pageSort 分页&筛选&排序
      * @return 选课列表
      */
-    PageWrapper<CourseDTO> listStudentElectedCourses(long uid, PageSort pageSort);
+    PageWrapper<CourseDTO> listElectedCourses(long uid, PageSort pageSort);
 
     /**
      * 选择某个课程的所有学生
@@ -92,5 +82,31 @@ public interface ICourseService extends IService {
      * @param pageSort 分页&筛选&排序
      * @return 学生列表
      */
-    PageWrapper<UserDTO> getCourseStudentsById(long courseId, PageSort pageSort);
+    PageWrapper<CourseStudentDTO> getCourseStudentsById(long courseId, PageSort pageSort);
+
+    /**
+     * 修改课程信息
+     *
+     * @param courseDTO 修改的信息
+     * @return 修改后的dto
+     */
+    CourseDTO modifyCourse(CourseDTO courseDTO);
+
+    /**
+     * 更新课程封面
+     *
+     * @param courseId 课程id
+     * @param uploaded 上传的文件
+     * @return 新头像的url
+     */
+    String modifyAvatar(Long courseId, MultipartFile uploaded);
+
+    /**
+     * 获取某个老师教的课
+     *
+     * @param uid      老师id
+     * @param pageSort 分页&筛选&排序
+     * @return 课程列表
+     */
+    PageWrapper<CourseDTO> listTaughtCourse(long uid, PageSort pageSort);
 }

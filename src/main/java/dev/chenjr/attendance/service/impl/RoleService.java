@@ -1,17 +1,21 @@
 package dev.chenjr.attendance.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import dev.chenjr.attendance.dao.entity.Permission;
 import dev.chenjr.attendance.dao.entity.Role;
 import dev.chenjr.attendance.dao.entity.UserRole;
-import dev.chenjr.attendance.dao.mapper.RoleMapper;
-import dev.chenjr.attendance.dao.mapper.UserMapper;
-import dev.chenjr.attendance.dao.mapper.UserRoleMapper;
+import dev.chenjr.attendance.dao.mapper.*;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IRoleService;
+import dev.chenjr.attendance.service.dto.PageSort;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RoleDTO;
+import dev.chenjr.attendance.service.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +30,13 @@ public class RoleService implements IRoleService {
     
     @Autowired
     UserMapper userMapper;
+    
+    @Autowired
+    PermissionMapper permissionMapper;
+    @Autowired
+    RolePermissionMapper rolePermissionMapper;
+    @Autowired
+    UserService userService;
     
     /**
      * 列出所有角色
@@ -218,6 +229,35 @@ public class RoleService implements IRoleService {
         userRoleMapper.deleteRelation(roleId, userId);
         
         return getUserRole(userId);
+    }
+    
+    /**
+     * 获取角色下的所有用户
+     *
+     * @param roleId   角色id
+     * @param pageSort 分页
+     * @return 用户列表
+     */
+    @Override
+    public PageWrapper<UserDTO> getRoleUsers(long roleId, PageSort pageSort) {
+        Page<Long> page = pageSort.getPage();
+        page = userRoleMapper.getRoleUsers(roleId, page);
+        List<UserDTO> collect = new ArrayList<>(page.getRecords().size());
+        page.getRecords().stream().map(userService::getUser).forEachOrdered(collect::add);
+        return PageWrapper.fromList(page, collect);
+    }
+    
+    /**
+     * 获取角色下的所有权限
+     *
+     * @param roleId 角色id
+     * @return 权限列表
+     */
+    @Override
+    public PageWrapper<Permission> getRolePerms(long roleId) {
+        List<Long> permIdList = rolePermissionMapper.getRolePerms(roleId);
+        List<Permission> collect = permIdList.stream().map(permissionMapper::selectById).collect(Collectors.toList());
+        return PageWrapper.singlePage(collect);
     }
     
     private RoleDTO role2dto(Role role) {

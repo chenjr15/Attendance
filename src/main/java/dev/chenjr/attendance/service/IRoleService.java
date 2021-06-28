@@ -1,6 +1,10 @@
 package dev.chenjr.attendance.service;
 
+import dev.chenjr.attendance.dao.entity.Permission;
+import dev.chenjr.attendance.service.dto.PageSort;
+import dev.chenjr.attendance.service.dto.PageWrapper;
 import dev.chenjr.attendance.service.dto.RoleDTO;
+import dev.chenjr.attendance.service.dto.UserDTO;
 
 import java.util.List;
 
@@ -96,4 +100,21 @@ public interface IRoleService extends IService {
      * @param id 用户id
      */
     void initUser(Long id);
+    
+    /**
+     * 获取角色下的所有用户
+     *
+     * @param roleId   角色id
+     * @param pageSort 分页
+     * @return 用户列表
+     */
+    PageWrapper<UserDTO> getRoleUsers(long roleId, PageSort pageSort);
+    
+    /**
+     * 获取角色下的所有权限
+     *
+     * @param roleId 角色id
+     * @return 权限列表
+     */
+    PageWrapper<Permission> getRolePerms(long roleId);
 }

@@ -2,12 +2,15 @@ package dev.chenjr.attendance.filter;
 
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.exception.TokenException;
+import dev.chenjr.attendance.service.dto.RoleDTO;
+import dev.chenjr.attendance.service.impl.RoleService;
 import dev.chenjr.attendance.service.impl.UserService;
 import dev.chenjr.attendance.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -18,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -27,6 +31,8 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
     
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleService roleService;
     
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -47,8 +53,19 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
             throw new TokenException(HttpStatus.UNAUTHORIZED, "无效的token");
         }
         User user = userService.getUserById(uid);
+        List<RoleDTO> userRole = roleService.getUserRole(uid);
+        String[] roles = new String[userRole.size()];
+        for (int i = 0, userRoleSize = userRole.size(); i < userRoleSize; i++) {
+            RoleDTO roleDTO = userRole.get(i);
+            roles[i] = roleDTO.getCode();
+        }
+        log.info("角色：{}", (Object[]) roles);
+        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(roles);
+        if (userRole.size() == 0) {
+            authorityList = AuthorityUtils.NO_AUTHORITIES;
+        }
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
+                new UsernamePasswordAuthenticationToken(user, null, authorityList);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
         

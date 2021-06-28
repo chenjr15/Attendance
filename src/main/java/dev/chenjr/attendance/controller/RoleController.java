@@ -1,11 +1,12 @@
 package dev.chenjr.attendance.controller;
 
+import dev.chenjr.attendance.dao.entity.Permission;
 import dev.chenjr.attendance.service.IRoleService;
-import dev.chenjr.attendance.service.dto.RestResponse;
-import dev.chenjr.attendance.service.dto.RoleDTO;
+import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,27 @@ public class RoleController {
         
         RoleDTO role = roleService.getRole(roleId);
         return RestResponse.okWithData(role);
+    }
+    
+    @GetMapping("/{roleId}/users")
+    @Operation(description = "获取某个角色下的用户")
+    public RestResponse<PageWrapper<UserDTO>> getRoleUsers(
+            @PathVariable long roleId,
+            @ParameterObject PageSort pageSort
+    ) {
+        
+        PageWrapper<UserDTO> roles = roleService.getRoleUsers(roleId, pageSort);
+        return RestResponse.okWithData(roles);
+    }
+    
+    @GetMapping("/{roleId}/perms")
+    @Operation(description = "获取某个角色下的权限")
+    public RestResponse<PageWrapper<Permission>> getRolePerms(
+            @PathVariable long roleId
+    ) {
+        
+        PageWrapper<Permission> roles = roleService.getRolePerms(roleId);
+        return RestResponse.okWithData(roles);
     }
     
     @PostMapping("")

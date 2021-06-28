@@ -1,6 +1,9 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.RolePermission;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * <p>
@@ -11,5 +14,6 @@ import dev.chenjr.attendance.dao.entity.RolePermission;
  * @since 2021-04-11
  */
 public interface RolePermissionMapper extends MyBaseMapper<RolePermission> {
-
+    @Select("SELECT user_id FROM role_permission WHERE role_id=#{roleId} ")
+    List<Long> getRolePerms(long roleId);
 }

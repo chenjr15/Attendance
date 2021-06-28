@@ -42,6 +42,8 @@ public class UserService implements IUserService {
     @Autowired
     RoleService roleService;
     
+    @Autowired
+    OrganizationService organizationService;
     
     @Override
     public User getUserById(long id) {
@@ -214,7 +216,6 @@ public class UserService implements IUserService {
         desiredUser.setId(desiredDto.getId());
         //desiredUser.setPhone(desiredDto.getPhone());
         desiredUser.setRealName(desiredDto.getRealName());
-        // TODO 性别类型
         desiredUser.setGender(desiredDto.getGenderValue());
         desiredUser.setSchoolMajor(desiredDto.getSchoolMajorID());
         desiredUser.setAcademicId(desiredDto.getAcademicId());
@@ -268,7 +269,13 @@ public class UserService implements IUserService {
         dto.setAcademicId(user.getAcademicId());
         dto.setLoginName(user.getLoginName());
         dto.setRealName(user.getRealName());
-        dto.setSchoolMajorID(user.getSchoolMajor());
+        Long schoolMajor = user.getSchoolMajor();
+        if (schoolMajor != null) {
+            dto.setSchoolMajorID(schoolMajor);
+            String orgName = organizationService.getOrgName(schoolMajor);
+            dto.setSchoolMajorName(orgName);
+        }
+        
         String avatar = user.getAvatar();
         String avatarUrl = storageService.getFullUrl(avatar);
         dto.setAvatar(avatarUrl);

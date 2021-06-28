@@ -226,7 +226,7 @@ public class RoleService implements IRoleService {
     @Override
     public List<RoleDTO> removeRoleOfUser(long userId, long roleId) {
         Optional<Boolean> exists = userRoleMapper.existsRelation(roleId, userId);
-        if (exists.orElse(false)) {
+        if (!exists.orElse(false)) {
             throw HttpStatusException.notFound("该用户没有该角色！");
         }
         userRoleMapper.deleteRelation(roleId, userId);

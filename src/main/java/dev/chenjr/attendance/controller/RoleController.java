@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/role")
+@RequestMapping("/roles")
 @Tag(name = "角色", description = "权限、角色")
 public class RoleController {
     

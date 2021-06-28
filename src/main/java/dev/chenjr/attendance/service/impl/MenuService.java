@@ -9,15 +9,17 @@ import dev.chenjr.attendance.service.dto.MenuDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MenuService implements IMenuService {
   
   @Autowired
   MenuMapper menuMapper;
+  
+  @Autowired
+  RoleService roleService;
+  
   
   /**
    * 返回整个目录树
@@ -38,10 +40,16 @@ public class MenuService implements IMenuService {
    */
   @Override
   public List<MenuDTO> listUserMenu(User user) {
-    return getSubMenus(0);
+    Collection<Long> menuId = roleService.getUserMenuId(user.getId());
+    return getSubMenus(0, menuId);
   }
   
+  
   private List<MenuDTO> getSubMenus(long id) {
+    return this.getSubMenus(id, new TreeSet<>());
+  }
+  
+  private List<MenuDTO> getSubMenus(long id, Collection<Long> allowedId) {
     List<Menu> children = menuMapper.getChildren(id);
     List<MenuDTO> menuList = new ArrayList<>(children.size());
     
@@ -49,10 +57,14 @@ public class MenuService implements IMenuService {
       if (child.getId() == id) {
         continue;
       }
+      if (!allowedId.contains(child.getId())) {
+        // 不允许该权限，pass
+        continue;
+      }
       MenuDTO childDTO = menu2dto(child);
       
       /* 递归 */
-      List<MenuDTO> subMenus = getSubMenus(child.getId());
+      List<MenuDTO> subMenus = getSubMenus(child.getId(), allowedId);
       
       childDTO.setSubs(subMenus);
       childDTO.setChildrenCount(subMenus.size());
@@ -61,7 +73,6 @@ public class MenuService implements IMenuService {
     
     return menuList;
   }
-  
   
   /**
    * 创建菜单

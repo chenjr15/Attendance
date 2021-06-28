@@ -1,11 +1,8 @@
 package dev.chenjr.attendance.service;
 
-import dev.chenjr.attendance.dao.entity.Permission;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.RoleDTO;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -111,10 +108,44 @@ public interface IRoleService extends IService {
     PageWrapper<UserDTO> getRoleUsers(long roleId, PageSort pageSort);
     
     /**
-     * 获取角色下的所有权限
+     * 获取角色下的所有菜单
      *
      * @param roleId 角色id
-     * @return 权限列表
+     * @return 菜单列表
      */
-    PageWrapper<Permission> getRolePerms(long roleId);
+    PageWrapper<MenuDTO> getRoleMenus(long roleId);
+    
+    /**
+     * 给某个角色增加菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id
+     */
+    void addMenuToRole(long roleId, long menuId);
+    
+    /**
+     * 给某个角色批量增加菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id列表
+     */
+    void addMenuToRole(long roleId, List<Long> menuId);
+    
+    /**
+     * 批量删除角色可以访问的菜单
+     *
+     * @param roleId   角色id
+     * @param menuList 菜单id列表
+     */
+    void removeMenuToRole(long roleId, List<Long> menuList);
+    
+    /**
+     * 删除角色的菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id
+     */
+    void removeMenuToRole(long roleId, long menuId);
+    
+    Collection<Long> getUserMenuId(Long id);
 }

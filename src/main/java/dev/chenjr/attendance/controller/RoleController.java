@@ -1,9 +1,9 @@
 package dev.chenjr.attendance.controller;
 
-import dev.chenjr.attendance.dao.entity.Permission;
 import dev.chenjr.attendance.service.IRoleService;
 import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -21,12 +21,15 @@ public class RoleController {
     @Autowired
     IRoleService roleService;
     
+    @Operation(description = "获取所有角色")
+    @SecurityRequirements
     @GetMapping("")
     public RestResponse<List<RoleDTO>> listAllRole() {
         List<RoleDTO> roleDTOS = roleService.listRole();
         return RestResponse.okWithData(roleDTOS);
     }
     
+    @Operation(description = "获取角色信息")
     @GetMapping("/{roleId}")
     public RestResponse<RoleDTO> getRole(
             @PathVariable long roleId
@@ -47,16 +50,64 @@ public class RoleController {
         return RestResponse.okWithData(roles);
     }
     
-    @GetMapping("/{roleId}/perms")
-    @Operation(description = "获取某个角色下的权限")
-    public RestResponse<PageWrapper<Permission>> getRolePerms(
+    @GetMapping("/{roleId}/menus")
+    @Operation(description = "获取某个角色可访问的菜单")
+    public RestResponse<PageWrapper<MenuDTO>> getRoleMenus(
             @PathVariable long roleId
     ) {
         
-        PageWrapper<Permission> roles = roleService.getRolePerms(roleId);
+        PageWrapper<MenuDTO> roles = roleService.getRoleMenus(roleId);
         return RestResponse.okWithData(roles);
     }
     
+    @PostMapping("/{roleId}/menus/{menuId}")
+    @Operation(description = "增加某个角色可以访问的菜单项")
+    public RestResponse<?> getRoleMenus(
+            @PathVariable long roleId,
+            @PathVariable long menuId
+    
+    ) {
+        
+        roleService.addMenuToRole(roleId, menuId);
+        return RestResponse.ok();
+    }
+    
+    @PostMapping("/{roleId}/menus")
+    @Operation(description = "批量增加某个角色可以访问的菜单项")
+    public RestResponse<?> getRoleMenus(
+            @PathVariable long roleId,
+            @RequestBody List<Long> menuList
+    
+    ) {
+        
+        roleService.addMenuToRole(roleId, menuList);
+        return RestResponse.ok();
+    }
+    
+    @DeleteMapping("/{roleId}/menus")
+    @Operation(description = "批量删除某个角色可以访问的菜单项")
+    public RestResponse<?> deleteRoleMenus(
+            @PathVariable long roleId,
+            @RequestBody List<Long> menuList
+    
+    ) {
+        roleService.removeMenuToRole(roleId, menuList);
+        return RestResponse.ok();
+    }
+    
+    @DeleteMapping("/{roleId}/menus/{menuId}")
+    @Operation(description = "增加某个角色可以访问的菜单项")
+    public RestResponse<?> deleteRoleMenus(
+            @PathVariable long roleId,
+            @PathVariable long menuId
+    
+    ) {
+        
+        roleService.removeMenuToRole(roleId, menuId);
+        return RestResponse.ok();
+    }
+    
+    @Operation(description = "创建角色")
     @PostMapping("")
     public RestResponse<RoleDTO> createRole(
             @RequestBody RoleDTO toCreate
@@ -65,7 +116,7 @@ public class RoleController {
         return RestResponse.okWithData(created);
     }
     
-    
+    @Operation(description = "修改角色")
     @PatchMapping("/{roleId}")
     public RestResponse<RoleDTO> modifyRole(
             @PathVariable long roleId,
@@ -76,6 +127,7 @@ public class RoleController {
         return RestResponse.okWithData(modified);
     }
     
+    @Operation(description = "删除")
     @DeleteMapping("/{roleId}")
     public RestResponse<?> deleteRole(
             @PathVariable long roleId
@@ -84,6 +136,7 @@ public class RoleController {
         return RestResponse.ok();
     }
     
+    @Operation(description = "获取某个用户的角色")
     @GetMapping("/users/{userId}")
     public RestResponse<List<RoleDTO>> getUserRole(
             @PathVariable long userId
@@ -93,7 +146,7 @@ public class RoleController {
     }
     
     @Operation(description = "给某个用户设置某个单一的角色，设置后仅有一种角色")
-    @PutMapping("/users/{userId}/{roleId}")
+    @PutMapping("/{roleId}/users/{userId}")
     public RestResponse<List<RoleDTO>> setSingleRole(
             @PathVariable long userId,
             @PathVariable long roleId
@@ -103,7 +156,8 @@ public class RoleController {
         return RestResponse.okWithData(roleLIst);
     }
     
-    @PostMapping("/users/{userId}/{roleId}")
+    @Operation(description = "给用户设置角色")
+    @PostMapping("/{roleId}/users/{userId}")
     public RestResponse<List<RoleDTO>> getUserRole(
             @PathVariable long userId,
             @PathVariable long roleId
@@ -113,7 +167,8 @@ public class RoleController {
         return RestResponse.okWithData(roleLIst);
     }
     
-    @DeleteMapping("/users/{userId}/{roleId}")
+    @Operation(description = "给用户删除角色")
+    @DeleteMapping("/{roleId}/users/{userId}")
     public RestResponse<List<RoleDTO>> removeUserRole(
             @PathVariable long userId,
             @PathVariable long roleId

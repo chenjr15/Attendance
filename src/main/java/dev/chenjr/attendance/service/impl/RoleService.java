@@ -1,24 +1,22 @@
 package dev.chenjr.attendance.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import dev.chenjr.attendance.dao.entity.Permission;
 import dev.chenjr.attendance.dao.entity.Role;
+import dev.chenjr.attendance.dao.entity.RoleMenu;
 import dev.chenjr.attendance.dao.entity.UserRole;
-import dev.chenjr.attendance.dao.mapper.*;
+import dev.chenjr.attendance.dao.mapper.RoleMapper;
+import dev.chenjr.attendance.dao.mapper.RoleMenuMapper;
+import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.dao.mapper.UserRoleMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IRoleService;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.RoleDTO;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,11 +32,22 @@ public class RoleService implements IRoleService {
     UserMapper userMapper;
     
     @Autowired
-    PermissionMapper permissionMapper;
-    @Autowired
-    RolePermissionMapper rolePermissionMapper;
+    RoleMenuMapper roleMenuMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    MenuService menuService;
+    
+    @Override
+    public Collection<Long> getUserMenuId(Long uid) {
+        List<Long> userRole = userRoleMapper.getUserRole(uid);
+        TreeSet<Long> combined = new TreeSet<>();
+        for (Long roleId : userRole) {
+            List<Long> roleMenus = roleMenuMapper.getRoleMenus(roleId);
+            combined.addAll(roleMenus);
+        }
+        return combined;
+    }
     
     /**
      * 列出所有角色
@@ -251,16 +260,71 @@ public class RoleService implements IRoleService {
     }
     
     /**
-     * 获取角色下的所有权限
+     * 获取角色下的所有可访问的菜单
      *
      * @param roleId 角色id
-     * @return 权限列表
+     * @return 菜单列表
      */
     @Override
-    public PageWrapper<Permission> getRolePerms(long roleId) {
-        List<Long> permIdList = rolePermissionMapper.getRolePerms(roleId);
-        List<Permission> collect = permIdList.stream().map(permissionMapper::selectById).collect(Collectors.toList());
+    public PageWrapper<MenuDTO> getRoleMenus(long roleId) {
+        List<Long> permIdList = roleMenuMapper.getRoleMenus(roleId);
+        List<MenuDTO> collect = permIdList.stream().map(menuService::getMenu).collect(Collectors.toList());
         return PageWrapper.singlePage(collect);
+    }
+    
+    /**
+     * 给某个角色增加菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id
+     */
+    @Override
+    public void addMenuToRole(long roleId, long menuId) {
+        Boolean exists = roleMenuMapper.exists(roleId, menuId);
+        if (exists != null) {
+            return;
+        }
+        RoleMenu roleMenu = new RoleMenu(menuId, roleId);
+        roleMenuMapper.insert(roleMenu);
+    }
+    
+    /**
+     * 给某个角色批量增加菜单访问权限
+     *
+     * @param roleId   角色id
+     * @param menuList 菜单id列表
+     */
+    @Override
+    @Transactional
+    public void addMenuToRole(long roleId, List<Long> menuList) {
+        for (Long menuId : menuList) {
+            this.addMenuToRole(roleId, menuId);
+        }
+    }
+    
+    /**
+     * 批量删除角色可以访问的菜单
+     *
+     * @param roleId   角色id
+     * @param menuList 菜单id列表
+     */
+    @Override
+    @Transactional
+    public void removeMenuToRole(long roleId, List<Long> menuList) {
+        for (Long menuId : menuList) {
+            this.removeMenuToRole(roleId, menuId);
+        }
+    }
+    
+    /**
+     * 删除角色的菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id
+     */
+    @Override
+    public void removeMenuToRole(long roleId, long menuId) {
+        roleMenuMapper.delete(roleId, menuId);
     }
     
     private RoleDTO role2dto(Role role) {

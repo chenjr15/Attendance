@@ -29,7 +29,7 @@ public interface UserRoleMapper extends MyBaseMapper<UserRole> {
     Optional<Boolean> existsRelation(long roleId, long userId);
     
     @Delete("DELETE  FROM user_role WHERE role_id=#{roleId} AND user_id=#{userId} limit 1 ")
-    Optional<Boolean> deleteRelation(long roleId, long userId);
+    void deleteRelation(long roleId, long userId);
     
     @Select("SELECT role_id FROM user_role WHERE user_id=#{userId}")
     List<Long> getUserRole(long userId);

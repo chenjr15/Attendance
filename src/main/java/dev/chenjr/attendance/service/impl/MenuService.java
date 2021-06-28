@@ -9,7 +9,10 @@ import dev.chenjr.attendance.service.dto.MenuDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MenuService implements IMenuService {
@@ -46,7 +49,7 @@ public class MenuService implements IMenuService {
   
   
   private List<MenuDTO> getSubMenus(long id) {
-    return this.getSubMenus(id, new TreeSet<>());
+    return this.getSubMenus(id, null);
   }
   
   private List<MenuDTO> getSubMenus(long id, Collection<Long> allowedId) {
@@ -57,7 +60,7 @@ public class MenuService implements IMenuService {
       if (child.getId() == id) {
         continue;
       }
-      if (!allowedId.contains(child.getId())) {
+      if (allowedId != null && !allowedId.contains(child.getId())) {
         // 不允许该权限，pass
         continue;
       }

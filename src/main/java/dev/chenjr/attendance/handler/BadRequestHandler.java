@@ -10,6 +10,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,7 +31,7 @@ import java.util.TreeMap;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestHandler {
     private static final String BAD_ARGUMENT_MESSAGE = "参数有误！";
-
+    
     /**
      * TODO extends  ResponseEntityExceptionHandler
      * see: org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
@@ -40,10 +41,10 @@ public class BadRequestHandler {
         List<FieldError> fieldErrors = ex.getFieldErrors();
         TreeMap<String, String> errorMap = new TreeMap<>();
         fieldErrors.forEach(fieldError -> errorMap.put(fieldError.getField(), fieldError.getDefaultMessage()));
-
+        
         return RestResponse.errorWithData(HttpStatus.BAD_REQUEST, request, BAD_ARGUMENT_MESSAGE, errorMap);
     }
-
+    
     /**
      * 针对http状态码异常的通用方法，通过ResponseEntity来处理
      *
@@ -55,19 +56,20 @@ public class BadRequestHandler {
     public ResponseEntity<RestResponse<?>> handleHttpStatusException(HttpStatusException ex, HttpServletRequest request) {
         RestResponse<?> error = RestResponse.error(ex.getStatus(), request, ex.getMessage());
         return new ResponseEntity<>(error, ex.getStatus());
-
+        
     }
-
+    
     @Operation(hidden = true)
     @ExceptionHandler({
             JsonParseException.class,
             SuperException.class,
             MethodArgumentTypeMismatchException.class,
             AuthenticationException.class,
-            MaxUploadSizeExceededException.class
+            MaxUploadSizeExceededException.class,
+            HttpMessageNotReadableException.class
     })
     public RestResponse<?> handleManyException(Exception ex, HttpServletRequest request) {
-
+        
         log.error("handleManyException:{},{}", request.toString(), ex.getMessage());
         RestResponse<?> error = RestResponse.error(HttpStatus.BAD_REQUEST, request, ex.getMessage());
         if (ex instanceof JsonParseException) {
@@ -75,6 +77,6 @@ public class BadRequestHandler {
         }
         return error;
     }
-
-
+    
+    
 }

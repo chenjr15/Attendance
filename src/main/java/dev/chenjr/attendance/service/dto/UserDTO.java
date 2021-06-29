@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -29,12 +30,13 @@ public class UserDTO {
     @Schema(description = "性别中文名")
     private String gender;
     @Schema(description = "性别代码(数据字典中的)")
-    private Integer genderValue;
+    private int genderValue;
     
     @Email
     private String email;
     
     @PhoneNumber
+    @NotNull
     private String phone;
     
     @Schema(description = "学工号")

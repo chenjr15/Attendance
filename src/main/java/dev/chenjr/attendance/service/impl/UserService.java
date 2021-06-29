@@ -128,10 +128,16 @@ public class UserService implements IUserService {
     @Transactional
     public UserDTO createAndInitUser(UserDTO dto) {
         User user = dto2user(dto);
-        this.createUser(user);
+        user = this.createUser(user);
         dto.setId(user.getId());
         accountService.initUser(dto.getId());
-        roleService.initUser(dto.getId());
+        if (dto.getRoles() == null || dto.getRoles().size() == 0) {
+            
+            roleService.initUser(dto.getId());
+        } else {
+            List<Long> roleId = dto.getRoles().stream().map(RoleDTO::getId).collect(Collectors.toList());
+            roleService.setUserRoles(dto.getId(), roleId);
+        }
         return getUser(user.getId());
     }
     
@@ -306,6 +312,7 @@ public class UserService implements IUserService {
         user.setEmail(dto.getEmail());
         user.setRealName(dto.getRealName());
         user.setLoginName(dto.getLoginName());
+        user.setGender(dto.getGenderValue());
         return user;
     }
 }

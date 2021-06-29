@@ -156,4 +156,21 @@ public interface IRoleService extends IService {
      * @param menuList 菜单id列表
      */
     void setRoleMenus(long roleId, List<Long> menuList);
+    
+    /**
+     * 给某个用户设置的角色，设置后仅有给定的角色
+     *
+     * @param userId  用户id
+     * @param roleIds 角色列表
+     * @return 完整角色列表
+     */
+    List<RoleDTO> setUserRoles(long userId, List<Long> roleIds);
+    
+    /**
+     * 给用户添加角色
+     *
+     * @param userId 用户id
+     * @param roleId 角色
+     */
+    void addRoleToUser(long userId, Long roleId);
 }

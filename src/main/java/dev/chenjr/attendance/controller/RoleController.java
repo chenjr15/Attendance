@@ -157,16 +157,6 @@ public class RoleController {
         return RestResponse.okWithData(role);
     }
     
-    @Operation(description = "给某个用户设置某个单一的角色，设置后仅有一种角色")
-    @PutMapping("/{roleId}/users/{userId}")
-    public RestResponse<List<RoleDTO>> setSingleRole(
-            @PathVariable long userId,
-            @PathVariable long roleId
-    
-    ) {
-        List<RoleDTO> roleLIst = roleService.setUserSingleRole(userId, roleId);
-        return RestResponse.okWithData(roleLIst);
-    }
     
     @Operation(description = "给用户设置角色")
     @PostMapping("/{roleId}/users/{userId}")
@@ -190,4 +180,14 @@ public class RoleController {
         return RestResponse.okWithData(roleLIst);
     }
     
+    @Operation(description = "给某个用户设置的角色，设置后仅有给定的角色")
+    @PutMapping("/users/{userId}")
+    public RestResponse<List<RoleDTO>> setUserRoles(
+            @PathVariable long userId,
+            @RequestBody List<Long> roleIds
+    
+    ) {
+        List<RoleDTO> roleLIst = roleService.setUserRoles(userId, roleIds);
+        return RestResponse.okWithData(roleLIst);
+    }
 }

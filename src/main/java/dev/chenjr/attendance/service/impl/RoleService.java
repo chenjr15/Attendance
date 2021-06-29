@@ -227,10 +227,7 @@ public class RoleService implements IRoleService {
     @Transactional
     public List<RoleDTO> setUserSingleRole(long userId, long roleId) {
         userRoleMapper.removeAllRole(userId);
-        UserRole userRole = new UserRole();
-        userRole.setUserId(userId);
-        userRole.setRoleId(roleId);
-        userRoleMapper.insert(userRole);
+        userRoleMapper.insert(new UserRole(userId, roleId));
         return getUserRole(userId);
     }
     
@@ -293,8 +290,7 @@ public class RoleService implements IRoleService {
         if (exists != null) {
             return;
         }
-        RoleMenu roleMenu = new RoleMenu(menuId, roleId);
-        roleMenuMapper.insert(roleMenu);
+        roleMenuMapper.insert(new RoleMenu(menuId, roleId));
     }
     
     /**
@@ -351,15 +347,60 @@ public class RoleService implements IRoleService {
         Set<Long> newSet = new HashSet<>(newMenus);
         for (Long oldMenuId : oldMenus) {
             if (!newSet.contains(oldMenuId)) {
-                this.removeMenuToRole(roleId, oldMenuId);
+                roleMenuMapper.delete(roleId, oldMenuId);
             }
         }
         for (Long newMenuId : newMenus) {
             if (!oldSet.contains(newMenuId)) {
-                this.addMenuToRole(roleId, newMenuId);
+                roleMenuMapper.insert(new RoleMenu(newMenuId, roleId));
             }
         }
         
+    }
+    
+    /**
+     * 给用户添加角色
+     *
+     * @param userId 用户id
+     * @param roleId 角色
+     */
+    @Override
+    public void addRoleToUser(long userId, Long roleId) {
+        Optional<Boolean> existsRelation = userRoleMapper.existsRelation(roleId, userId);
+        if (existsRelation.orElse(false)) {
+            return;
+        }
+        userRoleMapper.insert(new UserRole(userId, roleId));
+    }
+    
+    /**
+     * 给某个用户设置的角色，设置后仅有给定的角色
+     *
+     * @param userId   用户id
+     * @param newRoles 角色列表
+     * @return 完整角色列表
+     */
+    @Override
+    public List<RoleDTO> setUserRoles(long userId, List<Long> newRoles) {
+        Optional<Boolean> exists = userMapper.exists(userId);
+        if (!exists.isPresent()) {
+            throw HttpStatusException.notFound("找不到用户!");
+        }
+        List<Long> oldRoles = userRoleMapper.getUserRole(userId);
+        
+        Set<Long> oldSet = new HashSet<>(oldRoles);
+        Set<Long> newSet = new HashSet<>(newRoles);
+        for (Long oldRoleId : oldRoles) {
+            if (!newSet.contains(oldRoleId)) {
+                userRoleMapper.deleteRelation(oldRoleId, userId);
+            }
+        }
+        for (Long newRoleId : newRoles) {
+            if (!oldSet.contains(newRoleId)) {
+                userRoleMapper.insert(new UserRole(userId, newRoleId));
+            }
+        }
+        return this.getUserRole(userId);
     }
     
     private RoleDTO role2dto(Role role) {

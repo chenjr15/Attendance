@@ -4,6 +4,7 @@ import dev.chenjr.attendance.filter.JwtAuthTokenFilter;
 import dev.chenjr.attendance.handler.AuthenticationFailHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // swagger
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers(SYSTEM_WHITELIST).permitAll()
+                .antMatchers(HttpMethod.GET, ALLOW_GET).permitAll()
                 // 假定一个order
                 .antMatchers("/order").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")    //user角色和 admin角色都可以访问
                 //admin角色可以访问
@@ -88,25 +90,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v3/api-docs",
             "/webjars/**"
     };
+    public static final String[] ALLOW_GET = {
+            "/dictionaries/code/**",
+            "/roles",
+            "/",
+            "/echo",
+            "/version",
+            "/favicon.ico",
+            "/avatar/**",
+            "/randomString",
+            "/randomNumberString",
+            "/accounts/unique/**"
+    };
     
     // System WHITELIST
     public static final String[] SYSTEM_WHITELIST = {
-            "/favicon.ico",
-            "/avatar/**",
+            
             "/auth/login",
             "/auth/register",
             "/auth/password",
             "/oauth/callback/**",
             "/users/signup",
             "/auth/password/*",
-            "/randomString",
-            "/randomNumberString",
-            "/sms/**",
-            "/",
-            "/echo",
-            "/version",
-            "/account/unique/**",
-            "/roles"
+            "/sms/**"
+        
     };
     
     

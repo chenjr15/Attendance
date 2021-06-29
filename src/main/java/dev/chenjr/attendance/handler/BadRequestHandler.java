@@ -6,6 +6,7 @@ import dev.chenjr.attendance.exception.SuperException;
 import dev.chenjr.attendance.service.dto.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,10 @@ import java.util.TreeMap;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestHandler {
+    
+    @Value("${spring.servlet.multipart.max-file-size:1MB}")
+    String maxFileSize;
+    
     private static final String BAD_ARGUMENT_MESSAGE = "参数有误！";
     
     /**
@@ -74,6 +79,8 @@ public class BadRequestHandler {
         RestResponse<?> error = RestResponse.error(HttpStatus.BAD_REQUEST, request, ex.getMessage());
         if (ex instanceof JsonParseException) {
             error.message = "Json 格式化错误";
+        } else if (ex instanceof MaxUploadSizeExceededException) {
+            error.message = "文件太大了，不可以超过" + maxFileSize + "哦";
         }
         return error;
     }

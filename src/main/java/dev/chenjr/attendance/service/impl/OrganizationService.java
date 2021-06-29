@@ -15,6 +15,7 @@ import dev.chenjr.attendance.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -249,6 +250,21 @@ public class OrganizationService implements IOrganizationService {
         organizationMapper.deleteById(orgId);
     }
     
+    /**
+     * 批量删除
+     *
+     * @param orgIds 组织结构id
+     */
+    @Override
+    @Transactional
+    public void delete(List<Long> orgIds) {
+        
+        for (Long orgId : orgIds) {
+            delete(orgId);
+        }
+        
+        
+    }
     
     private Organization dto2Organization(OrganizationDTO orgDTO) {
         Organization newOne = new Organization();

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/organizations")
@@ -78,6 +80,16 @@ public class OrganizationController {
             @PathVariable long orgId) {
         
         organizationService.delete(orgId);
+        
+        return RestResponse.okWithMsg("Deleted");
+    }
+    
+    @DeleteMapping("")
+    @Operation(description = "批量删除指定节点")
+    public RestResponse<?> delOrg(
+            @RequestBody List<Long> orgIds) {
+        
+        organizationService.delete(orgIds);
         
         return RestResponse.okWithMsg("Deleted");
     }

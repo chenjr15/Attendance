@@ -115,7 +115,7 @@ public class OrganizationService implements IOrganizationService {
         QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
                 .eq("parent_id", organization.getId());
         List<Organization> childrenRecords = organizationMapper.selectList(wr);
-//        log.info("childrenRecords:{}", childrenRecords);
+        log.debug("childrenRecords:{}", childrenRecords);
         if (childrenRecords != null && childrenRecords.size() != 0) {
             List<OrganizationDTO> orgChildren = new ArrayList<>(childrenRecords.size());
             for (Organization child : childrenRecords) {

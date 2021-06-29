@@ -68,7 +68,7 @@ public class UserService implements IUserService {
     public User getUserByPhone(String phone) {
         User user = userMapper.getByPhone(phone);
         if (user == null) {
-            log.info("User not found by phone.");
+            log.error("User not found by phone.");
         }
         return user;
     }

@@ -63,7 +63,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
                 RoleDTO roleDTO = userRole.get(i);
                 roles[i] = roleDTO.getCode();
             }
-            //log.info("角色：{},roles:{}", userRole, roles);
+            log.debug("角色：{},roles:{}", userRole, roles);
             authorityList = AuthorityUtils.createAuthorityList(roles);
         }
         UsernamePasswordAuthenticationToken authenticationToken =

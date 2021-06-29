@@ -30,8 +30,8 @@ public class SmsService implements ISmsService {
     long expireTime = 120;
     @Autowired
     private ICacheService cacheService;
-
-
+    
+    
     /**
      * 发送验证码 指定手机号和类型
      *
@@ -58,9 +58,9 @@ public class SmsService implements ISmsService {
         // 尝试发送请求
         try {
             sendSmsResponse = smsClient.sendSms(sendSmsRequest);
-            log.info(sendSmsResponse.toString());
+            log.debug(sendSmsResponse.toString());
             String msg = sendSmsResponse.getBody().getMessage();
-            log.info("SMS message" + msg);
+            log.debug("SMS message" + msg);
             retCode = sendSmsResponse.getBody().getCode();
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +70,7 @@ public class SmsService implements ISmsService {
         storeCode(phone, type, smsCode);
         return "OK".equals(retCode);
     }
-
+    
     /**
      * 获取验证码 指定手机号和类型
      *
@@ -82,20 +82,20 @@ public class SmsService implements ISmsService {
     public String getSmsCodeTes(String phone, String type) {
         return this.getCode(phone, type);
     }
-
+    
     private String getCode(String phone, String type) {
-
+        
         String typeHashName = getKeyNameOfTypePhone(type, phone);
         return cacheService.getValue(typeHashName);
     }
-
+    
     private String storeCode(String phone, String type, String code) {
         String typeHashName = getKeyNameOfTypePhone(type, phone);
         cacheService.setValue(typeHashName, code, expireTime);
         return code;
     }
-
-
+    
+    
     /**
      * 判断验证码是否有效，匹配、过期
      *
@@ -108,14 +108,14 @@ public class SmsService implements ISmsService {
     public boolean codeValid(String phone, String type, String code) {
         return Objects.equals(getCode(phone, type), code);
     }
-
+    
     @Override
     public void codeValidAndThrow(String phone, String type, String code) {
         if (!Objects.equals(getCode(phone, type), code)) {
             throw new CodeMismatch();
         }
     }
-
+    
     @Bean
     public Client createClient(
             @Value("${aliyun.sms.accessKeyId}") String accessKeyId,
@@ -129,7 +129,7 @@ public class SmsService implements ISmsService {
         config.endpoint = "dysmsapi.aliyuncs.com";
         return new com.aliyun.dysmsapi20170525.Client(config);
     }
-
+    
     public String getKeyNameOfTypePhone(String type, String phone) {
         phone = phone.replaceAll("[+-]", "_");
         return String.format("SMS_CODE_%s_%s", type, phone);

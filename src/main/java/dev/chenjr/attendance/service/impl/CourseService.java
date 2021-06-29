@@ -45,13 +45,13 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     UserService userService;
     @Autowired
     IOrganizationService organizationService;
-
+    
     @Autowired
     IStorageService storageService;
-
+    
     @Autowired
     CheckInLogMapper checkInLogMapper;
-
+    
     /**
      * 获取指定课程的信息
      *
@@ -66,7 +66,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         return course2DTO(course);
     }
-
+    
     /**
      * 通过课程代码获取指定课程的信息
      *
@@ -81,7 +81,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         return course2DTO(course);
     }
-
+    
     /**
      * 获取所有课程
      *
@@ -97,7 +97,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         List<CourseDTO> dtoList = coursePage.getRecords().stream().map(this::course2DTO).collect(Collectors.toList());
         return PageWrapper.fromList(coursePage, dtoList);
     }
-
+    
     /**
      * 获取某个学生的选课信息
      *
@@ -116,20 +116,20 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         if (userCourses.size() == 0) {
             return new PageWrapper<>();
         }
-        log.info("" + userCoursePage.getRecords());
+        log.debug("" + userCoursePage.getRecords());
         // 获取课程详情
         Set<Long> courseIDSet = userCourses
                 .stream()
                 .map(UserCourse::getCourseId)
                 .collect(Collectors.toSet());
-
+        
         QueryWrapper<Course> courseQuery = new QueryWrapper<Course>().in("id", courseIDSet);
-
+        
         List<Course> userElectedCourse = courseMapper.selectList(courseQuery);
         List<CourseDTO> dtoList = userElectedCourse.stream().map(this::course2DTO).collect(Collectors.toList());
         return PageWrapper.fromList(userCoursePage, dtoList);
     }
-
+    
     /**
      * 选择某个课程的所有学生
      *
@@ -139,7 +139,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      */
     @Override
     public PageWrapper<CourseStudentDTO> getCourseStudentsById(long courseId, PageSort pageSort) {
-
+        
         Page<Long> idPage = userCourseMapper.listElected(courseId, pageSort.getPage());
         List<CourseStudentDTO> students = new ArrayList<>(idPage.getRecords().size());
         for (Long userId : idPage.getRecords()) {
@@ -151,7 +151,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         return PageWrapper.fromList(idPage, students);
     }
-
+    
     /**
      * 修改课程信息
      *
@@ -172,7 +172,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         courseMapper.updateById(toModify);
         return this.getCourseById(courseDTO.getId());
     }
-
+    
     /**
      * 更新课程封面
      *
@@ -187,14 +187,14 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
             throw HttpStatusException.notFound();
         }
         String filename = storageService.storeFile(uploaded);
-
+        
         Course course = new Course();
         course.setId(courseId);
         course.setAvatar(filename);
         courseMapper.updateById(course);
         return storageService.getFullUrl(filename);
     }
-
+    
     /**
      * 获取某个老师教的课
      *
@@ -204,7 +204,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      */
     @Override
     public PageWrapper<CourseDTO> listTaughtCourse(long uid, PageSort pageSort) {
-
+        
         // 获取老师创建的课的id
         QueryWrapper<Course> courseQuery = new QueryWrapper<Course>().eq("creator", uid);
         Page<Course> coursePage = courseMapper.selectPage(pageSort.getPage(), courseQuery);
@@ -212,16 +212,16 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         List<CourseDTO> dtoList = userElectedCourse.stream().map(this::course2DTO).collect(Collectors.toList());
         return PageWrapper.fromList(coursePage, dtoList);
     }
-
-
+    
+    
     public boolean elected(long uid, long courseId) {
         return userCourseMapper.isElected(uid, courseId) != null;
     }
-
+    
     public boolean courseExists(long courseId) {
         return courseMapper.exists(courseId).isPresent();
     }
-
+    
     /**
      * 学生加入班课
      *
@@ -238,7 +238,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         if (!exists.isPresent()) {
             throw HttpStatusException.notFound("用户不存在！");
         }
-        log.info("!joinCourse!: uid: {} course:{} ", uid, courseId);
+        log.debug("!joinCourse!: uid: {} course:{} ", uid, courseId);
         boolean elected = this.elected(uid, courseId);
         if (elected) {
             throw new HttpStatusException(HttpStatus.ALREADY_REPORTED, "已经加入该课程了！");
@@ -252,10 +252,10 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         if (insert != 1) {
             throw new SuperException("加入课程失败！未知异常");
         }
-
-
+        
+        
     }
-
+    
     /**
      * 学生加入班课(通过课程代码)
      *
@@ -273,7 +273,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         joinCourse(uid, course.getId());
     }
-
+    
     String getStateMessage(Integer state) {
         String msg;
         switch (state) {
@@ -288,7 +288,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         return msg;
     }
-
+    
     /**
      * 创建班课
      *
@@ -307,7 +307,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         courseMapper.insert(course);
         return getCourseById(course.getId());
     }
-
+    
     /**
      * 创建课程
      *
@@ -319,7 +319,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         userCourseMapper.deleteByCourseId(courseID);
         courseMapper.deleteById(courseID);
     }
-
+    
     /**
      * 退出课程
      *
@@ -330,8 +330,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     public void quitCourse(long uid, long courseId) {
         userCourseMapper.quit(uid, courseId);
     }
-
-
+    
+    
     private CourseDTO course2DTO(Course entity) {
         CourseDTO dto = new CourseDTO();
         dto.setId(entity.getId());
@@ -339,7 +339,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         dto.setDescription(entity.getDescription());
         dto.setCourseClass(entity.getCourseClass());
         dto.setName(entity.getName());
-
+        
         dto.setSchedule(entity.getSchedule());
         dto.setEndTime(entity.getEndTime());
         dto.setSemester(entity.getSemester());
@@ -353,7 +353,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         Long teacher = entity.getCreator();
         dto.setTeacherId(teacher);
         dto.setTeacherName(userService.getRealNameById(teacher));
-
+        
         Long schoolMajorID = entity.getSchoolMajor();
         if (schoolMajorID != null) {
             dto.setSchoolMajorID(schoolMajorID);
@@ -363,12 +363,12 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
                 String joined = StringUtil.join(schoolDto.getParents(), schoolDto.getName());
                 dto.setSchoolMajorName(joined);
             }
-
+            
         }
         return dto;
     }
-
-
+    
+    
     private Course dto2Entity(CourseDTO courseDTO) {
         Course entity = new Course();
         entity.setId(courseDTO.getId());

@@ -100,6 +100,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/avatar/**",
             "/randomString",
             "/randomNumberString",
+            "/accounts/unique/**"
     };
     
     // System WHITELIST
@@ -111,8 +112,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/oauth/callback/**",
             "/users/signup",
             "/auth/password/*",
-            "/sms/**",
-            "/account/unique/**"
+            "/sms/**"
+        
     };
     
     

@@ -6,6 +6,7 @@ import dev.chenjr.attendance.dao.mapper.MenuMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IMenuService;
 import dev.chenjr.attendance.service.dto.MenuDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class MenuService implements IMenuService {
   
@@ -140,10 +142,43 @@ public class MenuService implements IMenuService {
       throw HttpStatusException.notFound();
     }
     MenuDTO menuDTO = menu2dto(menu);
-    menuDTO.setChildrenCount(menuMapper.childrenCount(menuId));
+    List<Menu> children = menuMapper.getChildren(menuId);
+    List<MenuDTO> childrenDto = new ArrayList<>(children.size());
+    for (Menu child : children) {
+      MenuDTO childDto = menu2dto(child);
+      childDto.setChildrenCount(menuMapper.childrenCount(child.getId()));
+      childrenDto.add(childDto);
+    }
+    menuDTO.setSubs(childrenDto);
+    menuDTO.setChildrenCount(childrenDto.size());
     return menuDTO;
   }
   
+  /**
+   * 排序子菜单项
+   *
+   * @param menuId 菜单id
+   * @param orders 顺序
+   * @return 排序后的子菜单
+   */
+  @Override
+  public MenuDTO orderSubMenus(long menuId, List<Long> orders) {
+    log.debug("期望顺序: {}", orders);
+    List<Long> oldOrders = menuMapper.getChildrenIds(menuId);
+    log.debug("原顺序: {}", oldOrders);
+    
+    oldOrders.removeAll(orders);
+    orders.addAll(oldOrders);
+    List<Menu> orderedMenu = new ArrayList<>(orders.size());
+    for (int i = 0; i < orders.size(); i++) {
+      Long orderedId = orders.get(i);
+      orderedMenu.add(new Menu(orderedId, 1 + i));
+    }
+    log.debug("新顺序:{}", orders);
+    
+    menuMapper.updateOrderBatch(orderedMenu);
+    return getMenu(menuId);
+  }
   
   private Menu dto2menu(MenuDTO dto) {
     Menu menu = new Menu();

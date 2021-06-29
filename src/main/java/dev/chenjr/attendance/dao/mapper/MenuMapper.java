@@ -2,6 +2,7 @@ package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.Menu;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,4 +25,19 @@ public interface MenuMapper extends MyBaseMapper<Menu> {
   
   @Select("SELECT count(id) FROM menu WHERE parent_id=#{parent_id} AND id!=#{parent_id} limit 1")
   int childrenCount(long parent_id);
+  
+  @Select("SELECT id FROM menu WHERE parent_id=#{menuId} AND id!=#{parent_id} ORDER BY order_value")
+  List<Long> getChildrenIds(long menuId);
+  
+  @Update("<script> UPDATE menu " +
+          "SET order_value =   " +
+          "<foreach item=\"item\" collection=\"list\" open=\"CASE\" separator=\" \" close=\"END\" > " +
+          "   WHEN id = #{item.id} THEN #{item.orderValue}" +
+          "</foreach>  " +
+          "WHERE id IN " +
+          "<foreach item=\"item\" collection=\"list\"  open=\"(\" separator=\",\" close=\")\">" +
+          "#{item.id}" +
+          " </foreach> " +
+          "</script> ")
+  void updateOrderBatch(List<Menu> toUpdate);
 }

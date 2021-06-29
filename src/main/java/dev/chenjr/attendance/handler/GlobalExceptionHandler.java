@@ -20,18 +20,18 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+    
     @Operation(hidden = true)
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<RestResponse<?>> handleDAOException(DataAccessException daoEx, HttpServletRequest request) {
         RestResponse<?> error;
         Throwable rootCause = daoEx.getRootCause();
         String message = rootCause.getMessage();
-
+        
         if (message == null) {
             message = "";
         }
-
+        
         if (daoEx instanceof DuplicateKeyException) {
             /* Unique 约束不满足  */
             String[] split = message.split("'");
@@ -44,57 +44,57 @@ public class GlobalExceptionHandler {
             error = RestResponse.error(HttpStatus.BAD_REQUEST, request, "类型不匹配:" + message);
         } else {
             // 未知问题
-            rootCause.printStackTrace();
+            log.error("未知错误", rootCause);
             error = RestResponse.error(HttpStatus.BAD_REQUEST, request,
                     "DAO Error @ " + daoEx.getClass().getTypeName());
         }
-
+        
         HttpStatus httpStatus = HttpStatus.resolve(error.status);
         if (httpStatus == null) {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return new ResponseEntity<>(error, httpStatus);
     }
-
+    
     @Operation(hidden = true)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public RestResponse<?> handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error("Global Handler, {},{}", request.toString(), ex.getMessage());
-        ex.printStackTrace();
+        log.error("Exception:", ex);
         return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, request, ex.getMessage());
     }
-
+    
     @Operation(hidden = true)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public RestResponse<?> handleSQLException(SQLIntegrityConstraintViolationException ex, HttpServletRequest request) {
         log.error(request.toString(), ex.getMessage());
-        ex.printStackTrace();
+        log.error("SQL 异常:", ex);
         return RestResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, request, "SQL ERROR!");
     }
-
+    
     @Operation(hidden = true)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler({
             HttpRequestMethodNotSupportedException.class,
     })
     public RestResponse<?> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
-
+        
         log.error("{}:{},{}", ex.getClass().getTypeName(), request.toString(), ex.getMessage());
         return RestResponse.error(HttpStatus.METHOD_NOT_ALLOWED, request, ex.getMessage());
     }
-
+    
     @Operation(hidden = true)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler({
             TokenException.class,
     })
     public RestResponse<?> handleTokenException(TokenException ex, HttpServletRequest request) {
-
+        
         log.error("{}:{},{}", ex.getClass().getTypeName(), request.toString(), ex.getMessage());
         return RestResponse.error(HttpStatus.UNAUTHORIZED, request, ex.getMessage());
     }
-
-
+    
+    
 }

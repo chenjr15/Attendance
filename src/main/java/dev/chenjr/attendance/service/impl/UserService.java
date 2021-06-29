@@ -4,8 +4,7 @@ package dev.chenjr.attendance.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.dao.mapper.AccountMapper;
-import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.dao.mapper.*;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IStorageService;
@@ -44,6 +43,12 @@ public class UserService implements IUserService {
     
     @Autowired
     OrganizationService organizationService;
+    @Autowired
+    UserRoleMapper userRoleMapper;
+    @Autowired
+    UserCourseMapper userCourseMapper;
+    @Autowired
+    CheckInLogMapper checkInLogMapper;
     
     @Override
     public User getUserById(long id) {
@@ -149,6 +154,9 @@ public class UserService implements IUserService {
     @Override
     public void deleteByUid(long uid) {
         accountMapper.deleteByUid(uid);
+        userRoleMapper.removeAllRole(uid);
+        userCourseMapper.deleteByUser(uid);
+        checkInLogMapper.deleteByUser(uid);
         userMapper.deleteById(uid);
     }
     

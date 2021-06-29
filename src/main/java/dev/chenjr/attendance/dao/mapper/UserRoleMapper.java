@@ -1,6 +1,6 @@
 package dev.chenjr.attendance.dao.mapper;
 
-import dev.chenjr.attendance.dao.entity.Role;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import dev.chenjr.attendance.dao.entity.UserRole;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
@@ -29,12 +29,17 @@ public interface UserRoleMapper extends MyBaseMapper<UserRole> {
     Optional<Boolean> existsRelation(long roleId, long userId);
     
     @Delete("DELETE  FROM user_role WHERE role_id=#{roleId} AND user_id=#{userId} limit 1 ")
-    Optional<Boolean> deleteRelation(long roleId, long userId);
+    void deleteRelation(long roleId, long userId);
     
-    @Select("SELECT * FROM user_role WHERE user_id=#{userId}")
-    List<Role> getUserRole(long userId);
+    @Select("SELECT role_id FROM user_role WHERE user_id=#{userId}")
+    List<Long> getUserRole(long userId);
     
     @Delete("DELETE  FROM user_role WHERE user_id=#{userId}")
     void removeAllRole(long userId);
     
+    @Select("SELECT user_id FROM user_role WHERE role_id=#{roleId} ")
+    <E extends IPage<Long>> E getRoleUsers(long roleId, E page);
+    
+    @Delete("DELETE  FROM user_role WHERE role_id=#{roleId}")
+    void deleteByRoleId(long roleId);
 }

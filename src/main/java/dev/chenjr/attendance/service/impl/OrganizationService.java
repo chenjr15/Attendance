@@ -115,7 +115,7 @@ public class OrganizationService implements IOrganizationService {
         QueryWrapper<Organization> wr = new QueryWrapper<Organization>()
                 .eq("parent_id", organization.getId());
         List<Organization> childrenRecords = organizationMapper.selectList(wr);
-//        log.info("childrenRecords:{}", childrenRecords);
+        log.debug("childrenRecords:{}", childrenRecords);
         if (childrenRecords != null && childrenRecords.size() != 0) {
             List<OrganizationDTO> orgChildren = new ArrayList<>(childrenRecords.size());
             for (Organization child : childrenRecords) {
@@ -283,5 +283,12 @@ public class OrganizationService implements IOrganizationService {
 //        }
         
         return dto;
+    }
+    
+    public String getOrgName(long schoolMajor) {
+        
+        Organization organization = this.organizationMapper.selectById(schoolMajor);
+        
+        return organization.getFullName();
     }
 }

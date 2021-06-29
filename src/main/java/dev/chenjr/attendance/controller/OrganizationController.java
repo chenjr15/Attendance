@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrganizationController {
     @Autowired
     IOrganizationService organizationService;
-
+    
     @GetMapping("/schools")
     @Operation(description = "返回学校列表")
     public RestResponse<OrganizationDTO> listSchool(
@@ -28,20 +28,20 @@ public class OrganizationController {
         OrganizationDTO organizationPW = organizationService.listChildren(1, pageSort);
         return RestResponse.okWithData(organizationPW);
     }
-
-
+    
+    
     @GetMapping("/locations")
     @Operation(description = "返回省级行政区划")
     public RestResponse<OrganizationDTO> listLocation(
             @ParameterObject PageSort pageSort
     ) {
-        log.info("pageSort：{}", pageSort);
+        
         OrganizationDTO organizationPW = organizationService.listChildren(2, pageSort);
-
+        
         return RestResponse.okWithData(organizationPW);
     }
-
-
+    
+    
     @GetMapping("/{orgId}")
     @Operation(description = "显示某个组织结构信息,包括其儿子节点(仅一级儿子)\n" +
             "- `0` 为顶级节点, 全局父节点\n" +
@@ -51,7 +51,7 @@ public class OrganizationController {
         OrganizationDTO org = organizationService.fetch(orgId);
         return RestResponse.okWithData(org);
     }
-
+    
     @PatchMapping("/{orgId}")
     @Operation(description = "修改某个节点信息, 返回修改后的信息" +
             "- body中的 id 可以不填，会被url中的id覆盖" +
@@ -63,7 +63,7 @@ public class OrganizationController {
         OrganizationDTO modified = organizationService.modify(orgDTO);
         return RestResponse.okWithData(modified);
     }
-
+    
     @PostMapping("")
     @Operation(description = "添加某个指定类型的节点")
     public RestResponse<OrganizationDTO> createOrg(
@@ -71,16 +71,16 @@ public class OrganizationController {
         OrganizationDTO created = organizationService.create(organizationDTO);
         return RestResponse.okWithData(created);
     }
-
+    
     @DeleteMapping("/{orgId}")
     @Operation(description = "删除指定节点")
     public RestResponse<?> delOrg(
             @PathVariable long orgId) {
-
+        
         organizationService.delete(orgId);
-
+        
         return RestResponse.okWithMsg("Deleted");
     }
-
-
+    
+    
 }

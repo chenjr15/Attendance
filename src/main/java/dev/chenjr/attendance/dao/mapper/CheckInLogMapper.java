@@ -1,6 +1,7 @@
 package dev.chenjr.attendance.dao.mapper;
 
 import dev.chenjr.attendance.dao.entity.CheckInLog;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * @since 2021-04-11
  */
 public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
-
+    
     /**
      * @param id 指定的主键
      * @return !不存在返回 null, 存在返回true,
@@ -23,7 +24,7 @@ public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
     @Override
     @Select("SELECT 1 FROM check_in_log WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(long id);
-
+    
     /**
      * 根据任务id 和学生id 查找签到记录
      *
@@ -33,13 +34,16 @@ public interface CheckInLogMapper extends MyBaseMapper<CheckInLog> {
      */
     @Select("SELECT * FROM check_in_log WHERE task_id=#{taskId} and uid=#{uid} limit 1 ")
     CheckInLog selectByTaskAndStu(long taskId, long uid);
-
+    
     @Select("SELECT 1 FROM check_in_log WHERE task_id=#{taskId} and uid=#{uid} limit 1")
     Boolean isChecked(long uid, long taskId);
-
+    
     @Select("SELECT COALESCE(SUM(experience),0) FROM check_in_log WHERE course_id=#{courseId} and uid=#{uid} ")
     int totalExpInCourse(long courseId, long uid);
-
+    
     @Select("SELECT uid FROM check_in_log WHERE task_id=#{taskId}")
     List<Long> listChecked(long taskId);
+    
+    @Delete("DELETE  FROM check_in_log WHERE uid=#{uid} ")
+    void deleteByUser(long uid);
 }

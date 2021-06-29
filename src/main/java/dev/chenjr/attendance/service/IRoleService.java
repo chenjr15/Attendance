@@ -1,7 +1,8 @@
 package dev.chenjr.attendance.service;
 
-import dev.chenjr.attendance.service.dto.RoleDTO;
+import dev.chenjr.attendance.service.dto.*;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -96,4 +97,80 @@ public interface IRoleService extends IService {
      * @param id 用户id
      */
     void initUser(Long id);
+    
+    /**
+     * 获取角色下的所有用户
+     *
+     * @param roleId   角色id
+     * @param pageSort 分页
+     * @return 用户列表
+     */
+    PageWrapper<UserDTO> getRoleUsers(long roleId, PageSort pageSort);
+    
+    /**
+     * 获取角色下的所有菜单
+     *
+     * @param roleId 角色id
+     * @return 菜单列表
+     */
+    PageWrapper<MenuDTO> getRoleMenus(long roleId);
+    
+    /**
+     * 给某个角色增加菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id
+     */
+    void addMenuToRole(long roleId, long menuId);
+    
+    /**
+     * 给某个角色批量增加菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id列表
+     */
+    void addMenuToRole(long roleId, List<Long> menuId);
+    
+    /**
+     * 批量删除角色可以访问的菜单
+     *
+     * @param roleId   角色id
+     * @param menuList 菜单id列表
+     */
+    void removeMenuToRole(long roleId, List<Long> menuList);
+    
+    /**
+     * 删除角色的菜单访问权限
+     *
+     * @param roleId 角色id
+     * @param menuId 菜单id
+     */
+    void removeMenuToRole(long roleId, long menuId);
+    
+    Collection<Long> getUserMenuId(Long id);
+    
+    /**
+     * 完全修改某个角色的菜单权限(所给即所得)
+     *
+     * @param roleId   角色id
+     * @param menuList 菜单id列表
+     */
+    void setRoleMenus(long roleId, List<Long> menuList);
+    
+    /**
+     * 给某个用户设置的角色，设置后仅有给定的角色
+     *
+     * @param userId  用户id
+     * @param roleIds 角色列表
+     * @return 完整角色列表
+     */
+    List<RoleDTO> setUserRoles(long userId, List<Long> roleIds);
+    
+    /**
+     * 给用户添加角色
+     *
+     * @param userId 用户id
+     * @param roleId 角色
+     */
+    void addRoleToUser(long userId, Long roleId);
 }

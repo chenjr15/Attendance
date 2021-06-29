@@ -77,4 +77,36 @@ public class MenuController {
     MenuDTO modified = menuService.modifyMenu(menuDTO);
     return RestResponse.okWithData(modified);
   }
+  
+  @PutMapping("/{menuId}/orders")
+  @Operation(description = "排序子菜单项, 如果给定的子菜单id列表不是完整的子菜单列表的话，" +
+          "会将给定的id按给定顺序排在前面，剩下的按原来的顺序排在后面。\n" +
+          "假如有原顺序：\n" +
+          "```\n" +
+          "A---\n" +
+          "  |-B\n" +
+          "  |-C\n" +
+          "  |-D\n" +
+          "  |-E\n" +
+          "```\n" +
+          "给定排序列表是:\n" +
+          "```\n" +
+          "E,C\n" +
+          "```\n" +
+          "则排序后的顺序应该是\n" +
+          "```\n" +
+          "A---\n" +
+          "  |-E\n" +
+          "  |-C\n" +
+          "  |-B\n" +
+          "  |-D\n" +
+          "```\n" +
+          "")
+  public RestResponse<MenuDTO> orderMenu(
+          @PathVariable long menuId,
+          @RequestBody List<Long> orders
+  ) {
+    MenuDTO ordered = menuService.orderSubMenus(menuId, orders);
+    return RestResponse.okWithData(ordered);
+  }
 }

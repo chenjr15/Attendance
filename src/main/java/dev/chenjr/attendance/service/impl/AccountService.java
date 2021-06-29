@@ -113,16 +113,16 @@ public class AccountService extends BaseService implements IAccountService {
      */
     @Override
     public boolean checkPasswordAndAccount(String account, String rawPassword) {
-        log.info("Checking: " + account + " with " + rawPassword);
+        log.debug("Checking: " + account + " with " + rawPassword);
         User user = userService.getUserByAccount(account);
         if (user == null) {
-            log.info("User not found!");
+            log.debug("User not found!");
             return false;
         }
         Account accountInfo;
         accountInfo = accountMapper.getByUid(user.getId());
         if (accountInfo == null) {
-            log.info("localAuth not found!");
+            log.debug("localAuth not found!");
             
             return false;
         }
@@ -221,14 +221,14 @@ public class AccountService extends BaseService implements IAccountService {
                     //过滤空的账号(未设置的)
                     .filter(account -> StringUtil.notEmpty(account.getAccount()))
                     .forEach(account -> {
-                        log.info("changing: {}", account);
+                        log.debug("changing: {}", account);
                         account.createBy(uid);
                         accountMapper.insert(account);
                     });
         } else {
             // 修改已有账号信息
             accounts.forEach(account -> {
-                log.info("changing: {}", account);
+                log.debug("changing: {}", account);
                 account.setToken(passwordHash);
                 account.updateBy(uid);
                 accountMapper.updateToken(account);
@@ -294,7 +294,7 @@ public class AccountService extends BaseService implements IAccountService {
     @Override
     public boolean checkPasswordHash(String encodedPassword, String rawPassword) {
         
-        log.info("encoded: " + encodedPassword + " raw: " + rawPassword);
+        log.debug("encoded: " + encodedPassword + " raw: " + rawPassword);
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
     
@@ -316,7 +316,7 @@ public class AccountService extends BaseService implements IAccountService {
     @Override
     public User currentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info(principal.toString());
+        log.debug(principal.toString());
         if (principal instanceof dev.chenjr.attendance.dao.entity.User) {
             return (User) principal;
         }
@@ -326,7 +326,7 @@ public class AccountService extends BaseService implements IAccountService {
     
     @Override
     public void bindThirdParty(BindThirdPartyDTO thirdPartyDTO) {
-        log.info("{}", thirdPartyDTO);
+        log.debug("{}", thirdPartyDTO);
         boolean exists = this.accountExists(thirdPartyDTO.getAccessToken());
         if (exists) {
             throw new SuperException("用户已绑定其他账号，请先解绑！");

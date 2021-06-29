@@ -4,8 +4,7 @@ package dev.chenjr.attendance.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import dev.chenjr.attendance.dao.entity.User;
-import dev.chenjr.attendance.dao.mapper.AccountMapper;
-import dev.chenjr.attendance.dao.mapper.UserMapper;
+import dev.chenjr.attendance.dao.mapper.*;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IStorageService;
@@ -42,6 +41,14 @@ public class UserService implements IUserService {
     @Autowired
     RoleService roleService;
     
+    @Autowired
+    OrganizationService organizationService;
+    @Autowired
+    UserRoleMapper userRoleMapper;
+    @Autowired
+    UserCourseMapper userCourseMapper;
+    @Autowired
+    CheckInLogMapper checkInLogMapper;
     
     @Override
     public User getUserById(long id) {
@@ -66,7 +73,7 @@ public class UserService implements IUserService {
     public User getUserByPhone(String phone) {
         User user = userMapper.getByPhone(phone);
         if (user == null) {
-            log.info("User not found by phone.");
+            log.error("User not found by phone.");
         }
         return user;
     }
@@ -121,10 +128,16 @@ public class UserService implements IUserService {
     @Transactional
     public UserDTO createAndInitUser(UserDTO dto) {
         User user = dto2user(dto);
-        this.createUser(user);
+        user = this.createUser(user);
         dto.setId(user.getId());
         accountService.initUser(dto.getId());
-        roleService.initUser(dto.getId());
+        if (dto.getRoles() == null || dto.getRoles().size() == 0) {
+            
+            roleService.initUser(dto.getId());
+        } else {
+            List<Long> roleId = dto.getRoles().stream().map(RoleDTO::getId).collect(Collectors.toList());
+            roleService.setUserRoles(dto.getId(), roleId);
+        }
         return getUser(user.getId());
     }
     
@@ -147,6 +160,9 @@ public class UserService implements IUserService {
     @Override
     public void deleteByUid(long uid) {
         accountMapper.deleteByUid(uid);
+        userRoleMapper.removeAllRole(uid);
+        userCourseMapper.deleteByUser(uid);
+        checkInLogMapper.deleteByUser(uid);
         userMapper.deleteById(uid);
     }
     
@@ -214,7 +230,6 @@ public class UserService implements IUserService {
         desiredUser.setId(desiredDto.getId());
         //desiredUser.setPhone(desiredDto.getPhone());
         desiredUser.setRealName(desiredDto.getRealName());
-        // TODO 性别类型
         desiredUser.setGender(desiredDto.getGenderValue());
         desiredUser.setSchoolMajor(desiredDto.getSchoolMajorID());
         desiredUser.setAcademicId(desiredDto.getAcademicId());
@@ -268,7 +283,13 @@ public class UserService implements IUserService {
         dto.setAcademicId(user.getAcademicId());
         dto.setLoginName(user.getLoginName());
         dto.setRealName(user.getRealName());
-        dto.setSchoolMajorID(user.getSchoolMajor());
+        Long schoolMajor = user.getSchoolMajor();
+        if (schoolMajor != null) {
+            dto.setSchoolMajorID(schoolMajor);
+            String orgName = organizationService.getOrgName(schoolMajor);
+            dto.setSchoolMajorName(orgName);
+        }
+        
         String avatar = user.getAvatar();
         String avatarUrl = storageService.getFullUrl(avatar);
         dto.setAvatar(avatarUrl);
@@ -276,6 +297,9 @@ public class UserService implements IUserService {
         String sexName = dictionaryService.getCacheDictDetail("sex", user.getGender(), "未知");
         dto.setGender(sexName);
         dto.setGenderValue(user.getGender());
+        List<RoleDTO> userRole = roleService.getUserRole(user.getId());
+        dto.setRoles(userRole);
+        
         return dto;
     }
     
@@ -288,6 +312,7 @@ public class UserService implements IUserService {
         user.setEmail(dto.getEmail());
         user.setRealName(dto.getRealName());
         user.setLoginName(dto.getLoginName());
+        user.setGender(dto.getGenderValue());
         return user;
     }
 }

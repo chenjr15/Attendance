@@ -6,18 +6,25 @@ import dev.chenjr.attendance.dao.mapper.MenuMapper;
 import dev.chenjr.attendance.exception.HttpStatusException;
 import dev.chenjr.attendance.service.IMenuService;
 import dev.chenjr.attendance.service.dto.MenuDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class MenuService implements IMenuService {
   
   @Autowired
   MenuMapper menuMapper;
+  
+  @Autowired
+  RoleService roleService;
+  
   
   /**
    * 返回整个目录树
@@ -38,10 +45,16 @@ public class MenuService implements IMenuService {
    */
   @Override
   public List<MenuDTO> listUserMenu(User user) {
-    return getSubMenus(0);
+    Collection<Long> menuId = roleService.getUserMenuId(user.getId());
+    return getSubMenus(0, menuId);
   }
   
+  
   private List<MenuDTO> getSubMenus(long id) {
+    return this.getSubMenus(id, null);
+  }
+  
+  private List<MenuDTO> getSubMenus(long id, Collection<Long> allowedId) {
     List<Menu> children = menuMapper.getChildren(id);
     List<MenuDTO> menuList = new ArrayList<>(children.size());
     
@@ -49,10 +62,14 @@ public class MenuService implements IMenuService {
       if (child.getId() == id) {
         continue;
       }
+      if (allowedId != null && !allowedId.contains(child.getId())) {
+        // 不允许该权限，pass
+        continue;
+      }
       MenuDTO childDTO = menu2dto(child);
       
       /* 递归 */
-      List<MenuDTO> subMenus = getSubMenus(child.getId());
+      List<MenuDTO> subMenus = getSubMenus(child.getId(), allowedId);
       
       childDTO.setSubs(subMenus);
       childDTO.setChildrenCount(subMenus.size());
@@ -61,7 +78,6 @@ public class MenuService implements IMenuService {
     
     return menuList;
   }
-  
   
   /**
    * 创建菜单
@@ -126,10 +142,43 @@ public class MenuService implements IMenuService {
       throw HttpStatusException.notFound();
     }
     MenuDTO menuDTO = menu2dto(menu);
-    menuDTO.setChildrenCount(menuMapper.childrenCount(menuId));
+    List<Menu> children = menuMapper.getChildren(menuId);
+    List<MenuDTO> childrenDto = new ArrayList<>(children.size());
+    for (Menu child : children) {
+      MenuDTO childDto = menu2dto(child);
+      childDto.setChildrenCount(menuMapper.childrenCount(child.getId()));
+      childrenDto.add(childDto);
+    }
+    menuDTO.setSubs(childrenDto);
+    menuDTO.setChildrenCount(childrenDto.size());
     return menuDTO;
   }
   
+  /**
+   * 排序子菜单项
+   *
+   * @param menuId 菜单id
+   * @param orders 顺序
+   * @return 排序后的子菜单
+   */
+  @Override
+  public MenuDTO orderSubMenus(long menuId, List<Long> orders) {
+    log.debug("期望顺序: {}", orders);
+    List<Long> oldOrders = menuMapper.getChildrenIds(menuId);
+    log.debug("原顺序: {}", oldOrders);
+    
+    oldOrders.removeAll(orders);
+    orders.addAll(oldOrders);
+    List<Menu> orderedMenu = new ArrayList<>(orders.size());
+    for (int i = 0; i < orders.size(); i++) {
+      Long orderedId = orders.get(i);
+      orderedMenu.add(new Menu(orderedId, 1 + i));
+    }
+    log.debug("新顺序:{}", orders);
+    
+    menuMapper.updateOrderBatch(orderedMenu);
+    return getMenu(menuId);
+  }
   
   private Menu dto2menu(MenuDTO dto) {
     Menu menu = new Menu();

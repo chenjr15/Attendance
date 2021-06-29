@@ -82,7 +82,7 @@ public class JwtTokenUtil {
         try {
             Claims claims = getClaimsFromToken(token);
             username = claims.get("sub", String.class);
-            log.info("get username from token:" + username);
+            log.debug("get username from token:" + username);
         } catch (Exception e) {
             username = null;
         }

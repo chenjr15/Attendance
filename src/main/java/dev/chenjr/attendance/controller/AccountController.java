@@ -14,22 +14,22 @@ import org.springframework.web.bind.annotation.*;
  * 处理单个Account的逻辑
  */
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/accounts")
 @Tag(name = "帐号", description = "账号的CRUD")
 public class AccountController {
     @Autowired
     IAccountService accountService;
-
+    
     @GetMapping("/{account}")
     public RestResponse<?> getAccountInfo() {
         return RestResponse.notImplemented();
     }
-
+    
     @DeleteMapping("/{account}")
     public RestResponse<?> lockAccountInfo() {
         return RestResponse.notImplemented();
     }
-
+    
     @GetMapping("/unique/{account}")
     @Operation(description = "判断账号是否已经存在", responses = {
             @ApiResponse(responseCode = "400", description = "账号已存在"),
@@ -40,8 +40,8 @@ public class AccountController {
         if (exists) {
             throw new AccountExistsException();
         }
-
+        
         return RestResponse.ok();
     }
-
+    
 }

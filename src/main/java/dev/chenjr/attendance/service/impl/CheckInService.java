@@ -212,7 +212,7 @@ public class CheckInService implements ICheckInService {
         switch (logDTO.getStatus()) {
             case STATUS_NORMAL:
                 /* 如果是教师操作应该不限制操作,所以可以传空的经纬度，但是学生的话必须传 */
-                if (logDTO.getLatitude() != null || logDTO.getLongitude() != null) {
+                if (logDTO.getLatitude() != null && logDTO.getLongitude() != null) {
                     /* 计算签到距离*/
                     double distance = distanceSimplify(
                             logDTO.getLatitude(), logDTO.getLongitude(),
@@ -222,7 +222,6 @@ public class CheckInService implements ICheckInService {
                     if (distance > 1000) {
                         throw HttpStatusException.badRequest("签到失败：你太远了！" + distance + "m");
                     }
-                    logDTO.setDistance(distance);
                 }
                 
                 logDTO.setExperience(2);

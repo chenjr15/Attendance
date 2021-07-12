@@ -186,6 +186,8 @@ public class CheckInService implements ICheckInService {
      */
     @Override
     public CheckInLogDTO checkIn(User operator, Long taskId, CheckInLogDTO logDTO) {
+        log.info("签到任务:task id:{}, {}", taskId, logDTO);
+        
         /* 1. 检查签到任务是否存在 */
         CheckInTask task = taskMapper.selectById(taskId);
         if (task == null) {

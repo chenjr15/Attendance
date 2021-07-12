@@ -337,7 +337,10 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     private CourseDTO course2DTO(Course entity) {
         CourseDTO dto = new CourseDTO();
         dto.setId(entity.getId());
-        dto.setCode(entity.getCode().toUpperCase(Locale.ROOT));
+        dto.setCode(entity.getCode());
+        if (entity.getCode() != null) {
+            dto.setCode(entity.getCode().toUpperCase(Locale.ROOT));
+        }
         dto.setDescription(entity.getDescription());
         dto.setCourseClass(entity.getCourseClass());
         dto.setName(entity.getName());
@@ -375,7 +378,10 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         Course entity = new Course();
         entity.setId(courseDTO.getId());
         entity.setName(courseDTO.getName());
-        entity.setCode(courseDTO.getCode().toLowerCase(Locale.ROOT));
+        entity.setCode(courseDTO.getCode());
+        if (entity.getCode() != null) {
+            entity.setCode(entity.getCode().toLowerCase(Locale.ROOT));
+        }
         entity.setCourseClass(courseDTO.getCourseClass());
         entity.setSchedule(courseDTO.getSchedule());
         entity.setDescription(courseDTO.getDescription());

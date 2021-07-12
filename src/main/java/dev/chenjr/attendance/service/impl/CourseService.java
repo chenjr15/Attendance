@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +72,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      */
     @Override
     public CourseDTO getCourseByCode(String code) {
+        code = code.toLowerCase(Locale.ROOT);
         Course course = courseMapper.getByCode(code);
         if (course == null) {
             throw HttpStatusException.notFound("找不到课程！");
@@ -302,7 +300,11 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
             courseDTO.setStartTime(LocalDateTime.now());
         }
         Course course = dto2Entity(courseDTO);
-        course.setCode(RandomUtil.randomString(10));
+        String code = RandomUtil.randomString(6);
+        while (courseMapper.codeExists(code) != null) {
+            code = RandomUtil.randomString(6);
+        }
+        course.setCode(code);
         course.createBy(creator.getId());
         courseMapper.insert(course);
         return getCourseById(course.getId());
@@ -335,7 +337,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
     private CourseDTO course2DTO(Course entity) {
         CourseDTO dto = new CourseDTO();
         dto.setId(entity.getId());
-        dto.setCode(entity.getCode());
+        dto.setCode(entity.getCode().toUpperCase(Locale.ROOT));
         dto.setDescription(entity.getDescription());
         dto.setCourseClass(entity.getCourseClass());
         dto.setName(entity.getName());
@@ -373,7 +375,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         Course entity = new Course();
         entity.setId(courseDTO.getId());
         entity.setName(courseDTO.getName());
-        entity.setCode(courseDTO.getCode());
+        entity.setCode(courseDTO.getCode().toLowerCase(Locale.ROOT));
         entity.setCourseClass(courseDTO.getCourseClass());
         entity.setSchedule(courseDTO.getSchedule());
         entity.setDescription(courseDTO.getDescription());

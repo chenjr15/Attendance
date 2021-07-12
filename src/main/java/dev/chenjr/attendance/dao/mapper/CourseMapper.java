@@ -18,7 +18,7 @@ public interface CourseMapper extends MyBaseMapper<Course> {
     @Override
     @Select("SELECT 1 FROM course WHERE id=#{id} limit 1 ")
     Optional<Boolean> exists(@Param("id") long id);
-
+    
     /**
      * 通过课程代码获取课程
      *
@@ -27,5 +27,8 @@ public interface CourseMapper extends MyBaseMapper<Course> {
      */
     @Select("SELECT * FROM course WHERE code=#{code}")
     Course getByCode(@Param("code") String courseCode);
-
+    
+    @Select("SELECT 1 FROM course WHERE  code=#{code} limit 1 ")
+    Boolean codeExists(String code);
+    
 }

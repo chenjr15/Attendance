@@ -20,18 +20,17 @@ import dev.chenjr.attendance.utils.RandomUtil;
 import dev.chenjr.attendance.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@EnableCaching()
 @Service
 @Slf4j
 public class CourseService extends ServiceImpl<CourseMapper, Course> implements ICourseService {
@@ -59,6 +58,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 课程信息
      */
     @Override
+    @Cacheable(cacheNames = "Course", key = "#id")
     public CourseDTO getCourseById(long id) {
         Course course = courseMapper.selectById(id);
         if (course == null) {
@@ -66,7 +66,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         return course2DTO(course);
     }
-    
+
     /**
      * 通过课程代码获取指定课程的信息
      *
@@ -74,7 +74,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 课程信息
      */
     @Override
+    @Cacheable(cacheNames = "Course", key = "#code")
     public CourseDTO getCourseByCode(String code) {
+        code = code.toLowerCase(Locale.ROOT);
         Course course = courseMapper.getByCode(code);
         if (course == null) {
             throw HttpStatusException.notFound("找不到课程！");
@@ -89,6 +91,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 分页后的课程
      */
     @Override
+    @Cacheable(cacheNames = "CourseList",key = "#pageSort.curPage-#pageSort.pageSize" ,condition = "#pageSort.returns eq null ")
     public PageWrapper<CourseDTO> listAllCourse(PageSort pageSort) {
         Page<Course> coursePage = pageSort.getPage();
         QueryWrapper<Course> queryWrapper = new QueryWrapper<>();
@@ -138,6 +141,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 学生列表
      */
     @Override
+//    @Cacheable
     public PageWrapper<CourseStudentDTO> getCourseStudentsById(long courseId, PageSort pageSort) {
         
         Page<Long> idPage = userCourseMapper.listElected(courseId, pageSort.getPage());
@@ -159,6 +163,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 修改后的dto
      */
     @Override
+    @CachePut(cacheNames = "Course",key = "#courseDTO.id")
     public CourseDTO modifyCourse(CourseDTO courseDTO) {
         Optional<Boolean> exists = courseMapper.exists(courseDTO.getId());
         if (!exists.isPresent()) {
@@ -181,6 +186,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 新头像的url
      */
     @Override
+    @CachePut(cacheNames = "Course",key = "#courseId")
     public String modifyAvatar(Long courseId, MultipartFile uploaded) {
         Optional<Boolean> exists = courseMapper.exists(courseId);
         if (!exists.isPresent()) {
@@ -302,7 +308,11 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
             courseDTO.setStartTime(LocalDateTime.now());
         }
         Course course = dto2Entity(courseDTO);
-        course.setCode(RandomUtil.randomString(10));
+        String code = RandomUtil.randomString(6);
+        while (courseMapper.codeExists(code) != null) {
+            code = RandomUtil.randomString(6);
+        }
+        course.setCode(code);
         course.createBy(creator.getId());
         courseMapper.insert(course);
         return getCourseById(course.getId());
@@ -315,6 +325,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @param actor    删除者
      */
     @Override
+    @CacheEvict(cacheNames = "Course",key = "#courseID")
     public void deleteCourse(long courseID, User actor) {
         userCourseMapper.deleteByCourseId(courseID);
         courseMapper.deleteById(courseID);
@@ -336,6 +347,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         CourseDTO dto = new CourseDTO();
         dto.setId(entity.getId());
         dto.setCode(entity.getCode());
+        if (entity.getCode() != null) {
+            dto.setCode(entity.getCode().toUpperCase(Locale.ROOT));
+        }
         dto.setDescription(entity.getDescription());
         dto.setCourseClass(entity.getCourseClass());
         dto.setName(entity.getName());
@@ -374,6 +388,9 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         entity.setId(courseDTO.getId());
         entity.setName(courseDTO.getName());
         entity.setCode(courseDTO.getCode());
+        if (entity.getCode() != null) {
+            entity.setCode(entity.getCode().toLowerCase(Locale.ROOT));
+        }
         entity.setCourseClass(courseDTO.getCourseClass());
         entity.setSchedule(courseDTO.getSchedule());
         entity.setDescription(courseDTO.getDescription());

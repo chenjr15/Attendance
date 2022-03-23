@@ -166,6 +166,9 @@ public class CheckInTaskController {
             @RequestBody @Validated CheckInLogDTO logDTO,
             @PathVariable Long taskId
     ) {
+        if (logDTO.getUid() == null) {
+            logDTO.setUid(user.getId());
+        }
         logDTO = checkInService.checkIn(user, taskId, logDTO);
         return RestResponse.okWithData(logDTO);
     }

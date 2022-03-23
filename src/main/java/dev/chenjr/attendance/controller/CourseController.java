@@ -1,5 +1,6 @@
 package dev.chenjr.attendance.controller;
 
+
 import dev.chenjr.attendance.dao.entity.User;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ICourseService;
@@ -7,16 +8,17 @@ import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 @RestController
 @RequestMapping(value = "/courses")
 @Tag(name = "课程", description = "选课、退课、已选课程、课程编辑")
+@Slf4j
 public class CourseController {
     @Autowired
     private ICourseService courseService;
@@ -37,7 +39,10 @@ public class CourseController {
     public RestResponse<CourseDTO> getCourseByCode(
             @PathVariable String courseCode
     ) {
+        long start = System.currentTimeMillis();
         CourseDTO course = courseService.getCourseByCode(courseCode);
+        long end = System.currentTimeMillis();
+        log.error("used"+(end-start));
         return RestResponse.okWithData(course);
     }
 

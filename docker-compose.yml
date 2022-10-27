@@ -1,19 +1,25 @@
 version: '3'
 services:
   backend:
+    container_name: attendance_backend
     build:
       context: .
     environment:
+      - TZ=Asia/Shanghai
       # 指定redis 密码和mysql 密码，请和下面的service配置保持一致
       - SPRING_REDIS_PASSWORD=98dl2OReFEfreC5uyn
       - SPRING_DATASOURCE_PASSWORD=reC5uyn4mpFveC
+      # 花里胡哨
+      - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     ports:
       - 8080:8080
   # 数据库
   db:
+    container_name: attendance_db
     image: mysql:8
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
+      - TZ=Asia/Shanghai
       - MYSQL_ROOT_PASSWORD=6YljlyVW8V8xpVGA
       - MYSQL_PASSWORD=reC5uyn4mpFveC
       - MYSQL_USER=attendance
@@ -27,6 +33,7 @@ services:
     image: phpmyadmin
     container_name: attendance_phpmyadmin
     environment:
+      - TZ=Asia/Shanghai
       - PMA_HOST=db
       # - PMA_ABSOLUTE_URI=http://127.0.0.1:8081/
     ports:
@@ -35,8 +42,11 @@ services:
     volumes:
       - /sessions
   redis:
+    container_name: attendance_redis
     image: redis:6-alpine
     command: redis-server --requirepass 98dl2OReFEfreC5uyn
+    environment:
+      - TZ=Asia/Shanghai
 
 volumes:
   db:

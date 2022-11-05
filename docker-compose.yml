@@ -1,18 +1,43 @@
-version: '3'
+version: '3.9'
 services:
   backend:
+    profiles:
+      - prod
     container_name: attendance_backend
     build:
       context: .
     environment:
       - TZ=Asia/Shanghai
       # 指定redis 密码和mysql 密码，请和下面的service配置保持一致
-      - SPRING_REDIS_PASSWORD=98dl2OReFEfreC5uyn
-      - SPRING_DATASOURCE_PASSWORD=reC5uyn4mpFveC
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - TOKEN_SECRET=${TOKEN_SECRET}
       # 花里胡哨
       - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     ports:
       - 8080:8080
+  backend_dev:
+    # 开发环境容器，只要容器提供gradle环境即可
+    container_name: attendance_backend_dev
+    image: gradle:6-jdk11-alpine
+    command: gradle bootRun --info
+    working_dir: /home/gradle/attendance/
+    volumes:
+      # 直接映射本地文件夹，避免复制
+      - .:/home/gradle/attendance
+      - m2:/home/gradle/.m2/repository
+      - gradle:/home/gradle/.gradle
+    environment:
+      - TZ=Asia/Shanghai
+      # 指定redis 密码和mysql 密码，请和下面的service配置保持一致
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - TOKEN_SECRET=${TOKEN_SECRET}
+      # 花里胡哨
+      - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
+    ports:
+      - 8080:8080
+
   # 数据库
   db:
     container_name: attendance_db
@@ -20,8 +45,8 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       - TZ=Asia/Shanghai
-      - MYSQL_ROOT_PASSWORD=6YljlyVW8V8xpVGA
-      - MYSQL_PASSWORD=reC5uyn4mpFveC
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_USER=attendance
       - MYSQL_DATABASE=Attendance
     #    ports:
@@ -40,16 +65,24 @@ services:
       # 数据库管理端口
       - 8081:80
     volumes:
-      - /sessions
+      - padm_sess:/sessions
+    depends_on:
+      - db
   redis:
     container_name: attendance_redis
     image: redis:6-alpine
-    command: redis-server --requirepass 98dl2OReFEfreC5uyn
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
       - TZ=Asia/Shanghai
 
 volumes:
   db:
-  dbsession:
-  rdb:
+    name: atds_db
+  # 可以映射到主机的maven 缓存
+  m2:
+    name: m2
+  gradle:
+    name: gradle
+  padm_sess:
+    name: atds_padm_sess
 

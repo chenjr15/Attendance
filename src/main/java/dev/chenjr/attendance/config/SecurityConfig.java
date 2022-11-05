@@ -111,6 +111,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/password",
             "/oauth/callback/**",
             "/users/signup",
+            //"/users",
+            "/users/init-setup",
             "/auth/password/*",
             "/sms/**"
         

@@ -154,6 +154,10 @@ public class UserService implements IUserService {
         if (exists == null) {
             exists = userMapper.emailExists(account);
         }
+        if (exists == null) {
+            exists = userMapper.loginNameExists(account);
+        }
+        
         return exists != null;
     }
     

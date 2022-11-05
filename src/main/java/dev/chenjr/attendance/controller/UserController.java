@@ -1,16 +1,15 @@
 package dev.chenjr.attendance.controller;
 
 import dev.chenjr.attendance.dao.entity.User;
+import dev.chenjr.attendance.exception.AccountExistsException;
 import dev.chenjr.attendance.exception.UserNotFoundException;
 import dev.chenjr.attendance.service.IAccountService;
 import dev.chenjr.attendance.service.ISmsService;
 import dev.chenjr.attendance.service.IUserService;
-import dev.chenjr.attendance.service.dto.PageSort;
-import dev.chenjr.attendance.service.dto.PageWrapper;
-import dev.chenjr.attendance.service.dto.RestResponse;
-import dev.chenjr.attendance.service.dto.UserDTO;
+import dev.chenjr.attendance.service.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -23,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @RestController
@@ -44,6 +44,24 @@ public class UserController {
             @ParameterObject PageSort pageSort) {
         PageWrapper<UserDTO> users = this.userService.listUser(pageSort);
         return RestResponse.okWithData(users);
+    }
+    
+    
+    @SecurityRequirements()
+    @GetMapping("/init-setup")
+    @Operation(description = "创建管理员, 仅一次")
+    public RestResponse<TokenUidDTO> initSetup() {
+        // 重复执行会报unique 索引冲突
+        boolean exists = userService.userExists("initadmin");
+        if (exists) {
+            throw new AccountExistsException();
+        }
+        RegisterRequest admin = new RegisterRequest();
+        admin.setRealName("初始管理员");
+        admin.setLoginName("initadmin");
+        admin.setPhone("13456789123");
+        admin.setRoles(Arrays.asList("admin", "teacher"));
+        return RestResponse.okWithData(accountService.register(admin));
     }
     
     @PostMapping("")

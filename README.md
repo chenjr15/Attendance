@@ -12,7 +12,7 @@ Attendance Project 后端源代码
 
 ## 运行指南
 
-1. 下载源码
+#### 1. 下载源码
 
 ```shell
 git clone https://github.com/chenjr15/Attendance.git
@@ -26,23 +26,23 @@ cd Attendance
 > 该方法需要Docker 环境，无需设置复杂的MySQL和Redis，推荐在Linux环境做。
 >
 
-0. 安装Docker
+#### 0. 安装Docker
 
 推荐使用国内源的教程: [Docker Community Edition 镜像使用帮助](https://mirrors.tuna.tsinghua.edu.cn/help/docker-ce/)
 
 官方安装教程在这: [Docker Engine installation overview](https://docs.docker.com/engine/install/)
 
-1. 安装Docker Compose Plugin
+#### 1. 安装Docker Compose Plugin
 
 参考官方教程[Install the Compose plugin](https://docs.docker.com/compose/install/linux/)
 
-注意，这里不是python版本的Docker Compose，这是用Go实现的v2版本。
+> 注意，这里不是python版本的Docker Compose，这是用Go实现的v2版本。
 
 ```shell
 apt update && apt install  -y docker-compose-plugin
 ```
 
-2. 生成环境变量配置文件
+#### 2. 生成环境变量配置文件
 
 生成一个随机的密码配置文件，目前包含MySQL密码、Redis密码、Token密钥
 
@@ -50,7 +50,7 @@ apt update && apt install  -y docker-compose-plugin
 bash gen_env.sh .env
 ```
 
-3. 启动！
+#### 3. 启动！
 
 ```shell
 docker compose up -d 
@@ -68,7 +68,7 @@ docker compose up -d
 修改配置文件在这里，注意外面的`.env`文件会覆盖这个配置
 `src\main\resources\application.properties`
 
-1. 作为开发服务器运行
+#### 1. 作为开发服务器运行
 
 ```
 ./gradlew bootRun
@@ -76,7 +76,7 @@ docker compose up -d
 
 然后打开[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) 即可看到接口文档信息
 
-2. 编译打包
+#### 2. 编译打包
 
 ```
 ./gradlew bootjar

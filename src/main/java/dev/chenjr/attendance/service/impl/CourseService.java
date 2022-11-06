@@ -66,7 +66,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
         }
         return course2DTO(course);
     }
-
+    
     /**
      * 通过课程代码获取指定课程的信息
      *
@@ -91,7 +91,7 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 分页后的课程
      */
     @Override
-    @Cacheable(cacheNames = "CourseList",key = "#pageSort.curPage-#pageSort.pageSize" ,condition = "#pageSort.returns eq null ")
+    @Cacheable(cacheNames = "CourseList", key = "#pageSort.curPage-#pageSort.pageSize", condition = "#pageSort.returns eq null ")
     public PageWrapper<CourseDTO> listAllCourse(PageSort pageSort) {
         Page<Course> coursePage = pageSort.getPage();
         QueryWrapper<Course> queryWrapper = new QueryWrapper<>();
@@ -163,7 +163,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 修改后的dto
      */
     @Override
-    @CachePut(cacheNames = "Course",key = "#courseDTO.id")
+    @CachePut(cacheNames = "Course", key = "#courseDTO.id")
+    @CacheEvict(cacheNames = "CourseList", allEntries = true)
     public CourseDTO modifyCourse(CourseDTO courseDTO) {
         Optional<Boolean> exists = courseMapper.exists(courseDTO.getId());
         if (!exists.isPresent()) {
@@ -186,7 +187,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 新头像的url
      */
     @Override
-    @CachePut(cacheNames = "Course",key = "#courseId")
+    @CachePut(cacheNames = "Course", key = "#courseId")
+    @CacheEvict(cacheNames = "CourseList", allEntries = true)
     public String modifyAvatar(Long courseId, MultipartFile uploaded) {
         Optional<Boolean> exists = courseMapper.exists(courseId);
         if (!exists.isPresent()) {
@@ -303,6 +305,8 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @return 创建结果
      */
     @Override
+    @CachePut(cacheNames = "Course", key = "#courseDTO.id")
+    @CacheEvict(cacheNames = "CourseList", allEntries = true)
     public CourseDTO createCourse(User creator, CourseDTO courseDTO) {
         if (courseDTO.getStartTime() == null) {
             courseDTO.setStartTime(LocalDateTime.now());
@@ -325,7 +329,10 @@ public class CourseService extends ServiceImpl<CourseMapper, Course> implements 
      * @param actor    删除者
      */
     @Override
-    @CacheEvict(cacheNames = "Course",key = "#courseID")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "Course", key = "#courseID"),
+            @CacheEvict(cacheNames = "CourseList", allEntries = true)
+    })
     public void deleteCourse(long courseID, User actor) {
         userCourseMapper.deleteByCourseId(courseID);
         courseMapper.deleteById(courseID);

@@ -6,7 +6,7 @@ import static dev.chenjr.attendance.service.dto.validation.PhoneNumberValidator.
 public class AccountValidator extends PatternValidator<Account> {
 
 
-    public static final String RE_EMAIL = "^[a-zA-Z][a-zA-Z0-9]{2,19}@([a-zA-Z0-9]\\.)+[a-zA-Z0-9]{2,}$";
+    public static final String RE_EMAIL = "^[a-zA-Z0-9]{2,19}@([a-zA-Z0-9]+\\.)+[a-zA-Z0-9]{2,}$";
     public static final String RE_ACCOUNT = "(" + RE_LOGIN_NAME + ")|(" + RE_PHONE_NUMBER + ")|(" + RE_EMAIL + ")";
 
     @Override
